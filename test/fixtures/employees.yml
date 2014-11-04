@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  account_id: 10001
+  name: 陈祖业
+
+two:
+  account_id: 10002
+  name: 胡押金

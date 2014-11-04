@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>帐号:</strong>
+  <%= @client.account_id %>
+</p>
+
+<p>
+  <strong>名称:</strong>
+  <%= @client.name %>
+</p>
+
+<%= link_to '编辑', edit_client_path(@client) %> |
+<%= link_to '返回', clients_path %>

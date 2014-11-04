@@ -7,7 +7,7 @@
         <td><%= product.name %></td>
         <td><%= link_to '查看', product %></td>
         <td><%= link_to '编辑', edit_product_path(product) %></td>
-        <td><%= link_to '删除', product, method: :delete, data: { confirm: "你确定删除\"#{product.name}\"" } %></td>
+        <td><%= link_to '删除', product, method: :delete, data: { confirm: "你确定删除产品\"#{product.name}\"吗？" } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -15,4 +15,4 @@
 
 <br>
 
-<%= link_to '新建', new_product_path %>
+<%= link_to '新建产品', new_product_path %>

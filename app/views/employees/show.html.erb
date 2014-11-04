@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>帐户:</strong>
+  <%= @employee.account_id %>
+</p>
+
+<p>
+  <strong>名称:</strong>
+  <%= @employee.name %>
+</p>
+
+<%= link_to '编辑', edit_employee_path(@employee) %> |
+<%= link_to '返回', employees_path %>

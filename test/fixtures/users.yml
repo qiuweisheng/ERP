@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  account_id: 1
+  name: 柜台1
+  password_digest: <%= BCrypt::Password.create('secret') %>
+  type: 
+
+two:
+  account_id: 2
+  name: 柜台2
+  password_digest: <%= BCrypt::Password.create('secret') %>
+  type: 

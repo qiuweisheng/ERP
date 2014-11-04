@@ -1,19 +1,19 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Account:</strong>
-  <%= @user.account_id %>
+  <strong>帐户:</strong>
+  <%= '%5d' % @user.account_id %>
 </p>
 
 <p>
-  <strong>Name:</strong>
+  <strong>名称:</strong>
   <%= @user.name %>
 </p>
 
 <p>
-  <strong>Type:</strong>
-  <%= @user.type %>
+  <strong>类型:</strong>
+  <%= @user.account_type %>
 </p>
 
-<%= link_to 'Edit', edit_user_path(@user) %> |
-<%= link_to 'Back', users_path %>
+<%= link_to '编辑', edit_user_path(@user) %> |
+<%= link_to '返回', users_path %>

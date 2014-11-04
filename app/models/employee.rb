@@ -4,8 +4,7 @@ class Employee < ActiveRecord::Base
   MIN_ID = 10001
   MAX_ID = Rails.env == 'test' ? 10010 : 19999
 
-  validates :name, presence: true
+  auto_generate_account_id
 
-  before_create :set_account_id
-  before_update :reset_account_id
+  validates :name, presence: true
 end

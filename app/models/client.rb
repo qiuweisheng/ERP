@@ -4,8 +4,7 @@ class Client < ActiveRecord::Base
   MIN_ID = 20001
   MAX_ID = Rails.env == 'test' ? 20099 : 29999
 
-  validates :name, presence: true
+  auto_generate_account_id
 
-  before_create :set_account_id
-  before_update :reset_account_id
+  validates :name, presence: true
 end

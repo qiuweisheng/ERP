@@ -11,27 +11,29 @@
     </div>
   <% end %>
 
+  <% unless @user.account_id.nil? %>
+    <div>
+      帐户<br>
+      <%= '%5d' % @user.account_id %>
+    </div>
+  <% end %>
   <div class="field">
-    <%= f.label :account_id %><br>
-    <%= f.number_field :account_id %>
-  </div>
-  <div class="field">
-    <%= f.label :name %><br>
+    <%= f.label :name, '名称' %><br>
     <%= f.text_field :name %>
   </div>
   <div class="field">
-    <%= f.label :password %><br>
+    <%= f.label :password, '密码' %><br>
     <%= f.password_field :password %>
   </div>
   <div class="field">
-    <%= f.label :password_confirmation %><br>
+    <%= f.label :password_confirmation, '确认密码' %><br>
     <%= f.password_field :password_confirmation %>
   </div>
   <div class="field">
-    <%= f.label :type %><br>
-    <%= f.text_field :type %>
+    <%= f.label :account_type, '类型' %><br>
+    <%= f.select :account_type, User::TYPE_TEXT.zip(User::TYPE) %>
   </div>
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit '提交' %>
   </div>
 <% end %>

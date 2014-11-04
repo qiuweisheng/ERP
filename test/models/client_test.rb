@@ -10,11 +10,17 @@ class ClientTest < ActiveSupport::TestCase
     client.save
     assert_equal clients(:two).account_id + 1, client.account_id
 
-    client = clients(:two)
+    Client.delete_all
+    (Client::MIN_ID..Client::MAX_ID).each do
+      client = Client.new @attrs
+      client.save
+    end
+    client = Client.first
     old_id = client.account_id
+    client.destroy
     client = Client.new @attrs
     client.save
-    assert old_id, client.account_id
+    assert_equal old_id, client.account_id
   end
 
   test 'account_id should not exceed maximum id' do

@@ -4,10 +4,10 @@ one:
   account_id: 1
   name: 柜台1
   password_digest: <%= BCrypt::Password.create('secret') %>
-  type: 
+  account_type: admin
 
 two:
   account_id: 2
   name: 柜台2
   password_digest: <%= BCrypt::Password.create('secret') %>
-  type: 
+  account_type: admin

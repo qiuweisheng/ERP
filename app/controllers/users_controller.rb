@@ -15,6 +15,7 @@ class UsersController < ApplicationController
   # GET /users/new
   def new
     @user = User.new
+    @user.account_type = 'admin'
   end
 
   # GET /users/1/edit
@@ -69,6 +70,6 @@ class UsersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params.require(:user).permit(:account_id, :name, :password, :password_confirmation, :type)
+      params.require(:user).permit(:name, :password, :password_confirmation, :account_type)
     end
 end

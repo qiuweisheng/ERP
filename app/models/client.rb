@@ -4,7 +4,7 @@ class Client < ActiveRecord::Base
   MIN_ID = 20001
   MAX_ID = Rails.env == 'test' ? 20099 : 29999
 
-  auto_generate_account_id
+  has_unique_account_id
 
   validates :name, presence: true
 end

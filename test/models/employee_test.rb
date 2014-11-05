@@ -28,10 +28,9 @@ class EmployeeTest < ActiveSupport::TestCase
     (Employee::MIN_ID..Employee::MAX_ID).each do
       employee = Employee.new @attrs
       employee.save
-      assert_not_includes employee.errors[:account_id], "帐户达到最大值:#{Employee::MAX_ID}"
     end
     employee = Employee.new @attrs
-    employee.save
+    assert employee.invalid?
     assert_includes employee.errors[:account_id], "帐户达到最大值:#{Employee::MAX_ID}"
   end
 

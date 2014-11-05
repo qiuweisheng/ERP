@@ -3,16 +3,16 @@ require 'test_helper'
 class UserTest < ActiveSupport::TestCase
   setup do
     @attrs = {
-        name: '柜台3',
+        name: '经理',
         password: 'secret',
-        account_type: 'admin'
+        permission: 1
     }
   end
 
   test 'account_id should be generated automatically on creation' do
     user = User.new @attrs
     user.save
-    assert_equal users(:two).account_id + 1, user.account_id
+    assert_equal users(:level_3).account_id + 1, user.account_id
 
     User.delete_all
     (User::MIN_ID..User::MAX_ID).each do
@@ -32,15 +32,14 @@ class UserTest < ActiveSupport::TestCase
     (User::MIN_ID..User::MAX_ID).each do
       user = User.new @attrs
       user.save
-      assert_not_includes user.errors[:account_id], "帐户达到最大值:#{User::MAX_ID}"
     end
     user = User.new @attrs
-    user.save
+    assert user.invalid?
     assert_includes user.errors[:account_id], "帐户达到最大值:#{User::MAX_ID}"
   end
 
   test 'account_id should not change on update' do
-    user = users(:one)
+    user = users(:super)
     old_id = user.account_id
     user.account_id += 1
     user.save
@@ -59,16 +58,16 @@ class UserTest < ActiveSupport::TestCase
     assert user.invalid?
   end
 
-  test 'account_type should be present' do
+  test 'permission should be present' do
     user = User.new @attrs
-    user.account_type = nil
+    user.permission = nil
     assert user.invalid?
   end
 
-  test "account_type should be in #{User::TYPE}" do
+  test 'permission should be in range 0..3' do
     user = User.new @attrs
     assert user.valid?
-    user.account_type = 'user'
+    user.permission = 4
     assert user.invalid?
   end
 
@@ -76,11 +75,17 @@ class UserTest < ActiveSupport::TestCase
     attrs = {
         name: '大老板',
         password: 'secret',
-        account_type: 'super'
+        permission: 0
     }
     User.delete_all
     User.new(attrs).save
     user = User.new(attrs)
+    assert user.invalid?
+  end
+
+  test 'should not prompt permission' do
+    user = users(:admin)
+    user.permission = 0
     assert user.invalid?
   end
 end

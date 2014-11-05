@@ -1,0 +1,21 @@
+<h1>登陆</h1>
+
+<div>
+  <% if flash[:alert] %>
+  <p><%= flash[:alert] %></p>
+  <% end %>
+
+  <%= form_tag do %>
+    <div>
+      <%= label_tag :account_id, '账号' %>
+      <%= text_field_tag :account_id, params[:account_id] %>
+    </div>
+    <div>
+      <%= label_tag :password, '密码' %>
+      <%= password_field_tag :password, params[:password] %>
+    </div>
+    <div>
+      <%= submit_tag '登陆' %>
+    </div>
+  <% end %>
+</div>

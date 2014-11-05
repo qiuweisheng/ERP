@@ -28,10 +28,9 @@ class ClientTest < ActiveSupport::TestCase
     (Client::MIN_ID..Client::MAX_ID).each do
       client = Client.new @attrs
       client.save
-      assert_not_includes client.errors[:account_id], "帐户达到最大值:#{Client::MAX_ID}"
     end
     client = Client.new @attrs
-    client.save
+    assert client.invalid?
     assert_includes client.errors[:account_id], "帐户达到最大值:#{Client::MAX_ID}"
   end
 

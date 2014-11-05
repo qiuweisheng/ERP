@@ -1,4 +1,7 @@
 class UsersController < ApplicationController
+  skip_before_action :need_super_permission
+  before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
+  before_action :need_login, except: [:index, :new, :create, :destroy]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
 
   # GET /users
@@ -10,16 +13,18 @@ class UsersController < ApplicationController
   # GET /users/1
   # GET /users/1.json
   def show
+    check_permission
   end
 
   # GET /users/new
   def new
     @user = User.new
-    @user.account_type = 'admin'
+    @user.permission = 1
   end
 
   # GET /users/1/edit
   def edit
+    check_permission
   end
 
   # POST /users
@@ -70,6 +75,13 @@ class UsersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params.require(:user).permit(:name, :password, :password_confirmation, :account_type)
+      params.require(:user).permit(:name, :password, :password_confirmation, :permission)
+    end
+
+    def check_permission
+      login_user = User.find(session[:user_id])
+      unless login_user == @user or [0, 1].include? login_user.permission
+        redirect_to back_location(user_url(login_user)), notice: '帐户权限不够'
+      end
     end
 end

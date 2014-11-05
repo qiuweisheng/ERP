@@ -30,8 +30,8 @@
     <%= f.password_field :password_confirmation %>
   </div>
   <div class="field">
-    <%= f.label :account_type, '类型' %><br>
-    <%= f.select :account_type, User::TYPE_TEXT.zip(User::TYPE) %>
+    <%= f.label :permission, '类型' %><br>
+    <%= f.select :permission, select_tag_options %>
   </div>
   <div class="actions">
     <%= f.submit '提交' %>

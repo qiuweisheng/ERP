@@ -15,7 +15,7 @@
       <tr>
         <td><%= user.account_id %></td>
         <td><%= user.name %></td>
-        <td><%= user.account_type %></td>
+        <td><%= user.permission %></td>
         <td><%= link_to '查看', user %></td>
         <td><%= link_to '编辑', edit_user_path(user) %></td>
         <td><%= link_to '删除', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>

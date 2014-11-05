@@ -2,16 +2,21 @@ module Account
   extend ActiveSupport::Concern
 
   module ClassMethods
-    def auto_generate_account_id
-      before_create :set_account_id
-      before_update :reset_account_id
+    def has_unique_account_id
+      before_validation :set_account_id, on: :create
+      before_validation :reset_account_id, on: :update
+      validates_each :account_id do |record|
+        unless record.account_id <= record.class::MAX_ID
+          record.errors.add(:account_id, "帐户达到最大值:#{record.class::MAX_ID}")
+        end
+      end
     end
   end
 
-  private
+  protected
     def set_account_id
       new_id = self.class.order('account_id DESC').first.try(:account_id)
-      if new_id && new_id < self.class::MAX_ID
+      if new_id and new_id < self.class::MAX_ID
         self.account_id = new_id + 1
         return
       end
@@ -24,10 +29,6 @@ module Account
         else
           new_id = account.account_id
         end
-      end
-      if new_id >= self.class::MAX_ID
-        self.errors.add(:account_id, "帐户达到最大值:#{self.class::MAX_ID}")
-        return false
       end
       self.account_id = new_id + 1
     end

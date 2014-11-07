@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>类型:</strong>
+  <%= text_for_record_type @record.record_type %>
+</p>
+
+<p>
+  <strong>原料:</strong>
+  <%= @record.origin.name %>
+</p>
+
+<p>
+  <strong>成品:</strong>
+  <%= @record.product.name %>
+</p>
+
+<p>
+  <strong>重量:</strong>
+  <%= @record.weight %>
+</p>
+
+<p>
+  <strong>数量:</strong>
+  <%= @record.count %>
+</p>
+
+<p>
+  <strong>柜台:</strong>
+  <%= @record.user.name %>
+</p>
+
+<p>
+  <strong>客户:</strong>
+  <%= @record.client.name %>
+</p>
+
+<%= link_to '编辑', edit_record_path(@record) %> |
+<%= link_to '返回', records_path %>

@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  record_type: 0
+  origin_id: 1
+  product_id: 1
+  weight: 99.8
+  count: 0
+  user_id: 4
+  client_id: 1
+  client_type: Employee
+
+two:
+  record_type: 1
+  origin_id: 1
+  product_id: 2
+  weight: 99.0
+  count: 0
+  user_id: 4
+  client_id: 1
+  client_type: Employee

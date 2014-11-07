@@ -1,0 +1,45 @@
+<%= form_for(@record) do |f| %>
+  <% if @record.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@record.errors.count, "error") %> prohibited this record from being saved:</h2>
+
+      <ul>
+      <% @record.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :record_type, '类型' %><br>
+    <%= f.select :record_type, select_options_for_record_type %>
+  </div>
+  <div class="field">
+    <%= f.label :origin_id, '原料' %><br>
+    <%= f.select :origin_id, select_options_for_product %>
+  </div>
+  <div class="field">
+    <%= f.label :product_id, '成品' %><br>
+    <%= f.select :product_id, select_options_for_product %>
+  </div>
+  <div class="field">
+    <%= f.label :weight, '重量' %><br>
+    <%= f.text_field :weight %>
+  </div>
+  <div class="field">
+    <%= f.label :count, '数量' %><br>
+    <%= f.number_field :count %>
+  </div>
+  <div class="field">
+    <%= f.label :user_id, '柜台' %><br>
+    <%= f.select :user_id, select_options_for_user %>
+  </div>
+  <div class="field">
+    <%= f.label :client, '客户' %><br>
+    <%= f.select :client, select_options_for_client %>
+  </div>
+  <div class="actions">
+    <%= f.submit '提交' %>
+  </div>
+<% end %>

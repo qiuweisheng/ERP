@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141104004739) do
+ActiveRecord::Schema.define(version: 20141106115537) do
 
   create_table "clients", force: true do |t|
     t.integer  "account_id"
@@ -32,6 +32,24 @@ ActiveRecord::Schema.define(version: 20141104004739) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "records", force: true do |t|
+    t.integer  "record_type"
+    t.integer  "origin_id"
+    t.integer  "product_id"
+    t.decimal  "weight"
+    t.integer  "count",       default: 0
+    t.integer  "user_id"
+    t.integer  "client_id"
+    t.string   "client_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "records", ["client_id", "client_type"], name: "index_records_on_client_id_and_client_type"
+  add_index "records", ["origin_id"], name: "index_records_on_origin_id"
+  add_index "records", ["product_id"], name: "index_records_on_product_id"
+  add_index "records", ["user_id"], name: "index_records_on_user_id"
 
   create_table "users", force: true do |t|
     t.integer  "account_id"

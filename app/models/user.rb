@@ -1,11 +1,6 @@
 class User < ActiveRecord::Base
-  include Account
-
-  MIN_ID = 1
-  MAX_ID = Rails.env == 'test' ? 10 : 9999
-
-  has_secure_password
-  has_unique_account_id
+  has_many :transactions, as: :client, class_name: 'Record'
+  has_many :records
 
   validates :name, presence: true
   validates :permission, presence: true, inclusion: { in: 0..3 }
@@ -19,4 +14,12 @@ class User < ActiveRecord::Base
       record.errors.add(attr, '不能提升权限')
     end
   end
+
+  has_secure_password
+
+  MIN_ID = 1
+  MAX_ID = Rails.env == 'test' ? 10 : 9999
+
+  include Account
+  has_unique_account_id
 end

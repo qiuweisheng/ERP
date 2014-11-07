@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  id: 1
   account_id: 20001
   name: 王尼玛
 
 two:
+  id: 2
   account_id: 20002
   name: 王大锤

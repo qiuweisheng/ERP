@@ -12,14 +12,14 @@
   <% end %>
 <!--
   <div class="field">
-    <%= f.label :account_id, '帐号' %><br>
-    <%= f.number_field :account_id %>
+    <%= f.label :serial_number, '帐号' %><br>
+    <%= f.number_field :serial_number %>
   </div>
 -->
-  <% unless @client.account_id.nil? %>
+  <% unless @client.serial_number.nil? %>
   <div>
-    帐户<br>
-    <%= sprintf('%5d', @client.account_id) %>
+    编号<br>
+    <%= sprintf('%5d', @client.serial_number) %>
   </div>
   <% end %>
   <div class="field">

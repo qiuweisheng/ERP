@@ -20,7 +20,7 @@ module RecordsHelper
     options = []
     User.all.each do |user|
       unless [0,1].include? user.permission
-        options << ["#{user.account_id}-#{user.name}", user.id]
+        options << ["#{user.serial_number}-#{user.name}", user.id]
       end
     end
     options
@@ -30,11 +30,11 @@ module RecordsHelper
     options = []
     User.all.each do |user|
       unless [0,1].include? user.permission
-        options << %W[#{user.account_id}-#{user.name} User::#{user.id}]
+        options << %W[#{user.serial_number}-#{user.name} User::#{user.id}]
       end
     end
     Employee.all.each do |employee|
-      options << %W[#{employee.account_id}-#{employee.name} Employee::#{employee.id}]
+      options << %W[#{employee.serial_number}-#{employee.name} Employee::#{employee.id}]
     end
     Client.all.each do |client|
       options << %W[#{client.name} Client::#{client.id}]

@@ -2,8 +2,10 @@
 
 one:
   id: 1
+  serial_number: 40001
   name: 金砂
 
 two:
   id: 2
+  serial_number: 40001
   name: 021-金线

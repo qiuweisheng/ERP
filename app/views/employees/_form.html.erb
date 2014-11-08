@@ -11,15 +11,19 @@
     </div>
   <% end %>
 
-  <% unless @employee.account_id.nil? %>
+  <% unless @employee.serial_number.nil? %>
     <div>
-      帐户<br>
-      <%= sprintf('%5d', @employee.account_id) %>
+      编号<br>
+      <%= sprintf('%5d', @employee.serial_number) %>
     </div>
   <% end %>
   <div class="field">
     <%= f.label :name, '名称' %><br>
     <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :department_id, '部门' %><br>
+    <%= f.select :department_id, select_options_for_department %>
   </div>
   <div class="actions">
     <%= f.submit '提交' %>

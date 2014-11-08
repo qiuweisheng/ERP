@@ -6,6 +6,6 @@ class Client < ActiveRecord::Base
   MIN_ID = 20001
   MAX_ID = Rails.env == 'test' ? 20099 : 29999
 
-  include Account
-  has_unique_account_id
+  include SerialNumber
+  has_serial_number
 end

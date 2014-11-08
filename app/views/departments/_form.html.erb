@@ -1,0 +1,27 @@
+<%= form_for(@department) do |f| %>
+  <% if @department.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@department.errors.count, "error") %> prohibited this department from being saved:</h2>
+
+      <ul>
+      <% @department.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% unless @department.serial_number.nil? %>
+    <div>
+      编号<br>
+      <%= sprintf('%5d', @department.serial_number) %>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= f.label :name, '名称' %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="actions">
+    <%= f.submit '提交' %>
+  </div>
+<% end %>

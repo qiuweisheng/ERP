@@ -2,28 +2,28 @@
 
 super:
   id: 1
-  account_id: 1
+  serial_number: 1
   name: 大老板
   password_digest: <%= BCrypt::Password.create('secret') %>
   permission: 0
 
 admin:
   id: 2
-  account_id: 2
+  serial_number: 2
   name: 经理
   password_digest: <%= BCrypt::Password.create('secret') %>
   permission: 1
 
 level_2:
   id: 3
-  account_id: 3
+  serial_number: 3
   name: 收发部
   password_digest: <%= BCrypt::Password.create('secret') %>
   permission: 2
 
 level_3:
   id: 4
-  account_id: 4
+  serial_number: 4
   name: 柜台
   password_digest: <%= BCrypt::Password.create('secret') %>
   permission: 3

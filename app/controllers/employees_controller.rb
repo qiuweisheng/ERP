@@ -1,6 +1,6 @@
 class EmployeesController < ApplicationController
-  skip_before_action :need_super_permission
-  before_action :need_admin_permission
+  # skip_before_action :need_super_permission
+  # before_action :need_admin_permission
   before_action :set_employee, only: [:show, :edit, :update, :destroy]
 
   # GET /employees
@@ -71,6 +71,6 @@ class EmployeesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def employee_params
-      params.require(:employee).permit(:name)
+      params.require(:employee).permit(:name, :department_id)
     end
 end

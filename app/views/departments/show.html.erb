@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>编号:</strong>
+  <%= @department.serial_number %>
+</p>
+
+<p>
+  <strong>名称:</strong>
+  <%= @department.name %>
+</p>
+
+<%= link_to '编辑', edit_department_path(@department) %> |
+<%= link_to '返回', departments_path %>

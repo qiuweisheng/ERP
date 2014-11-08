@@ -9,10 +9,10 @@ class UserTest < ActiveSupport::TestCase
     }
   end
 
-  test 'account_id should be generated automatically on creation' do
+  test 'serial_number should be generated automatically on creation' do
     user = User.new @attrs
     user.save
-    assert_equal users(:level_3).account_id + 1, user.account_id
+    assert_equal users(:level_3).serial_number + 1, user.serial_number
 
     User.delete_all
     (User::MIN_ID..User::MAX_ID).each do
@@ -20,14 +20,14 @@ class UserTest < ActiveSupport::TestCase
       user.save
     end
     user = User.first
-    old_id = user.account_id
+    old_id = user.serial_number
     user.destroy
     user = User.new @attrs
     user.save
-    assert_equal old_id, user.account_id
+    assert_equal old_id, user.serial_number
   end
 
-  test 'account_id should not exceed maximum id' do
+  test 'serial_number should not exceed maximum id' do
     User.delete_all
     (User::MIN_ID..User::MAX_ID).each do
       user = User.new @attrs
@@ -35,15 +35,15 @@ class UserTest < ActiveSupport::TestCase
     end
     user = User.new @attrs
     assert user.invalid?
-    assert_includes user.errors[:account_id], "帐户达到最大值:#{User::MAX_ID}"
+    assert_includes user.errors[:serial_number], "帐户达到最大值:#{User::MAX_ID}"
   end
 
-  test 'account_id should not change on update' do
+  test 'serial_number should not change on update' do
     user = users(:super)
-    old_id = user.account_id
-    user.account_id += 1
+    old_id = user.serial_number
+    user.serial_number += 1
     user.save
-    assert_equal old_id, user.account_id
+    assert_equal old_id, user.serial_number
   end
 
   test 'name should be present' do

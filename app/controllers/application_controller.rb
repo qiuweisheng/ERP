@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   prepend_before_action :store_location
-  before_action :need_super_permission
+  # before_action :need_super_permission
 
   protected
     def authorize(permission: 0, only_check_login: false)

@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  resources :departments
+
   resources :records
 
   controller :sessions do

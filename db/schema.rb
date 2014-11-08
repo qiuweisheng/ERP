@@ -11,23 +11,34 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141106115537) do
+ActiveRecord::Schema.define(version: 20141108023034) do
 
   create_table "clients", force: true do |t|
-    t.integer  "account_id"
+    t.integer  "serial_number"
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "departments", force: true do |t|
+    t.integer  "serial_number"
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "employees", force: true do |t|
-    t.integer  "account_id"
+    t.integer  "serial_number"
     t.string   "name"
+    t.integer  "department_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
+  add_index "employees", ["department_id"], name: "index_employees_on_department_id"
+
   create_table "products", force: true do |t|
+    t.integer  "serial_number"
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -52,7 +63,7 @@ ActiveRecord::Schema.define(version: 20141106115537) do
   add_index "records", ["user_id"], name: "index_records_on_user_id"
 
   create_table "users", force: true do |t|
-    t.integer  "account_id"
+    t.integer  "serial_number"
     t.string   "name"
     t.string   "password_digest"
     t.integer  "permission"

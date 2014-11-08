@@ -2,10 +2,12 @@
 
 one:
   id: 1
-  account_id: 10001
+  serial_number: 10001
   name: 陈祖业
+  department_id: 1
 
 two:
   id: 2
-  account_id: 10002
+  serial_number: 10002
   name: 胡押金
+  department_id: 2

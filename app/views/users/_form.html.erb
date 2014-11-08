@@ -11,10 +11,10 @@
     </div>
   <% end %>
 
-  <% unless @user.account_id.nil? %>
+  <% unless @user.serial_number.nil? %>
     <div>
       帐户<br>
-      <%= '%5d' % @user.account_id %>
+      <%= '%5d' % @user.serial_number %>
     </div>
   <% end %>
   <div class="field">

@@ -1,6 +1,6 @@
 class ProductsController < ApplicationController
-  skip_before_action :need_super_permission
-  before_action :need_admin_permission
+  # skip_before_action :need_super_permission
+  # before_action :need_admin_permission
   before_action :set_product, only: [:show, :edit, :update, :destroy]
 
   # GET /products

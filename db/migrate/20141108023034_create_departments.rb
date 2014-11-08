@@ -1,6 +1,6 @@
-class CreateProducts < ActiveRecord::Migration
+class CreateDepartments < ActiveRecord::Migration
   def change
-    create_table :products do |t|
+    create_table :departments do |t|
       t.integer :serial_number
       t.string :name
 

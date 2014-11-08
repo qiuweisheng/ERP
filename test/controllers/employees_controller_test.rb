@@ -4,7 +4,8 @@ class EmployeesControllerTest < ActionController::TestCase
   setup do
     @employee = employees(:one)
     @update = {
-        name: '黄金生'
+        name: '黄金生',
+        department_id: 1
     }
   end
 
@@ -38,7 +39,7 @@ class EmployeesControllerTest < ActionController::TestCase
   end
 
   test "should update employee" do
-    patch :update, id: @employee, employee: { account_id: @employee.account_id, name: @employee.name }
+    patch :update, id: @employee, employee: { serial_number: @employee.serial_number, name: @employee.name }
     assert_redirected_to employee_path(assigns(:employee))
   end
 

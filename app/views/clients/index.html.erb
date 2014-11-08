@@ -3,7 +3,7 @@
 <table>
   <thead>
     <tr>
-      <th>账户</th>
+      <th>编号</th>
       <th>名称</th>
       <th colspan="3"></th>
     </tr>
@@ -12,11 +12,11 @@
   <tbody>
     <% @clients.each do |client| %>
       <tr>
-        <td><%= client.account_id %></td>
+        <td><%= client.serial_number %></td>
         <td><%= client.name %></td>
         <td><%= link_to '查看', client %></td>
         <td><%= link_to '编辑', edit_client_path(client) %></td>
-        <td><%= link_to '删除', client, method: :delete, data: { confirm: "你确定删除客户帐户\"#{client.account_id}\"吗？" } %></td>
+        <td><%= link_to '删除', client, method: :delete, data: { confirm: "你确定删除客户帐户\"#{client.serial_number}\"吗？" } %></td>
       </tr>
     <% end %>
   </tbody>

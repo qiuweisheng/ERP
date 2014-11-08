@@ -20,6 +20,6 @@ class User < ActiveRecord::Base
   MIN_ID = 1
   MAX_ID = Rails.env == 'test' ? 10 : 9999
 
-  include Account
-  has_unique_account_id
+  include SerialNumber
+  has_serial_number
 end

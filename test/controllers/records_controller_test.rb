@@ -6,7 +6,6 @@ class RecordsControllerTest < ActionController::TestCase
   end
 
   test "should get index" do
-    p employees(:one)
     get :index
     assert_response :success
     assert_not_nil assigns(:records)

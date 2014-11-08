@@ -3,7 +3,7 @@
 <table>
   <thead>
     <tr>
-      <th>帐户</th>
+      <th>编号</th>
       <th>名称</th>
       <th colspan="3"></th>
     </tr>
@@ -12,11 +12,11 @@
   <tbody>
     <% @employees.each do |employee| %>
       <tr>
-        <td><%= employee.account_id %></td>
+        <td><%= employee.serial_number %></td>
         <td><%= employee.name %></td>
         <td><%= link_to '查看', employee %></td>
         <td><%= link_to '编辑', edit_employee_path(employee) %></td>
-        <td><%= link_to '删除', employee, method: :delete, data: { confirm: "你确定删除员工帐户\"#{employee.account_id}\"吗？" } %></td>
+        <td><%= link_to '删除', employee, method: :delete, data: { confirm: "你确定删除员工帐户\"#{employee.serial_number}\"吗？" } %></td>
       </tr>
     <% end %>
   </tbody>

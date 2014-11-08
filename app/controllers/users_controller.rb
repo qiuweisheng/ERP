@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
-  skip_before_action :need_super_permission
-  before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
-  before_action :need_login, except: [:index, :new, :create, :destroy]
+  # skip_before_action :need_super_permission
+  # before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
+  # before_action :need_login, except: [:index, :new, :create, :destroy]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
 
   # GET /users

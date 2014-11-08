@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>编码:</strong>
+  <%= @contractor.serial_number %>
+</p>
+
+<p>
+  <strong>名称:</strong>
+  <%= @contractor.name %>
+</p>
+
+<%= link_to '编辑', edit_contractor_path(@contractor) %> |
+<%= link_to '返回', contractors_path %>

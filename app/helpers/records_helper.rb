@@ -9,36 +9,38 @@ module RecordsHelper
   end
 
   def select_options_for_product
-    options = []
-    Product.all.each do |product|
-      options << [product.name, product.id]
+    Product.all.collect do |product|
+      ["#{product.serial_number}-#{product.name}", product.id]
     end
-    options
   end
 
   def select_options_for_user
-    options = []
-    User.all.each do |user|
-      unless [0,1].include? user.permission
-        options << ["#{user.serial_number}-#{user.name}", user.id]
-      end
+    User.all.select(&->(user){ user.permission > 1 }).collect do |user|
+      ["#{user.serial_number}-#{user.name}", user.id]
     end
-    options
+  end
+
+  def select_options_for_employee
+    Employee.all.collect do |employee|
+      ["#{employee.serial_number}-#{employee.name}", employee.id]
+    end
   end
 
   def select_options_for_client
-    options = []
-    User.all.each do |user|
-      unless [0,1].include? user.permission
-        options << %W[#{user.serial_number}-#{user.name} User::#{user.id}]
-      end
+    Client.all.collect do |client|
+      ["#{client.serial_number}-#{client.name}", client.id]
     end
-    Employee.all.each do |employee|
-      options << %W[#{employee.serial_number}-#{employee.name} Employee::#{employee.id}]
+  end
+
+  def select_options_for_participant
+    options = User.all.select(&->(user){ user.permission > 1 }).collect do |user|
+      %W[#{user.serial_number}-#{user.name} User::#{user.id}]
     end
-    Client.all.each do |client|
-      options << %W[#{client.name} Client::#{client.id}]
-    end
-    options
+    options.concat(Employee.all.collect do |employee|
+      %W[#{employee.serial_number}-#{employee.name} Employee::#{employee.id}]
+    end)
+    options.concat(Client.all.collect do |client|
+      %W[#{client.serial_number}-#{client.name} Client::#{client.id}]
+    end)
   end
 end

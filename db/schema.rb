@@ -49,16 +49,21 @@ ActiveRecord::Schema.define(version: 20141108023034) do
     t.integer  "origin_id"
     t.integer  "product_id"
     t.decimal  "weight"
-    t.integer  "count",       default: 0
+    t.integer  "count",            default: 0
     t.integer  "user_id"
+    t.integer  "participant_id"
+    t.string   "participant_type"
+    t.string   "order_number",     default: ""
+    t.integer  "employee_id"
     t.integer  "client_id"
-    t.string   "client_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "records", ["client_id", "client_type"], name: "index_records_on_client_id_and_client_type"
+  add_index "records", ["client_id"], name: "index_records_on_client_id"
+  add_index "records", ["employee_id"], name: "index_records_on_employee_id"
   add_index "records", ["origin_id"], name: "index_records_on_origin_id"
+  add_index "records", ["participant_id", "participant_type"], name: "index_records_on_participant_id_and_participant_type"
   add_index "records", ["product_id"], name: "index_records_on_product_id"
   add_index "records", ["user_id"], name: "index_records_on_user_id"
 

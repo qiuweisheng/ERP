@@ -18,8 +18,8 @@ class RecordsControllerTest < ActionController::TestCase
 
   test "should create record" do
     assert_difference('Record.count') do
-      client = employees(:one)
-      post :create, record: { client: "#{client.class}::#{client.id}", count: @record.count, origin_id: @record.origin_id, product_id: @record.product_id, record_type: @record.record_type, user_id: @record.user_id, weight: @record.weight }
+      participant = employees(:one)
+      post :create, record: { participant: "#{participant.class}::#{participant.id}", count: @record.count, origin_id: @record.origin_id, product_id: @record.product_id, record_type: @record.record_type, user_id: @record.user_id, weight: @record.weight }
     end
 
     assert_redirected_to record_path(assigns(:record))
@@ -36,7 +36,7 @@ class RecordsControllerTest < ActionController::TestCase
   end
 
   test "should update record" do
-    patch :update, id: @record, record: { client_id: @record.client_id, count: @record.count, origin_id: @record.origin_id, product_id: @record.product_id, record_type: @record.record_type, user_id: @record.user_id, weight: @record.weight }
+    patch :update, id: @record, record: { client_id: @record.participant_id, count: @record.count, origin_id: @record.origin_id, product_id: @record.product_id, record_type: @record.record_type, user_id: @record.user_id, weight: @record.weight }
     assert_redirected_to record_path(assigns(:record))
   end
 

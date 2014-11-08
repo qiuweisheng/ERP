@@ -5,6 +5,7 @@
     <tr>
       <th>编号</th>
       <th>名称</th>
+      <th>部门</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -14,6 +15,7 @@
       <tr>
         <td><%= employee.serial_number %></td>
         <td><%= employee.name %></td>
+        <td><%= employee.department.name %></td>
         <td><%= link_to '查看', employee %></td>
         <td><%= link_to '编辑', edit_employee_path(employee) %></td>
         <td><%= link_to '删除', employee, method: :delete, data: { confirm: "你确定删除员工帐户\"#{employee.serial_number}\"吗？" } %></td>

@@ -36,8 +36,20 @@
     <%= f.select :user_id, select_options_for_user %>
   </div>
   <div class="field">
-    <%= f.label :client, '客户' %><br>
-    <%= f.select :client, select_options_for_client %>
+    <%= f.label :participant, '收发者' %><br>
+    <%= f.select :participant, select_options_for_participant %>
+  </div>
+  <div class="field">
+    <%= f.label :order_number, '单号' %>
+    <%= f.text_field :order_number %>
+  </div>
+  <div class="field">
+    <%= f.label :employee_id, '生产者' %>
+    <%= f.select :employee_id, select_options_for_employee, include_blank: true %>
+  </div>
+  <div class="field">
+    <%= f.label :client_id, '客户' %>
+    <%= f.select :client_id, select_options_for_client, include_blank: true %>
   </div>
   <div class="actions">
     <%= f.submit '提交' %>

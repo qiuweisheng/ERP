@@ -1,5 +1,6 @@
 class Client < ActiveRecord::Base
-  has_many :transactions, as: :client, class_name: 'Record'
+  has_many :transactions, as: :participant, class_name: 'Record'
+  has_many :records
 
   validates :name, presence: true
 

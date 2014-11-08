@@ -1,5 +1,6 @@
 class Employee < ActiveRecord::Base
-  has_many :transactions, as: :client, class_name: 'Record'
+  has_many :transactions, as: :participant, class_name: 'Record'
+  has_many :records
   belongs_to :department
 
   validates :name, presence: true

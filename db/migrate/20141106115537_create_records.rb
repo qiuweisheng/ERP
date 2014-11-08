@@ -7,7 +7,10 @@ class CreateRecords < ActiveRecord::Migration
       t.decimal :weight
       t.integer :count, default: 0
       t.references :user, index: true
-      t.references :client, index: true, polymorphic: true
+      t.references :participant, index: true, polymorphic: true
+      t.string :order_number, default: ''
+      t.references :employee, index: true
+      t.references :client, index: true
 
       t.timestamps
     end

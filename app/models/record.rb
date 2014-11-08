@@ -2,7 +2,7 @@ class Record < ActiveRecord::Base
   belongs_to :origin, class_name: 'Product'
   belongs_to :product
   belongs_to :user
-  belongs_to :client, polymorphic: true
+  belongs_to :participant, polymorphic: true
 
   validates :record_type, presence: true
   validates :origin_id, presence: true
@@ -10,6 +10,6 @@ class Record < ActiveRecord::Base
   validates :weight, presence: true, numericality: { greater_than_or_equal_to: 0.0 }
   validates :count, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :user_id, presence: true
-  validates :client_id, presence: true
-  validates :client_type, presence: true
+  validates :participant_id, presence: true
+  validates :participant_type, presence: true
 end

@@ -27,14 +27,14 @@ class RecordsController < ApplicationController
   # POST /records.json
   def create
     attrs = record_params
+    @record = Record.new(attrs)
     Product.find(attrs[:origin_id])
     Product.find(attrs[:product_id])
     User.find(attrs[:user_id])
-    klass, id = params[:record][:client].split('::')
-    client_class = klass.classify.constantize
-    client = client_class.find(id)
-    @record = Record.new(attrs)
-    @record.client = client
+    klass, id = params[:record][:participant].split('::')
+    participant_class = klass.classify.constantize
+    participant = participant_class.find(id)
+    @record.participant = participant
 
     respond_to do |format|
       if @record.save
@@ -79,6 +79,6 @@ class RecordsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def record_params
-      params.require(:record).permit(:record_type, :origin_id, :product_id, :weight, :count, :user_id)
+      params.require(:record).permit(:record_type, :origin_id, :product_id, :weight, :count, :user_id, :order_number, :employee_id, :client_id)
     end
 end

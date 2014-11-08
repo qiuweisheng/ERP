@@ -7,8 +7,8 @@ one:
   weight: 99.8
   count: 0
   user_id: 4
-  client_id: 1
-  client_type: Employee
+  participant_id: 1
+  participant_type: Employee
 
 two:
   record_type: 1
@@ -17,5 +17,5 @@ two:
   weight: 99.0
   count: 0
   user_id: 4
-  client_id: 1
-  client_type: Employee
+  participant_id: 1
+  participant_type: Employee

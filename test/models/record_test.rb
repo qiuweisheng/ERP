@@ -9,8 +9,8 @@ class RecordTest < ActiveSupport::TestCase
         weight: 0.0,
         count: 0,
         user_id: 0,
-        client_id: 0,
-        client_type: 'User'
+        participant_id: 0,
+        participant_type: 'User'
     }
   end
 
@@ -64,13 +64,13 @@ class RecordTest < ActiveSupport::TestCase
 
   test 'client_id should be present' do
     record = Record.new @attrs
-    record.client_id = nil
+    record.participant_id = nil
     assert record.invalid?
   end
 
   test 'client_type should be present' do
     record = Record.new @attrs
-    record.client_type = nil
+    record.participant_type = nil
     assert record.invalid?
   end
 end

@@ -10,5 +10,10 @@
   <%= @employee.name %>
 </p>
 
+<p>
+  <strong>部门:</strong>
+  <%= @employee.department.name %>
+</p>
+
 <%= link_to '编辑', edit_employee_path(@employee) %> |
 <%= link_to '返回', employees_path %>

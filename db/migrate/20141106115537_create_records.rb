@@ -11,6 +11,7 @@ class CreateRecords < ActiveRecord::Migration
       t.string :order_number, default: ''
       t.references :employee, index: true
       t.references :client, index: true
+      t.date :date
 
       t.timestamps
     end

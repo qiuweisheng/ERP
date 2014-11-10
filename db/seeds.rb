@@ -105,6 +105,11 @@ Employee.create([
     },
 ])
 
+Contractor.delete_all
+
+Contractor.create([
+    { name: '新新星' }
+])
 
 # Record.delete_all
 #

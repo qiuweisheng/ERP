@@ -63,6 +63,7 @@ ActiveRecord::Schema.define(version: 20141108134258) do
     t.string   "order_number",     default: ""
     t.integer  "employee_id"
     t.integer  "client_id"
+    t.date     "date"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -17,3 +17,5 @@
 
 # Ignore Rubymine IDE configure files
 /.idea
+
+db/data

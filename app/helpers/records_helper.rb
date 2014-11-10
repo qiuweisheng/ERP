@@ -42,5 +42,8 @@ module RecordsHelper
     options.concat(Client.all.collect do |client|
       %W[#{client.serial_number}-#{client.name} Client::#{client.id}]
     end)
+    options.concat(Contractor.all.collect do |contractor|
+      %W[#{contractor.serial_number}-#{contractor.name} Contractor::#{contractor.id}]
+    end)
   end
 end

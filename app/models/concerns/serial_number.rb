@@ -13,6 +13,10 @@ module SerialNumber
     end
   end
 
+  def to_s
+    serial_number and name ? "#{serial_number}-#{name}" : ''
+  end
+
   protected
     def set_serial_number
       new_id = self.class.order('serial_number DESC').first.try(:serial_number)

@@ -1,0 +1,29 @@
+html, body,
+h1, h2, h3, h4, h5, h6,
+p, div, ol, ul, form, blockquote, img,
+input, select,
+section, nav, header, footer {
+  padding: 0;
+  margin: 0;
+}
+
+body, h1, h2, h3, h4, h5, h6, pre, ode {
+  font-size: 13px;
+  font-weight: normal;
+}
+
+a {
+  text-decoration: none;
+}
+
+img {
+  vertical-align: bottom;
+}
+
+a img {
+  border: none;
+}
+
+li {
+  list-style-type: none;
+}

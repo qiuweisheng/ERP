@@ -1,0 +1,150 @@
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  min-width: 1024px;
+
+  #top_nav {
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #3b5998;
+    border-bottom: 1px solid #133783;
+    -webkit-box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .52);
+    width: auto;
+
+    ul {
+      $height: 40px;
+
+      height: $height;
+      margin-left: 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.15);
+
+      li {
+        $bottom_border: 3px;
+
+        display: inline-block;
+        float: left;
+        height: $height;
+
+        a {
+          display: block;
+          color: #fff;
+          height: $height - $bottom_border;
+          line-height: $height - $bottom_border;
+          padding: 0 15px;
+        }
+
+        a:hover {
+          border-bottom: $bottom_border solid #0084b4;
+        }
+      }
+    }
+  }
+
+  $sidebar_background_color: #232937;
+
+  #sidebar_background {
+    position: absolute;
+    top: 42px;
+    bottom: 0;
+    background-color: $sidebar_background_color;
+    width: 150px;
+    z-index: -1000;
+  }
+
+  #sidebar {
+    width: 150px;
+    // background-color: #d5d6d9;
+    background-color: $sidebar_background_color;
+    float:left;
+
+    ul {
+      margin: 20px 10px 0 20px;
+
+      li {
+        margin-bottom: 10px;
+        a {
+          color: #fff;
+        }
+        a:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  #container {
+    margin: 0 20px 0 20px;
+  }
+}
+
+
+.table_view {
+  padding: 20px 0;
+  text-align: center;
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0 auto 10px auto;
+    width: 800px;
+
+    th, td {
+      border: 1px solid #bbb;
+      padding: 4px 8px;
+      text-align: center;
+    }
+
+    th.action, td.action {
+      border: 0;
+      padding: 4px 0 3px 4px;
+      width: 28px;
+    }
+  }
+}
+
+.list_view {
+  text-align: center;
+  margin: 10px 0;
+
+  #error_explanation {
+    width: 350px;
+    margin: 0 auto 10px auto;
+    text-align: left;
+    padding: 10px;
+  }
+
+  table {
+    border-collapse: collapse;
+    margin: 0 auto;
+
+    td {
+      padding-bottom: 5px;
+    }
+    .label {
+      text-align: right;
+      padding-right: 10px;
+    }
+
+    input {
+      width: 200px;
+      height: 18px;
+      font-size: 13px;
+    }
+
+    select {
+      width: 204px;
+    }
+
+    .field_with_errors {
+      border: 1px solid #f00;
+    }
+  }
+}
+
+div.title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+

@@ -1,9 +1,17 @@
-<p id="notice"><%= notice %></p>
+<div class="table_view">
+  <table>
+    <thead>
+      <th>编号</th>
+      <th>名称</th>
+    </thead>
+    <tbody>
+      <tr>
+        <td><%= @product.serial_number %></td>
+        <td><%= @product.name %></td>
+      </tr>
+    </tbody>
+  </table>
 
-<p>
-  <strong>名称:</strong>
-  <%= @product.name %>
-</p>
-
-<%= link_to '编辑', edit_product_path(@product) %> |
-<%= link_to '返回', products_path %>
+  <%= link_to '编辑', edit_product_path(@product) %> |
+  <%= link_to '返回', products_path %>
+</div>

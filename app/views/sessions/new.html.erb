@@ -1,19 +1,26 @@
-<h1>登陆</h1>
+<div class="title">
+请登陆
+</div>
 
-<div>
+<div class="list_view">
   <% if flash[:alert] %>
   <p><%= flash[:alert] %></p>
   <% end %>
 
   <%= form_tag do %>
-    <div>
-      <%= label_tag :serial_number, '账号' %>
-      <%= text_field_tag :serial_number, params[:serial_number] %>
-    </div>
-    <div>
-      <%= label_tag :password, '密码' %>
-      <%= password_field_tag :password, params[:password] %>
-    </div>
+    <table>
+      <tbody>
+        <tr>
+          <td class="label"><%= label_tag :serial_number, '编号' %></td>
+          <td><%= text_field_tag :serial_number, params[:serial_number] %></td>
+        </tr>
+        <tr>
+          <td class="label"><%= label_tag :password, '密码' %></td>
+          <td><%= password_field_tag :password, params[:password] %></td>
+        </tr>
+      </tbody>
+    </table>
+
     <div>
       <%= submit_tag '登陆' %>
     </div>

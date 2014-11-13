@@ -4,7 +4,9 @@ Rails.application.routes.draw do
 
   resources :departments
 
-  resources :records
+  resources :records do
+    get :recent, on: :collection
+  end
 
   controller :sessions do
     get    'login'  => :new

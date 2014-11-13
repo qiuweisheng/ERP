@@ -1,4 +1,6 @@
 class ContractorsController < ApplicationController
+  skip_before_action :need_super_permission
+  before_action :need_admin_permission
   before_action :set_contractor, only: [:show, :edit, :update, :destroy]
 
   # GET /contractors

@@ -1,39 +1,46 @@
-<%= form_for(@user) do |f| %>
-  <% if @user.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+<div class="list_view">
+  <%= form_for(@user) do |f| %>
+    <% if @user.errors.any? %>
+      <div id="error_explanation" class="ui-state-error ui-corner-all">
+        <ul>
+          <% @user.errors.each do |_, message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <ul>
-      <% @user.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+    <table>
+      <tbody>
+        <% if @user.id.present? %>
+        <tr>
+          <td class="label">编号</td>
+          <td><%= @user.serial_number %></td>
+        </tr>
+        <% end %>
+        <tr>
+          <td class="label"><%= f.label :name, '名称' %></td>
+          <td><%= f.text_field :name %></td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :password, '密码' %></td>
+          <td><%= f.password_field :password %></td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :password_confirmation, '确认密码' %></td>
+          <td><%= f.password_field :password_confirmation %></td>
+        </tr>
+        <% unless @user.id.present? %>
+        <tr>
+          <td class="label"><%= f.label :permission, '类型' %></td>
+          <td><%= f.select :permission, select_options_for_permission %></td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="actions">
+      <%= f.submit '提交' %>
     </div>
   <% end %>
-
-  <% unless @user.serial_number.nil? %>
-    <div>
-      帐户<br>
-      <%= '%5d' % @user.serial_number %>
-    </div>
-  <% end %>
-  <div class="field">
-    <%= f.label :name, '名称' %><br>
-    <%= f.text_field :name %>
-  </div>
-  <div class="field">
-    <%= f.label :password, '密码' %><br>
-    <%= f.password_field :password %>
-  </div>
-  <div class="field">
-    <%= f.label :password_confirmation, '确认密码' %><br>
-    <%= f.password_field :password_confirmation %>
-  </div>
-  <div class="field">
-    <%= f.label :permission, '类型' %><br>
-    <%= f.select :permission, select_options_for_permission %>
-  </div>
-  <div class="actions">
-    <%= f.submit '提交' %>
-  </div>
-<% end %>
+</div>

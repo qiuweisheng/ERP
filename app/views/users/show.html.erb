@@ -1,20 +1,19 @@
-<p id="notice"><%= notice %></p>
+<div class="table_view">
+  <table>
+    <thead>
+    <th>编号</th>
+    <th>名称</th>
+    <th>类型</th>
+    </thead>
+    <tbody>
+    <tr>
+      <td><%= @user.serial_number %></td>
+      <td><%= @user.name %></td>
+      <td><%= User::PERMISSION_TYPES[@user.permission] %></td>
+    </tr>
+    </tbody>
+  </table>
 
-<p>
-  <strong>帐户:</strong>
-  <%= '%5d' % @user.serial_number %>
-</p>
-
-<p>
-  <strong>名称:</strong>
-  <%= @user.name %>
-</p>
-
-<p>
-  <strong>类型:</strong>
-  <%= @user.permission %>
-</p>
-
-<%= link_to '编辑', edit_user_path(@user) %> |
-<%= link_to '返回', users_path %> |
-<%= link_to '退出', logout_path, method: :delete %>
+  <%= link_to '编辑', edit_user_path(@user) %> |
+  <%= link_to '返回', users_path %>
+</div>

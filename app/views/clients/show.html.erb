@@ -1,14 +1,17 @@
-<p id="notice"><%= notice %></p>
+<div class="table_view">
+  <table>
+    <thead>
+    <th>编号</th>
+    <th>名称</th>
+    </thead>
+    <tbody>
+    <tr>
+      <td><%= @client.serial_number %></td>
+      <td><%= @client.name %></td>
+    </tr>
+    </tbody>
+  </table>
 
-<p>
-  <strong>编号:</strong>
-  <%= '%5d' % @client.serial_number %>
-</p>
-
-<p>
-  <strong>名称:</strong>
-  <%= @client.name %>
-</p>
-
-<%= link_to '编辑', edit_client_path(@client) %> |
-<%= link_to '返回', clients_path %>
+  <%= link_to '编辑', edit_client_path(@client) %> |
+  <%= link_to '返回', clients_path %>
+</div>

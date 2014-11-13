@@ -1,0 +1,42 @@
+
+<div class="table_view">
+  <table>
+    <thead>
+    <tr>
+      <th>日期</th>
+      <th>类型</th>
+      <th>原料</th>
+      <th>成品</th>
+      <th>重量</th>
+      <th>数量</th>
+      <th>收发人</th>
+      <th>单号</th>
+      <th>生产者</th>
+      <th>客户</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% @records.each do |record| %>
+      <tr>
+        <td></td>
+        <td><%= Record::RECORD_TYPES[record.record_type] %></td>
+        <td><%= record.origin.name %></td>
+        <td><%= record.product.name %></td>
+        <td><%= record.weight %></td>
+        <td><%= record.count %></td>
+        <td><%= record.participant.name %></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+
+  <div>
+  <%= link_to '新建记录', new_record_path, class: 'button' %>
+  </div>
+</div>
+
+

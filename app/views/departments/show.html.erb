@@ -1,14 +1,17 @@
-<p id="notice"><%= notice %></p>
+<div class="table_view">
+  <table>
+    <thead>
+    <th>编号</th>
+    <th>名称</th>
+    </thead>
+    <tbody>
+    <tr>
+      <td><%= @department.serial_number %></td>
+      <td><%= @department.name %></td>
+    </tr>
+    </tbody>
+    </table>
 
-<p>
-  <strong>编号:</strong>
-  <%= @department.serial_number %>
-</p>
-
-<p>
-  <strong>名称:</strong>
-  <%= @department.name %>
-</p>
-
-<%= link_to '编辑', edit_department_path(@department) %> |
-<%= link_to '返回', departments_path %>
+  <%= link_to '编辑', edit_department_path(@department) %> |
+  <%= link_to '返回', departments_path %>
+</div>

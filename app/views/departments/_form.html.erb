@@ -1,27 +1,32 @@
-<%= form_for(@department) do |f| %>
-  <% if @department.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@department.errors.count, "error") %> prohibited this department from being saved:</h2>
+<div class="list_view">
+  <%= form_for(@department) do |f| %>
+    <% if @department.errors.any? %>
+      <div id="error_explanation" class="ui-state-error ui-corner-all">
+          <ul>
+          <% @department.errors.each do |_, message| %>
+            <li><%= message %></li>
+          <% end %>
+          </ul>
+        </div>
+    <% end %>
 
-      <ul>
-      <% @department.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
+    <table>
+      <tbody>
+      <% if @department.id.present? %>
+        <tr>
+          <td class="label">编号</td>
+          <td><%= @department.serial_number %></td>
+        </tr>
       <% end %>
-      </ul>
-    </div>
-  <% end %>
+      <tr>
+        <td class="label"><%= f.label :name, '名称' %></td>
+        <td><%= f.text_field :name %></td>
+      </tr>
+      </tbody>
+    </table>
 
-  <% unless @department.serial_number.nil? %>
-    <div>
-      编号<br>
-      <%= sprintf('%5d', @department.serial_number) %>
+    <div class="actions">
+      <%= f.submit '提交' %>
     </div>
   <% end %>
-  <div class="field">
-    <%= f.label :name, '名称' %><br>
-    <%= f.text_field :name %>
-  </div>
-  <div class="actions">
-    <%= f.submit '提交' %>
-  </div>
-<% end %>
+</div>

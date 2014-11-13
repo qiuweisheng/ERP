@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
-  # skip_before_action :need_super_permission
-  # before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
-  # before_action :need_login, except: [:index, :new, :create, :destroy]
+  skip_before_action :need_super_permission
+  before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
+  before_action :need_login, except: [:index, :new, :create, :destroy]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
 
   # GET /users
@@ -60,9 +60,15 @@ class UsersController < ApplicationController
   # DELETE /users/1
   # DELETE /users/1.json
   def destroy
-    @user.destroy
+    login_user = User.find(session[:user_id])
+    if (login_user != @user && login_user.permission < @user.permission)
+      @user.destroy
+      msg = '成功删除'
+    else
+      msg = '权限不够'
+    end
     respond_to do |format|
-      format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
+      format.html { redirect_to users_url, notice: msg }
       format.json { head :no_content }
     end
   end
@@ -79,6 +85,7 @@ class UsersController < ApplicationController
     end
 
     def check_permission
+      # At this point, the user has already login
       login_user = User.find(session[:user_id])
       unless login_user == @user or [0, 1].include? login_user.permission
         redirect_to back_location(user_url(login_user)), notice: '帐户权限不够'

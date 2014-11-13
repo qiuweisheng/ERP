@@ -1,29 +1,27 @@
-<h1>员工列表</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>编号</th>
-      <th>名称</th>
-      <th>部门</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @employees.each do |employee| %>
+<div class="table_view">
+  <table>
+    <thead>
       <tr>
-        <td><%= employee.serial_number %></td>
-        <td><%= employee.name %></td>
-        <td><%= employee.department.name %></td>
-        <td><%= link_to '查看', employee %></td>
-        <td><%= link_to '编辑', edit_employee_path(employee) %></td>
-        <td><%= link_to '删除', employee, method: :delete, data: { confirm: "你确定删除员工帐户\"#{employee.serial_number}\"吗？" } %></td>
+        <th>编号</th>
+        <th>名称</th>
+        <th>部门</th>
+        <th colspan="3" class="action"></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
 
-<br>
+    <tbody>
+      <% @employees.each do |employee| %>
+        <tr>
+          <td><%= employee.serial_number %></td>
+          <td><%= employee.name %></td>
+          <td><%= employee.department.name %></td>
+          <td class="action"><%= link_to '查看', employee %></td>
+          <td class="action"><%= link_to '编辑', edit_employee_path(employee) %></td>
+          <td class="action"><%= link_to '删除', employee, method: :delete, data: { confirm: "你确定删除员工帐户\"#{employee.serial_number}\"吗？" } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
-<%= link_to '新建员工信息', new_employee_path %>
+  <%= link_to '新建员工信息', new_employee_path %>
+</div>

@@ -1,14 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Erp</title>
+  <title>ERP</title>
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
 </head>
+
 <body>
+  <div id="top_nav">
+    <ul>
+      <% if session[:user_id]%>
+        <% if (2..3) === session[:permission] %>
+          <li><%= link_to '录入', recent_records_path %></li>
+        <% end %>
+        <li><%= link_to '报表', '/' %></li>
+        <li><%= link_to '管理', user_path(session[:user_id]) %></li>
+        <% if session[:user_id] %>
+          <li><%= link_to '退出', logout_path, method: :delete %></li>
+        <% end %>
+      <% end %>
+    </ul>
+  </div>
 
-<%= yield %>
-
+  <% unless @no_side_bar or session[:user_id].nil? or session[:permission] > 1 %>
+  <div id="sidebar">
+    <ul>
+      <li><%= link_to '产品', products_path  %></li>
+      <li><%= link_to '部门', departments_path %></li>
+      <li><%= link_to '用户', users_path %></li>
+      <li><%= link_to '员工', employees_path %></li>
+      <li><%= link_to '委托加工客户', clients_path %></li>
+      <li><%= link_to '协助加工客户', contractors_path %></li>
+    </ul>
+  </div>
+  <div id="sidebar_background"></div>
+  <% end %>
+  <div id="container">
+    <%= yield %>
+  </div>
 </body>
 </html>

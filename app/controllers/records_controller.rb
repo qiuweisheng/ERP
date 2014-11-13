@@ -1,5 +1,5 @@
 class RecordsController < ApplicationController
-  # skip_before_action :need_super_permission
+  skip_before_action :need_super_permission
   before_action :set_record, only: [:show, :edit, :update, :destroy]
 
   # GET /records
@@ -15,8 +15,8 @@ class RecordsController < ApplicationController
 
   # GET /records/new
   def new
-    @record = Record.new
-    @record.count = 0
+    @record = Record.new date: Time.now.to_date, count: 0
+    [[1,2]].to_h
   end
 
   # GET /records/1/edit
@@ -26,15 +26,7 @@ class RecordsController < ApplicationController
   # POST /records
   # POST /records.json
   def create
-    attrs = record_params
-    @record = Record.new(attrs)
-    Product.find(attrs[:origin_id])
-    Product.find(attrs[:product_id])
-    User.find(attrs[:user_id])
-    klass, id = params[:record][:participant].split('::')
-    participant_class = klass.classify.constantize
-    participant = participant_class.find(id)
-    @record.participant = participant
+    @record = Record.new(record_params)
 
     respond_to do |format|
       if @record.save
@@ -71,6 +63,11 @@ class RecordsController < ApplicationController
     end
   end
 
+  def recent
+    @no_side_bar = true
+    @records = Record.where(user_id: session[:user_id]).order('created_at').last(18)
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_record
@@ -79,6 +76,6 @@ class RecordsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def record_params
-      params.require(:record).permit(:record_type, :origin_id, :product_id, :weight, :count, :user_id, :order_number, :employee_id, :client_id)
+      params.require(:record).permit(:date_text, :type_text, :origin_text, :product_text, :weight, :count, :user_text, :order_number, :employee_text, :client_text)
     end
 end

@@ -1,39 +1,38 @@
-<p id="notice"><%= notice %></p>
+<div class="table_view">
+  <table>
+    <thead>
+    <tr>
+      <th>日期</th>
+      <th>类型</th>
+      <th>原料</th>
+      <th>成品</th>
+      <th>重量</th>
+      <th>数量</th>
+      <th>柜台</th>
+      <th>收发人</th>
+      <th>单号</th>
+      <th>生产者</th>
+      <th>客户</th>
+    </tr>
+    </thead>
 
-<p>
-  <strong>类型:</strong>
-  <%= text_for_record_type @record.record_type %>
-</p>
+    <tbody>
+      <tr>
+        <td><%= @record.date_text %></td>
+        <td><%= Record::RECORD_TYPES[@record.record_type] %></td>
+        <td><%= @record.origin.name %></td>
+        <td><%= @record.product.name %></td>
+        <td><%= @record.weight %></td>
+        <td><%= @record.count %></td>
+        <td><%= @record.user.name %></td>
+        <td><%= @record.participant.name %></td>
+        <td><%= @record.order_number %></td>
+        <td><%= @record.employee.try(:name) %></td>
+        <td><%= @record.client.try(:name) %></td>
+      </tr>
+    </tbody>
+  </table>
 
-<p>
-  <strong>原料:</strong>
-  <%= @record.origin.name %>
-</p>
-
-<p>
-  <strong>成品:</strong>
-  <%= @record.product.name %>
-</p>
-
-<p>
-  <strong>重量:</strong>
-  <%= @record.weight %>
-</p>
-
-<p>
-  <strong>数量:</strong>
-  <%= @record.count %>
-</p>
-
-<p>
-  <strong>柜台:</strong>
-  <%= @record.user.name %>
-</p>
-
-<p>
-  <strong>客户:</strong>
-  <%= @record.participant.name %>
-</p>
-
-<%= link_to '编辑', edit_record_path(@record) %> |
-<%= link_to '返回', records_path %>
+  <%= link_to '编辑', edit_record_path(@record) %> |
+  <%= link_to '返回', records_path %>
+</div>

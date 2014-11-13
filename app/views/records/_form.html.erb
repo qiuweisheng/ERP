@@ -1,57 +1,85 @@
-<%= form_for(@record) do |f| %>
-  <% if @record.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@record.errors.count, "error") %> prohibited this record from being saved:</h2>
+<div class="list_view">
+  <%= form_for(@record) do |f| %>
+    <% if @record.errors.any? %>
+      <div id="error_explanation" class="ui-state-error ui-corner-all">
+        <ul>
+          <% @record.errors.each do |_, message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+      </div>
+    <% end %>
 
-      <ul>
-      <% @record.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+    <table>
+      <tbody>
+        <tr>
+          <td class="label"><%= f.label :date_text, '日期' %></td>
+          <td class="date_picker"><%= f.text_field :date_text %></td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :type_text, '类型' %></td>
+          <td class="autocomplete">
+            <%= f.text_field :type_text %>
+            <div class="data" style="display: none;"><%= type_texts %></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :origin_text, '原料' %></td>
+          <td><%= f.text_field :origin_text %></td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :product_text, '成品' %></td>
+          <td class="autocomplete">
+            <%= f.text_field :product_text %>
+            <div class="data" style="display: none;"><%= product_texts %></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :weight, '重量' %></td>
+          <td><%= f.text_field :weight %></td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :count, '数量' %></td>
+          <td><%= f.text_field :count %></td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :user_text, '柜台' %> </td>
+          <td class="autocomplete">
+            <%= f.text_field :user_text %>
+            <div class="data" style="display: none;"><%= user_texts %></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :participant_text, '收发者' %></td>
+          <td class="autocomplete">
+            <%= f.text_field :participant_text %>
+            <div class="data" style="display: none;"><%= participant_texts %></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :order_number, '单号' %></td>
+          <td><%= f.text_field :order_number %></td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :employee_text, '生产者' %></td>
+          <td class="autocomplete">
+            <%= f.text_field :employee_text %>
+            <div class="data" style="display: none;"><%= employee_texts %></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="label"><%= f.label :client_text, '客户' %></td>
+          <td class="autocomplete">
+            <%= f.text_field :client_text %>
+            <div class="data" style="display: none;"><%= client_texts %></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="actions">
+      <%= f.submit '提交' %>
     </div>
   <% end %>
-
-  <div class="field">
-    <%= f.label :record_type, '类型' %><br>
-    <%= f.select :record_type, select_options_for_record_type %>
-  </div>
-  <div class="field">
-    <%= f.label :origin_id, '原料' %><br>
-    <%= f.select :origin_id, select_options_for_product %>
-  </div>
-  <div class="field">
-    <%= f.label :product_id, '成品' %><br>
-    <%= f.select :product_id, select_options_for_product %>
-  </div>
-  <div class="field">
-    <%= f.label :weight, '重量' %><br>
-    <%= f.text_field :weight %>
-  </div>
-  <div class="field">
-    <%= f.label :count, '数量' %><br>
-    <%= f.number_field :count %>
-  </div>
-  <div class="field">
-    <%= f.label :user_id, '柜台' %><br>
-    <%= f.select :user_id, select_options_for_user %>
-  </div>
-  <div class="field">
-    <%= f.label :participant, '收发者' %><br>
-    <%= f.select :participant, select_options_for_participant %>
-  </div>
-  <div class="field">
-    <%= f.label :order_number, '单号' %>
-    <%= f.text_field :order_number %>
-  </div>
-  <div class="field">
-    <%= f.label :employee_id, '生产者' %>
-    <%= f.select :employee_id, select_options_for_employee, include_blank: true %>
-  </div>
-  <div class="field">
-    <%= f.label :client_id, '客户' %>
-    <%= f.select :client_id, select_options_for_client, include_blank: true %>
-  </div>
-  <div class="actions">
-    <%= f.submit '提交' %>
-  </div>
-<% end %>
+</div>

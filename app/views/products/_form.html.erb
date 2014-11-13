@@ -1,21 +1,32 @@
-<%= form_for(@product) do |f| %>
-  <% if @product.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@product.errors.count, "error") %> prohibited this product from being saved:</h2>
+<div class="list_view">
+  <%= form_for(@product) do |f| %>
+    <% if @product.errors.any? %>
+      <div id="error_explanation" class="ui-state-error ui-corner-all">
+        <ul>
+          <% @product.errors.each do |_, message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+      </div>
+    <% end %>
 
-      <ul>
-      <% @product.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+    <table>
+      <tbody>
+        <% if @product.id.present? %>
+          <tr>
+            <td class="label">编码</td>
+            <td><%= @product.serial_number %></td>
+          </tr>
+        <% end %>
+        <tr>
+          <td class="label"><%= f.label :name, '名称' %></td>
+          <td><%= f.text_field :name %></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="actions">
+      <%= f.submit '提交' %>
     </div>
   <% end %>
-
-  <div class="field">
-    <%= f.label :name, '名称' %><br>
-    <%= f.text_field :name %>
-  </div>
-  <div class="actions">
-    <%= f.submit '提交' %>
-  </div>
-<% end %>
+</div>

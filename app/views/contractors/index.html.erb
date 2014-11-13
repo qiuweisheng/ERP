@@ -1,27 +1,25 @@
-<h1>承包商列表</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>编号</th>
-      <th>名称</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @contractors.each do |contractor| %>
+<div class="table_view">
+  <table>
+    <thead>
       <tr>
-        <td><%= contractor.serial_number %></td>
-        <td><%= contractor.name %></td>
-        <td><%= link_to '查看', contractor %></td>
-        <td><%= link_to '编辑', edit_contractor_path(contractor) %></td>
-        <td><%= link_to '删除', contractor, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <th>编号</th>
+        <th>名称</th>
+        <th colspan="3" class="action"></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
 
-<br>
+    <tbody>
+      <% @contractors.each do |contractor| %>
+        <tr>
+          <td><%= contractor.serial_number %></td>
+          <td><%= contractor.name %></td>
+          <td class="action"><%= link_to '查看', contractor %></td>
+          <td class="action"><%= link_to '编辑', edit_contractor_path(contractor) %></td>
+          <td class="action"><%= link_to '删除', contractor, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
-<%= link_to '新建承包商', new_contractor_path %>
+  <%= link_to '新建承包商', new_contractor_path %>
+</div>

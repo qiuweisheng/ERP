@@ -6,7 +6,7 @@ class Record < ActiveRecord::Base
   belongs_to :employee
   belongs_to :client
 
-  validates :type_text, presence: true
+  validates :type_text, presence: true, inclusion: { in: 0..4 }
   validates :origin_text, presence: true
   validates :product_text, presence: true
   validates :weight, presence: true, numericality: { greater_than_or_equal_to: 0.0 }
@@ -16,7 +16,7 @@ class Record < ActiveRecord::Base
   validates :participant_type, presence: true
 
   PARTICIPANT_CLASS_NAMES = [:user, :employee, :client, :contractor]
-  RECORD_TYPES = { 0 => '收货', 1 => '发货',  2 => '盘点', 3 => '补差额' }
+  RECORD_TYPES = { 0 => '收货', 1 => '发货',  2 => '日盘点', 3 => '月盘点', 4 => '补差额' }
 
   def date_text
     date.try(:strftime, "%Y-%m-%d")

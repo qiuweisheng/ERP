@@ -1,7 +1,7 @@
 class SessionsController < ApplicationController
   skip_before_action :store_location
   skip_before_action :need_super_permission
-
+  before_action :need_login, only: [:destroy, :redirect]
   def new
 
   end
@@ -30,6 +30,12 @@ class SessionsController < ApplicationController
   end
 
   def redirect
-
+    @user = User.find(session[:user_id])
+    if @user.permission > 1
+      url = recent_records_url
+    else
+      url = user_url @user
+    end
+    redirect_to url
   end
 end

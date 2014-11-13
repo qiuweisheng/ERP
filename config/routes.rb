@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  root 'sessions#redirect'
+
   resources :contractors
 
   resources :departments

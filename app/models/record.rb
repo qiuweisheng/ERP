@@ -6,6 +6,7 @@ class Record < ActiveRecord::Base
   belongs_to :employee
   belongs_to :client
 
+  validates :date_text, presence: true
   validates :type_text, presence: true, inclusion: { in: 0..4 }
   validates :origin_text, presence: true
   validates :product_text, presence: true

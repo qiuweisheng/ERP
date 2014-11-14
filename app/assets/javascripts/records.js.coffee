@@ -21,7 +21,7 @@ $(document).on "ready page:change", ->
     $element = $(element)
     $element.data data: $.parseJSON $('div.data', $element.closest('td')).text()
     $element.autocomplete
-      delay: 200
+      delay: 100
       source: (request, response) ->
         matcher = RegExp '^' + $.ui.autocomplete.escapeRegex(request.term), 'i'
         response $.grep($element.data('data'), (item) -> matcher.test item)

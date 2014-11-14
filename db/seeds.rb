@@ -253,6 +253,5 @@ f.each_line { |line|
                         date: Date.parse(v9)
                         }
 }
-p create_record_para
 Record.create!(create_record_para)
 

@@ -20,8 +20,8 @@
       <tr>
         <td><%= @record.date_text %></td>
         <td><%= Record::RECORD_TYPES[@record.record_type] %></td>
-        <td><%= @record.origin.name %></td>
-        <td><%= @record.product.name %></td>
+        <td><%= @record.origin.try(:name) %></td>
+        <td><%= @record.product.try(:name) %></td>
         <td><%= @record.weight %></td>
         <td><%= @record.count %></td>
         <td><%= @record.user.name %></td>

@@ -11,15 +11,15 @@ class Record < ActiveRecord::Base
 
   validates :date_text, presence: { message: '日期必须填写'}
   validates :type_text, presence: { message: '类型必须填写'}
-  validates :type_text, inclusion: { in: 0..4, message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
-  validates :origin_text, presence: { message: '原料必须填写'}
-  validates :product_text, presence: { message: '成品必须填写'}
+  validates :record_type, inclusion: { in: 0..4, message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
+  # validates :origin_text, presence: { message: '原料必须填写'}
+  validates :product_text, presence: { message: '成品必须填写'}, if: Proc.new { |record| logger.info("########{record.record_type}"); (0..1).include? record.record_type }
   validates :weight, presence: { message: '重量必须填写'}
   validates :count, presence: { message: '件数必须填写'}
   validates :count, numericality: { greater_than_or_equal_to: 0, message: '件数必须大于或等于0' }
   validates :user_text, presence: { message: '柜台必须填写'}
   validates :participant_text, presence: { message: '收发人必须填写'}
-  validates :participant_type, presence: { message: '收发人类型必须填写'}
+  # validates :participant_type, presence: { message: '收发人类型必须填写'}
 
   def date_text
     date.try(:strftime, "%Y-%m-%d")
@@ -62,13 +62,16 @@ class Record < ActiveRecord::Base
     self.origin = represent_to_object Product, text
   end
 
-  def participant=(text)
+  def participant_text=(text)
     serial_number = text.strip.split('-').first.to_i
     class_name = PARTICIPANT_CLASS_NAMES.find do |name|
-      klass = name.classify.constantize
+      klass = name.to_s.classify.constantize
       (klass::MIN_ID..klass::MAX_ID).include? serial_number
     end
-    self.participant = represent_to_object class_name.classify.constantize, text
+    if class_name
+      participant = represent_to_object class_name.to_s.classify.constantize, text
+    end
+    self.participant = participant if participant
   end
 
   protected

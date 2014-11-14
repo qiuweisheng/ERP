@@ -1,10 +1,15 @@
 class User < ActiveRecord::Base
+  MIN_ID = 1
+  MAX_ID = Rails.env == 'test' ? 10 : 9999
+  PERMISSION_TYPES = { 0 =>'超级用户', 1 => '管理员', 2 => '一级柜台', 3 => '二级柜台' }
+
   has_many :transactions, as: :participant, class_name: 'Record'
   has_many :records
 
   validates :name, presence: { message: '名称必须填写'}
-  validates :password, presence: true
-  validates :permission, presence: true, inclusion: { in: 0..3 }
+  validates :password, presence: { message: '密码必须填写'}
+  validates :permission, presence: { message: '类型必须选择'}
+  validates :permission, inclusion: { in: 0..3, message: "类型必须为：#{PERMISSION_TYPES.values.join('、')}" }
   validates_each :permission, on: :create do |record, attr, value|
     if value == 0 and record.class.where(attr => 0).count > 0
       record.errors.add(attr, '只能有一个超级用户')
@@ -17,10 +22,6 @@ class User < ActiveRecord::Base
   end
 
   has_secure_password
-
-  MIN_ID = 1
-  MAX_ID = Rails.env == 'test' ? 10 : 9999
-  PERMISSION_TYPES = { 0 =>'超级用户', 1 => '管理员', 2 => '一级柜台', 3 => '二级柜台' }
 
   include SerialNumber
   has_serial_number

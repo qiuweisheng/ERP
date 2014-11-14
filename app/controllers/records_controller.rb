@@ -16,7 +16,6 @@ class RecordsController < ApplicationController
   # GET /records/new
   def new
     @record = Record.new date: Time.now.to_date, count: 0
-    [[1,2]].to_h
   end
 
   # GET /records/1/edit

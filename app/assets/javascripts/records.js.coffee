@@ -3,6 +3,12 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 $(document).on "ready page:change", ->
+  # Set sidebar height
+  sidebar_height = $('#sidebar').outerHeight(true)
+  content_height = $('#content').outerHeight(true)
+  height = if sidebar_height < content_height then content_height else sidebar_height
+  $('#sidebar').css height: height
+
   $('.date_picker input[type="text"]').datepicker
     dateFormat: 'yy-mm-dd'
     showButtonPanel: true

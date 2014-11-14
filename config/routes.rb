@@ -2,18 +2,20 @@ Rails.application.routes.draw do
 
   root 'sessions#redirect'
 
+  controller :sessions do
+    get    'login'  => :new
+    post   'login'  => :create
+    delete 'logout' => :destroy
+  end
+
+  get '/reports/day' => 'reports#day'
+
   resources :contractors
 
   resources :departments
 
   resources :records do
     get :recent, on: :collection
-  end
-
-  controller :sessions do
-    get    'login'  => :new
-    post   'login'  => :create
-    delete 'logout' => :destroy
   end
 
   resources :users

@@ -19,16 +19,16 @@
     <tbody>
     <% @records.each do |record| %>
       <tr>
-        <td></td>
+        <td><%= record.date_text %></td>
         <td><%= Record::RECORD_TYPES[record.record_type] %></td>
-        <td><%= record.origin.name %></td>
-        <td><%= record.product.name %></td>
+        <td><%= record.origin.try(:name) %></td>
+        <td><%= record.product.try(:name) %></td>
         <td><%= record.weight %></td>
         <td><%= record.count %></td>
         <td><%= record.participant.name %></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><%= record.order_number %></td>
+        <td><%= record.employee.try(:name) %></td>
+        <td><%= record.client.try(:name) %></td>
       </tr>
     <% end %>
     </tbody>

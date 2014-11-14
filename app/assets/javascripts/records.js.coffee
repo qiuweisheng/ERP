@@ -2,12 +2,16 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
+set_layout = ->
+  $sidebar = $('#sidebar')
+  if $sidebar.length isnt 0
+    $sidebar.css height: $(window).height() - $('#top_nav').outerHeight(true)
+    $('#content').css 'margin-left': $sidebar.width()
+
 $(document).on "ready page:change", ->
-  # Set sidebar height
-  sidebar_height = $('#sidebar').outerHeight(true)
-  content_height = $('#content').outerHeight(true)
-  height = if sidebar_height < content_height then content_height else sidebar_height
-  $('#sidebar').css height: height
+  # Set sidebar height and content margin
+  set_layout()
+  $(window).resize set_layout
 
   $('.date_picker input[type="text"]').datepicker
     dateFormat: 'yy-mm-dd'

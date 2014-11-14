@@ -15,7 +15,6 @@ class Record < ActiveRecord::Base
   validates :origin_text, presence: { message: '原料必须填写'}
   validates :product_text, presence: { message: '成品必须填写'}
   validates :weight, presence: { message: '重量必须填写'}
-  validates :weight, numericality: { greater_than_or_equal_to: 0.0, message: '重量必须大于或等于0.0' }
   validates :count, presence: { message: '件数必须填写'}
   validates :count, numericality: { greater_than_or_equal_to: 0, message: '件数必须大于或等于0' }
   validates :user_text, presence: { message: '柜台必须填写'}

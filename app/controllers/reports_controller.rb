@@ -1,18 +1,19 @@
 module Statistics
   def day_statistics(today, user)
-    statistics = { dispatch: {}, receive: {}, dispatch_total: 0, receive_total: 0, actual_total: 0 }
+    # statistics = { dispatch: {}, receive: {}, dispatch_total: 0, receive_total: 0, actual_total: 0 }
+    statistics = { dispatch: [], receive: [] }
     # Dispatch
     self.transactions.select('product_id, weight').where('user_id = ? and date = ? and record_type = ?', user, today, 0).each do |record|
-      statistics[:dispatch][record.product.name] = record.weight
+      statistics[:dispatch].push [record.product.name, record.weight]
     end
     # Receive
     self.transactions.select('product_id, weight').where('user_id = ? and date = ? and record_type = ?', user, today, 1).each do |record|
-      statistics[:receive][record.product.name] = record.weight
+      statistics[:receive].push [record.product.name, record.weight]
     end
     # Total
-    statistics[:dispatch_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 0).sum('weight')
-    statistics[:receive_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 1).sum('weight')
-    statistics[:actual_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 2).sum('weight')
+    # statistics[:dispatch_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 0).sum('weight')
+    # statistics[:receive_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 1).sum('weight')
+    # statistics[:actual_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 2).sum('weight')
     statistics
   end
 
@@ -67,7 +68,7 @@ end
 
 class ReportsController < ApplicationController
   def day
-    @date = Date.parse('2014-11-12')
+    @date = Date.parse('2014-11-13')
     @user = User.find_by(name: '003陈小艳')
     # Find all the participant TODAY
     participants = @user.records.select('participant_id, participant_type').where('date = ? and record_type != ?', @date, 2).group('participant_id').collect do |record|

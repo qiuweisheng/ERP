@@ -148,3 +148,31 @@ div.title {
   margin: 10px 0;
 }
 
+.day_report {
+  padding: 20px 0;
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0 auto;
+    width: 650px;
+
+    th, td {
+      border: 1px solid #bbb;
+      padding: 4px;
+      text-align: center;
+    }
+
+    tr.title {
+      font-size: 18px;
+      border: none;
+    }
+    tr.sum {
+      background-color: #999999;
+    }
+
+    tr.total_sum {
+      background-color: #888888;
+    }
+  }
+}

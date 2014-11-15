@@ -12,8 +12,8 @@ class Record < ActiveRecord::Base
   validates :date_text, presence: { message: '日期必须填写'}
   validates :type_text, presence: { message: '类型必须填写'}
   validates :record_type, inclusion: { in: 0..4, message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
-  # validates :origin_text, presence: { message: '原料必须填写'}
-  validates :product_text, presence: { message: '成品必须填写'}, if: Proc.new { |record| logger.info("########{record.record_type}"); (0..1).include? record.record_type }
+  validates :origin_text, presence: { message: '原料必须填写'}, if: Proc.new { |record| record.record_type == 1 }
+  validates :product_text, presence: { message: '成品必须填写'}, if: Proc.new { |record| (0..1).include? record.record_type }
   validates :weight, presence: { message: '重量必须填写'}
   validates :count, presence: { message: '件数必须填写'}
   validates :count, numericality: { greater_than_or_equal_to: 0, message: '件数必须大于或等于0' }

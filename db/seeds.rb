@@ -90,8 +90,8 @@ open('./db/employee.txt') do |file|
   end
 end
 
-Contractor.delete_all
-Contractor.create!([
+Client.delete_all
+Client.create!([
   {name: 'DEE'},
   {name: 'CRD'},
   {name: 'TSL'},
@@ -115,7 +115,7 @@ open('./db/record.txt', 'r:bom|utf-8') do |file|
           record_type: type.to_i,
           origin_id: Product.find_by(name: origin).try(:id),
           product_id: Product.find_by(name: product).try(:id),
-          weight: weight.to_i,
+          weight: weight.to_f,
           count: count.to_i,
           user_id: User.find_by(name: user).id,
           participant_id: klass.classify.constantize.find_by(name:participant).id,

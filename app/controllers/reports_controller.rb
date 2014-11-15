@@ -1,20 +1,21 @@
 module Statistics
-  def day_statistics(today, user)
-    # statistics = { dispatch: {}, receive: {}, dispatch_total: 0, receive_total: 0, actual_total: 0 }
-    statistics = { dispatch: [], receive: [] }
+  def day_transactions(today, user)
+    transactions = { dispatch: [], receive: [] }
     # Dispatch
     self.transactions.select('product_id, weight').where('user_id = ? and date = ? and record_type = ?', user, today, 0).each do |record|
-      statistics[:dispatch].push [record.product.name, record.weight]
+      transactions[:dispatch].push [record.product.name, record.weight]
     end
     # Receive
     self.transactions.select('product_id, weight').where('user_id = ? and date = ? and record_type = ?', user, today, 1).each do |record|
-      statistics[:receive].push [record.product.name, record.weight]
+      transactions[:receive].push [record.product.name, record.weight]
     end
-    # Total
-    # statistics[:dispatch_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 0).sum('weight')
-    # statistics[:receive_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 1).sum('weight')
-    # statistics[:actual_total] = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 2).sum('weight')
-    statistics
+    transactions
+  end
+
+  def day_sum(today, user)
+    dispatch_sum = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 0).sum('weight')
+    receive_sum = self.transactions.where('user_id = ? and date = ? and record_type = ?', user, today, 1).sum('weight')
+    [dispatch_sum, receive_sum]
   end
 
   def yesterday_balance(today, user)
@@ -60,6 +61,28 @@ end
 
 User.class_eval do
   include Statistics
+
+  def yesterday_balance_as_host(today)
+    latest_check_record = self.records.where('date < ? and record_type = ?', today, 2).order('created_at DESC').first
+    if latest_check_record
+      check_date = latest_check_record.date
+      balance = self.records.where('participant_id = ? and date = ? and record_type = ?', self, check_date, 2).sum('weight')
+    else
+      check_date = self.records.order('created_at').first.date - 1
+    end
+    balance -= self.records.where('date > ? and date < ? and record_type = ?', check_date, today, 0).sum('weight')
+    balance + self.records.where('date > ? and date < ? and record_type = ?', check_date, today, 1).sum('weight')
+  end
+
+  def day_sum_as_host(today)
+    dispatch_sum = self.records.where('date = ? and record_type = ?', today, 0).sum('weight')
+    receive_sum = self.records.where('date = ? and record_type = ?', today, 1).sum('weight')
+    [dispatch_sum, receive_sum]
+  end
+
+  def actual_balance_as_host(today)
+    self.records.where('participant_id = ? and date = ? and record_type = ?', self, today, 2).sum('weight')
+  end
 end
 
 Employee.class_eval do
@@ -67,7 +90,7 @@ Employee.class_eval do
 end
 
 class ReportsController < ApplicationController
-  def day
+  def day_detail
     @date = Date.parse('2014-11-13')
     @user = User.find_by(name: '003陈小艳')
     # Find all the participant TODAY
@@ -76,54 +99,95 @@ class ReportsController < ApplicationController
     end
     # Get every participant's statistics
     @report = []
-    total_dispatch_sum = 0
-    total_receive_sum = 0
     participants.each do |participant|
       last_balance = participant.yesterday_balance(@date, @user)
       @report.push(name: participant.name, last_balance: last_balance)
-      statistics = participant.day_statistics(@date, @user)
+      transactions = participant.day_transactions(@date, @user)
       balance = 0
-      dispatch_sum = 0
-      statistics[:dispatch].each do |name, value|
+      transactions[:dispatch].each do |name, value|
         balance += value
-        dispatch_sum += value
-        total_dispatch_sum += value
         @report.push(product_name: name, dispatch_value: value, balance: balance)
       end
-      receive_sum = 0
-      statistics[:receive].each do |name, value|
+      transactions[:receive].each do |name, value|
         balance -= value
-        receive_sum += value
-        total_receive_sum += value
         @report.push(product_name: name, receive_value: value, balance: balance)
       end
+      dispatch_sum, receive_sum = participant.day_sum(@date, @user)
+      balance = last_balance + dispatch_sum - receive_sum
       attr = {
           name: '合计',
           last_balance: last_balance,
           dispatch_value: dispatch_sum,
           receive_value: receive_sum,
-          balance: last_balance + balance,
+          balance: balance,
           type: :sum
       }
       if participant.class == Employee
         actual_balance = participant.actual_balance(@date, @user)
-        difference = last_balance + balance - actual_balance
+        difference = balance - actual_balance
         attr[:actual_balance] = actual_balance
         attr[:depletion] = difference
       end
       @report.push attr
     end
-    last_balance = @user.yesterday_balance(@date, @user)
-    balance = total_dispatch_sum - total_receive_sum
-    actual_balance = @user.actual_balance(@date, @user)
+
+    host_last_balance = @user.yesterday_balance_as_host(@date)
+    host_dispatch_sum, host_receive_sum = @user.day_sum_as_host(@date)
+    host_balance = host_last_balance - host_dispatch_sum + host_receive_sum
+    host_actual_balance = @user.actual_balance_as_host(@date)
     @report.push(
         name: '本柜当日结余',
-        last_balance: last_balance,
-        dispatch_value: total_dispatch_sum,
-        receive_value: total_receive_sum,
-        balance: balance,
-        difference: last_balance + balance - actual_balance,
-        actual_balance: actual_balance,
+        last_balance: host_last_balance,
+        dispatch_value: host_dispatch_sum,
+        receive_value: host_receive_sum,
+        balance: host_balance,
+        difference: host_balance - host_actual_balance,
+        actual_balance: host_actual_balance,
+        type: :total_sum
+    )
+  end
+
+  def day_summary
+    @date = Date.parse('2014-11-13')
+    @user = User.find_by(name: '003陈小艳')
+    participants = @user.records.select('participant_id, participant_type').where('date = ? and record_type != ?', @date, 2).group('participant_id').collect do |record|
+      record.participant
+    end
+    @report = []
+    total_dispatch_sum = 0
+    total_receive_sum = 0
+    participants.each do |participant|
+      last_balance = participant.yesterday_balance(@date, @user)
+      dispatch_sum, receive_sum = participant.day_sum(@date, @user)
+      total_dispatch_sum += dispatch_sum
+      total_receive_sum += receive_sum
+      balance = last_balance + dispatch_sum - receive_sum
+      actual_balance = participant.actual_balance(@date, @user)
+      attr = {
+          name: participant.name,
+          last_balance: last_balance,
+          dispatch_sum: dispatch_sum,
+          receive_sum: receive_sum,
+          balance: balance,
+          actual_balance: actual_balance
+      }
+      if participant.class == Employee
+        attr[:depletion] = balance - actual_balance
+      end
+      @report.push attr
+    end
+    host_last_balance = @user.yesterday_balance_as_host(@date)
+    host_dispatch_sum, host_receive_sum = @user.day_sum_as_host(@date)
+    host_balance = host_last_balance - host_dispatch_sum + host_receive_sum
+    host_actual_balance = @user.actual_balance_as_host(@date)
+    @report.push(
+        name: '本柜当日结余',
+        last_balance: host_last_balance,
+        dispatch_sum: host_dispatch_sum,
+        receive_sum: host_receive_sum,
+        balance: host_balance,
+        difference: host_balance - host_actual_balance,
+        actual_balance: host_actual_balance,
         type: :total_sum
     )
   end

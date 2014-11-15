@@ -8,7 +8,8 @@ Rails.application.routes.draw do
     delete 'logout' => :destroy
   end
 
-  get '/reports/day' => 'reports#day'
+  get '/reports/day_detail' => 'reports#day_detail'
+  get '/reports/day_summary' => 'reports#day_summary'
 
   resources :contractors
 

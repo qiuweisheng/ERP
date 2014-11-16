@@ -84,8 +84,12 @@ Employee.delete_all
 open('./db/employee.txt') do |file|
   file.each_line do |line|
     unless line.strip.empty?
-      name, department = line.strip.split(/\s+/)
-      Employee.create!(name: name, department_id: Department.find_by(name: department).id)
+      name, department, colleague_number = line.strip.split(/\s+/)
+      Employee.create!(
+          name: name,
+          department_id: Department.find_by(name: department).id,
+          colleague_number: colleague_number
+      )
     end
   end
 end

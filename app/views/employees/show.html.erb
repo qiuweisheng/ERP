@@ -3,12 +3,14 @@
     <thead>
     <th>编号</th>
     <th>名称</th>
+    <th>人数</th>
     <th>部门</th>
     </thead>
     <tbody>
     <tr>
       <td><%= @employee.serial_number %></td>
       <td><%= @employee.name %></td>
+      <td><%= @employee.colleague_number %></td>
       <td><%= @employee.department.name %></td>
     </tr>
     </tbody>

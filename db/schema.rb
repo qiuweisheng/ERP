@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(version: 20141108134258) do
     t.integer  "serial_number"
     t.string   "name"
     t.integer  "department_id"
+    t.integer  "colleague_number"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

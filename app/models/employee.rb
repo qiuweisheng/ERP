@@ -8,6 +8,8 @@ class Employee < ActiveRecord::Base
 
   validates :name, presence: { message: '名称必须填写'}
   validates :department_id, presence: { message: '部门必须填写'}
+  validates :colleague_number, presence: { message: '人数必须填写' }
+  validates :colleague_number, numericality: { greater_than: 0, message: '人数必须大于 0' }
 
   include SerialNumber
   has_serial_number

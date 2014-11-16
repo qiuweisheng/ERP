@@ -4,6 +4,7 @@
       <tr>
         <th>编号</th>
         <th>名称</th>
+        <th>人数</th>
         <th>部门</th>
         <th colspan="3" class="action"></th>
       </tr>
@@ -14,6 +15,7 @@
         <tr>
           <td><%= employee.serial_number %></td>
           <td><%= employee.name %></td>
+          <td><%= employee.colleague_number %></td>
           <td><%= employee.department.name %></td>
           <td class="action"><%= link_to '查看', employee %></td>
           <td class="action"><%= link_to '编辑', edit_employee_path(employee) %></td>

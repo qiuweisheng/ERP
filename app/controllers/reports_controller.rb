@@ -76,6 +76,23 @@ Client.class_eval do
 
   def actual_balance(today, user=nil)
   end
+
+  alias original_today_transactions today_transactions
+  def today_transactions(today, user=nil)
+    transactions = original_today_transactions(today, user)
+    { dispatch: transactions[:receive], receive: transactions[:dispatch] }
+  end
+
+  alias original_yesterday_balance yesterday_balance
+  def yesterday_balance(today, user=nil)
+    - original_yesterday_balance(today, user)
+  end
+
+  alias original_today_sum today_sum
+  def today_sum(today, user=nil)
+    dispatch_sum, receive_sum = original_today_sum(today, user)
+    [receive_sum, dispatch_sum]
+  end
 end
 
 Contractor.class_eval do
@@ -96,6 +113,7 @@ User.class_eval do
     if latest_check_record
       check_date = latest_check_record.date
       condition = 'participant_id = :participant AND date = :date AND record_type = :record_type'
+      params[:date] = check_date
       params[:participant] = self
       balance = self.records.where(condition, params).sum('weight')
     else
@@ -198,7 +216,7 @@ class ReportsController < ApplicationController
         balance: host_balance,
         difference: host_balance - host_actual_balance,
         actual_balance: host_actual_balance,
-        type: :total_sum
+        type: :total
     )
   end
 
@@ -246,22 +264,38 @@ class ReportsController < ApplicationController
         balance: host_balance,
         difference: host_balance - host_actual_balance,
         actual_balance: host_actual_balance,
-        type: :total_sum
+        type: :total
     )
   end
 
-  def goods_distribution
+  def goods_distribution_detail
+    milli = ->(sum) { sum / 1000 }
+    gram = ->(sum) { "%.4f" % [sum / 26.717] }
     @date = Date.parse('2014-11-13')
+    @report = []
+    total = 0
+    Record.users(@date).each do |user|
+      sum = user.yesterday_balance_as_host(@date + 1.day)
+      total += sum
+      @report.push name: user.name, milli: milli.call(sum), gram: gram.call(sum)
+    end
+    Record.participants(@date).each do |participant|
+      sum = participant.yesterday_balance(@date + 1.day)
+      total += sum
+      @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)
+    end
+    @report.push name: '合计', milli: milli.call(total), gram: gram.call(total), type: :total
   end
 
   def goods_in_employees
     @date = Date.parse('2014-11-13')
-    employees = Record.where('date <= ? and participant_type = ?', @date, Employee.name).group('participant_id').collect do |record|
-      record.participant
-    end
     @report = []
-    employees.each do |employee|
-      sum = Record.where('date <= ? and participant_id and record_type = ?', @date, employee, 0).sum('weight')
+    total = 0
+    Record.employees(@date).each do |employee|
+      sum = employee.yesterday_balance(@date + 1.day)
+      total += sum
+      @report.push name: employee.name, sum: sum, average: sum / employee.colleague_number
     end
+    @report.push name: '生产用金合计', sum: total, type: :total
   end
 end

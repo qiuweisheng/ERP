@@ -4,6 +4,7 @@ class CreateEmployees < ActiveRecord::Migration
       t.integer :serial_number
       t.string :name
       t.references :department, index: true
+      t.integer :colleague_number
 
       t.timestamps
     end

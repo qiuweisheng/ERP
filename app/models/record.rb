@@ -84,4 +84,33 @@ class Record < ActiveRecord::Base
       serial_number, name = text.strip.split('-')
       klass.where(serial_number: serial_number, name: name).first
     end
+
+
+  class << self
+    def participants(date=nil)
+      date = Time.now.to_date unless date
+      group = self.where('date <= ? AND participant_type != ?', date, User.name).group('participant_id')
+                .collect  { |record| record.participant }
+                .group_by { |p| p.class }
+      [Employee, Contractor, Client]
+        .map { |c| group[c] }
+        .select { |p| p }
+        .flatten
+    end
+
+    def users(date=nil)
+      date = Time.now.to_date unless date
+      self.where('date <= ?', date).group('user_id').collect do |record|
+        record.user
+      end
+    end
+
+    def employees(date=nil)
+      date = Time.now.to_date unless date
+      self.where('date <= ? AND participant_type = ?', date, Employee.name).group('participant_id').collect do |record|
+        record.participant
+      end
+    end
+  end
+
 end

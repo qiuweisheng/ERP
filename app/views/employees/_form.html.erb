@@ -23,7 +23,11 @@
         <td><%= f.text_field :name %></td>
       </tr>
       <tr>
-        <td class="label"><%= f.label :department_id, '类型' %></td>
+        <td class="label"><%= f.label :colleague_number, '人数' %></td>
+        <td><%= f.text_field :colleague_number %></td>
+      </tr>
+      <tr>
+        <td class="label"><%= f.label :department_id, '部门' %></td>
         <td><%= f.select :department_id, select_options_for_department %></td>
       </tr>
       </tbody>

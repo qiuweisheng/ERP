@@ -1,6 +1,11 @@
 class Record < ActiveRecord::Base
   PARTICIPANT_CLASS_NAMES = [:user, :employee, :client, :contractor]
-  RECORD_TYPES = { 0 => '收货', 1 => '发货',  2 => '日盘点', 3 => '月盘点', 4 => '补差额' }
+  TYPE_DISPATCH    = 0
+  TYPE_RECEIVE     = 1
+  TYPE_DAY_CHECK   = 2
+  TYPE_MONTH_CHECK = 3
+  TYPE_ADJUST      = 4
+  RECORD_TYPES = { TYPE_DISPATCH => '发货', TYPE_RECEIVE => '收货',  TYPE_DAY_CHECK => '日盘点', TYPE_MONTH_CHECK => '月盘点', TYPE_ADJUST => '补差额' }
 
   belongs_to :origin, class_name: 'Product'
   belongs_to :product
@@ -11,7 +16,7 @@ class Record < ActiveRecord::Base
 
   validates :date_text, presence: { message: '日期必须填写'}
   validates :type_text, presence: { message: '类型必须填写'}
-  validates :record_type, inclusion: { in: 0..4, message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
+  validates :record_type, inclusion: { in: [TYPE_DISPATCH, TYPE_RECEIVE, TYPE_DAY_CHECK, TYPE_MONTH_CHECK, TYPE_ADJUST], message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
   validates :origin_text, presence: { message: '原料必须填写'}, if: Proc.new { |record| record.record_type == 1 }
   validates :product_text, presence: { message: '成品必须填写'}, if: Proc.new { |record| (0..1).include? record.record_type }
   validates :weight, presence: { message: '重量必须填写'}

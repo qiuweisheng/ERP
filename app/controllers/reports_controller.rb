@@ -71,12 +71,16 @@ User.class_eval do
       check_date = self.records.order('created_at').first.date - 1
     end
     balance -= self.records.where('date > ? and date < ? and record_type = ?', check_date, today, 0).sum('weight')
-    balance + self.records.where('date > ? and date < ? and record_type = ?', check_date, today, 1).sum('weight')
+    balance += self.records.where('date > ? and date < ? and record_type = ?', check_date, today, 1).sum('weight')
+    balance += self.transactions.where('date > ? and date < ? and record_type = ?', check_date, today, 0).sum('weight')
+    balance - self.transactions.where('date > ? and date < ? and record_type = ?', check_date, today, 1).sum('weight')
   end
 
   def day_sum_as_host(today)
     dispatch_sum = self.records.where('date = ? and record_type = ?', today, 0).sum('weight')
+    dispatch_sum -= self.transactions.where('date = ? and record_type = ?', today, 1).sum('weight')
     receive_sum = self.records.where('date = ? and record_type = ?', today, 1).sum('weight')
+    receive_sum += self.transactions.where('date = ? and record_type = ?', today, 0).sum('weight')
     [dispatch_sum, receive_sum]
   end
 
@@ -101,9 +105,9 @@ class ReportsController < ApplicationController
     @report = []
     participants.each do |participant|
       last_balance = participant.yesterday_balance(@date, @user)
-      @report.push(name: participant.name, last_balance: last_balance)
+      balance = last_balance
+      @report.push(name: participant.name, last_balance: last_balance, balance: balance)
       transactions = participant.day_transactions(@date, @user)
-      balance = 0
       transactions[:dispatch].each do |name, value|
         balance += value
         @report.push(product_name: name, dispatch_value: value, balance: balance)
@@ -190,5 +194,9 @@ class ReportsController < ApplicationController
         actual_balance: host_actual_balance,
         type: :total_sum
     )
+  end
+
+  def goods_distribution
+
   end
 end

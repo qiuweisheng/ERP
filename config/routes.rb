@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   get '/reports/day_summary' => 'reports#day_summary'
   get '/reports/goods_distribution_detail' => 'reports#goods_distribution_detail'
   get '/reports/goods_in_employees' => 'reports#goods_in_employees'
+  get '/reports/depletion' => 'reports#depletion'
 
   resources :contractors
 

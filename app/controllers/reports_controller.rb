@@ -18,7 +18,7 @@ module Statistics
   end
 
   def today_sum(today, user: nil)
-    condition = 'record_type = :record_type AND date = :date '
+    condition = 'record_type = :record_type AND date = :date'
     condition << ' AND user_id = :user' if user
     params = { date: today, user: user }
     params[:record_type] = Record::TYPE_DISPATCH
@@ -28,43 +28,15 @@ module Statistics
     [dispatch_sum, receive_sum]
   end
 
-  # def yesterday_balance(today, user=nil)
-  #   condition = 'record_type = :record_type AND date < :date'
-  #   condition << ' AND user_id = :user' if user
-  #   if self.class == Employee
-  #     params = { date: today, user: user, record_type: Record::TYPE_MONTH_CHECK }
-  #     balance = 0
-  #     check_date = self.transactions.where(condition, params).order('created_at DESC').first.try(:date)
-  #     if check_date
-  #       condition = 'record_type = :record_type AND date = :date'
-  #       condition << ' AND user_id = :user' if user
-  #       params[:date] = check_date
-  #       balance = self.transactions.where(condition, params).sum('weight')
-  #     else
-  #       check_date = self.transactions.order('created_at').first.date - 1.day
-  #     end
-  #     condition = 'record_type = :record_type AND date < :today AND date > :check_date'
-  #     condition << ' AND user_id = :user' if user
-  #     params = { today: today, check_date: check_date, user: user }
-  #     params[:record_type] = Record::TYPE_DISPATCH
-  #     balance += self.transactions.where(condition, params).sum('weight')
-  #     params[:record_type] = Record::TYPE_RECEIVE
-  #     balance -= self.transactions.where(condition, params).sum('weight')
-  #   else
-  #     params = { date: today, user: user }
-  #     params[:record_type] = Record::TYPE_DISPATCH
-  #     balance = self.transactions.where(condition, params).sum('weight')
-  #     params[:record_type] = Record::TYPE_RECEIVE
-  #     balance -= self.transactions.where(condition, params).sum('weight')
-  #   end
-  #   balance
-  # end
-
   def actual_balance(today, user: nil)
     condition = 'record_type = :record_type AND date = :date'
     condition << ' AND user_id = :user' if user
     params = { date: today, user: user, record_type: Record::TYPE_DAY_CHECK }
-    self.transactions.where(condition, params).sum('weight')
+    if self.transactions.where(condition, params).count > 0
+      self.transactions.where(condition, params).sum('weight')
+    else
+      yesterday_balance(today, user: user)
+    end
   end
 
   def yesterday_balance(today, user: nil, check_type: nil)
@@ -107,22 +79,22 @@ Client.class_eval do
   def actual_balance(today, user: nil)
   end
 
-  alias original_today_transactions today_transactions
-  def today_transactions(today, user: nil)
-    transactions = original_today_transactions(today, user: user)
-    { dispatch: transactions[:receive], receive: transactions[:dispatch] }
-  end
-
-  alias original_yesterday_balance yesterday_balance
-  def yesterday_balance(today, user: nil)
-    - original_yesterday_balance(today, user: user)
-  end
-
-  alias original_today_sum today_sum
-  def today_sum(today, user: nil)
-    dispatch_sum, receive_sum = original_today_sum(today, user: user)
-    [receive_sum, dispatch_sum]
-  end
+  # alias original_today_transactions today_transactions
+  # def today_transactions(today, user: nil)
+  #   transactions = original_today_transactions(today, user: user)
+  #   { dispatch: transactions[:receive], receive: transactions[:dispatch] }
+  # end
+  #
+  # alias original_yesterday_balance yesterday_balance
+  # def yesterday_balance(today, user: nil)
+  #   - original_yesterday_balance(today, user: user)
+  # end
+  #
+  # alias original_today_sum today_sum
+  # def today_sum(today, user: nil)
+  #   dispatch_sum, receive_sum = original_today_sum(today, user: user)
+  #   [receive_sum, dispatch_sum]
+  # end
 end
 
 Contractor.class_eval do
@@ -171,7 +143,14 @@ User.class_eval do
   end
 
   def actual_balance_as_host(today)
-    self.records.where('participant_id = ? and date = ? and record_type = ?', self, today, 2).sum('weight')
+    condition = 'participant_id = :participant and date = :date and record_type = :record_type'
+    params = { participant: self, date: today, record_type: Record::TYPE_DAY_CHECK }
+    logger.info "+++++++ #{self.records.where(condition, params).count}"
+    if self.records.where(condition, params).count > 0
+      self.records.where(condition, params).sum('weight')
+    else
+      yesterday_balance_as_host(today)
+    end
   end
 
   def participants(date)
@@ -251,7 +230,7 @@ class ReportsController < ApplicationController
 
   def day_summary
     @date = Date.parse('2014-11-13')
-    @user = User.find_by(name: '003陈小艳')
+    @user = User.find_by(name: '001游玲')
     @report = []
     total_dispatch_sum = 0
     total_receive_sum = 0
@@ -336,7 +315,7 @@ class ReportsController < ApplicationController
     Record.employees(@to).each do |employee|
       values = []
       depletion_sum = 0
-      (@from..@to).each_with_index do |date|
+      (@from..@to).each do |date|
         last_balance = employee.yesterday_balance(date, check_type: Record::TYPE_DAY_CHECK)
         dispatch_sum, receive_sum = employee.today_sum(date)
         actual_balance = employee.actual_balance(date)
@@ -348,5 +327,125 @@ class ReportsController < ApplicationController
       values.push depletion_sum
       @report.push name: employee.name, values: values
     end
+  end
+  
+
+  def production_by_employees
+    @begin_date = Date.parse('2014-11-11')
+    @end_date = Date.parse('2014-11-13')
+    employees = Record.where('date <= ? AND participant_type = ?', @end_date, Employee.name).group('participant_id').collect do |record|
+      record.participant
+    end
+    @report = []
+    employees.each do |employee|
+      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @begin_date, @end_date, employee, Record::TYPE_RECEIVE)
+      records.each_with_index do |record, i|
+        attr = {
+            employee_name: (i==0) ? employee.name : '',
+            date: record.date,
+            product_name: (record.product == nil) ? ('') : (record.product.name),
+            produce_weight: record.weight,
+            product_num: record.count,
+            product_per_employee: record.weight/employee.colleague_number,
+            total: false
+        }
+        @report.push attr
+      end
+
+      weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @begin_date, @end_date, employee, Record::TYPE_RECEIVE).sum('weight')
+      attr = {
+          produce_total_weight: weight_sum,
+          product_total_per_employee: weight_sum/employee.colleague_number,
+          total: true
+      }
+      @report.push attr
+    end
+  end
+
+  def production_by_type
+    @begin_date = Date.parse('2014-11-11')
+    @end_date = Date.parse('2014-11-13')
+    products = Product.all
+
+    @report = []
+    products.each do |product|
+      records = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @begin_date, @end_date, product, Employee.name, Record::TYPE_RECEIVE)
+      if (records != nil) && (records.size > 0)
+        records.each_with_index do |record, i|
+          attr = {
+              product_name: (i==0) ? product.name : '',
+              date: record.date,
+              employee_name: (record.participant == nil) ? ('') : (record.participant.name),
+              produce_weight: record.weight,
+              product_num: record.count,
+              product_per_employee: (record.participant == nil) ? ('') : (record.weight/record.participant.colleague_number),
+              total: false
+          }
+          @report.push attr
+        end
+        weight_sum = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @begin_date, @end_date, product, Employee.name, Record::TYPE_RECEIVE).sum('weight')
+        attr = {
+            produce_total_weight: weight_sum,
+            total: true
+        }
+        @report.push attr
+      end
+    end
+  end
+
+  def production_summary
+    @begin_date = Date.parse('2014-11-11')
+    @end_date = Date.parse('2014-11-13')
+    employees = Record.where('date <= ? AND participant_type = ?', @end_date, Employee.name).group('participant_id').collect do |record|
+      record.participant
+    end
+    @report = []
+    employees.each do |employee|
+      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @begin_date, @end_date, employee, Record::TYPE_RECEIVE)
+      records.each_with_index do |record, i|
+        attr = {
+            employee_name: (i==0) ? employee.name : '',
+            date: record.date,
+            product_name: (record.product == nil) ? ('') : (record.product.name),
+            produce_weight: record.weight,
+            product_num: record.count,
+            product_per_employee: record.weight/employee.colleague_number,
+            total: false
+        }
+        @report.push attr
+      end
+
+      weight_sum = Record.where('date >= ? AND date <= ? and participant_id = ? AND record_type = ?', @begin_date, @end_date, employee, Record::TYPE_RECEIVE).sum('weight')
+      attr = {
+          produce_total_weight: weight_sum,
+          product_total_per_employee: weight_sum/employee.colleague_number,
+          total: true
+      }
+      @report.push attr
+    end
+  end
+  
+  def weight_diff
+    @from = Date.parse('2014-11-1')
+    @to = Date.parse('2014-11-30')
+    @report = []
+    @users = Record.users(@to)
+    (@from..@to).each do |date|
+      values = []
+      @users.each do |user|
+        last_balance = user.yesterday_balance_as_host(date)
+        dispatch_sum, receive_sum = user.today_sum_as_host(date)
+        actual_balance = user.actual_balance_as_host(date)
+        difference = last_balance + receive_sum - dispatch_sum - actual_balance
+        values.push difference
+      end
+      @report.push name: date.strftime('%Y-%m-%d'), values: values
+    end
+    totals = @report.reduce do |r1, r2|
+      values = r1[:values].zip(r2[:values]).map { |v1, v2| v1 + v2 }
+      { values: values }
+    end
+    totals.update name: '合计', type: :total
+    @report.push totals
   end
 end

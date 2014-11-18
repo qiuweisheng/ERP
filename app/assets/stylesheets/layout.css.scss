@@ -155,7 +155,7 @@ div.title {
     border-collapse: collapse;
     border-spacing: 0;
     margin: 0 auto;
-    width: 650px;
+    min-width: 650px;
 
     th, td {
       border: 1px solid #bbb;

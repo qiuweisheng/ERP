@@ -1,0 +1,29 @@
+<div class="report">
+  <table>
+    <thead>
+      <tr class="title">
+        <th colspan="<%= @users.size + 1 %>"><%= @from.strftime '%Y-%m-%d' %>至<%= @to.strftime '%Y-%m-%d' %>各柜台称差明细汇总表</th>
+      </tr>
+      <tr>
+        <th>日期</th>
+        <% @users.each do |user| %>
+          <th><%= user.name %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @report.each do |report| %>
+        <% if report[:type] %>
+        <tr class="<%= report[:type] %>">
+        <% else %>
+        <tr>
+        <% end %>
+          <td><%= report[:name] %></td>
+          <% report[:values].each do |value| %>
+            <td><%= value %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

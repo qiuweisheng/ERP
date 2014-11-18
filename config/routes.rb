@@ -13,6 +13,10 @@ Rails.application.routes.draw do
   get '/reports/goods_distribution_detail' => 'reports#goods_distribution_detail'
   get '/reports/goods_in_employees' => 'reports#goods_in_employees'
   get '/reports/depletion' => 'reports#depletion'
+  get '/reports/weight_diff' => 'reports#weight_diff'
+  get '/reports/production_by_employees' => 'reports#production_by_employees'
+  get '/reports/production_by_type' => 'reports#production_by_type'
+  get '/reports/production_summary' => 'reports#production_summary'
 
   resources :contractors
 

@@ -8,12 +8,7 @@ class SessionsController < ApplicationController
   def create
     @user = User.find_by(serial_number: params[:serial_number])
     if @user and @user.authenticate(params[:password])
-      if [User::PERM_SUPER, User::PERM_ADMIN].include? @user.permission
-        url = user_url @user
-      else
-        url = recent_records_url
-      end
-      redirect_to url
+      redirect_to_main_page @user
       session[:user_id] = @user.id
       session[:permission] = @user.permission
     else
@@ -25,5 +20,20 @@ class SessionsController < ApplicationController
     session[:user_id] = nil
     session[:permission] = nil
     redirect_to login_url
+  end
+  
+  def redirect
+    @user = User.find(session[:user_id])
+    redirect_to_main_page @user
+  end
+  
+  protected
+  def redirect_to_main_page(user)
+    if [User::PERM_SUPER, User::PERM_ADMIN].include? user.permission
+      url = user_url user
+    else
+      url = recent_records_url
+    end
+    redirect_to url
   end
 end

@@ -1,6 +1,10 @@
 class User < ActiveRecord::Base
   MIN_ID = 1
   MAX_ID = Rails.env == 'test' ? 10 : 9999
+  PERM_SUPER     = 0
+  PERM_ADMIN     = 1
+  PERM_LEVEL_ONE = 2
+  PERM_LEVEL_TWO = 3
   PERMISSION_TYPES = { 0 =>'超级用户', 1 => '管理员', 2 => '一级柜台', 3 => '二级柜台' }
 
   has_many :transactions, as: :participant, class_name: 'Record'

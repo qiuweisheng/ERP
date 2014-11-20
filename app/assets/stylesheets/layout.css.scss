@@ -191,6 +191,14 @@ div.title {
 .ui-autocomplete {
   max-height: 200px;
   overflow-y: auto;
-  /* prevent horizontal scrollbar */
   overflow-x: hidden;
+}
+
+#notice, #alert {
+  text-align: center;
+  padding: 10px;
+}
+
+#notice {
+  color: #92c35d;
 }

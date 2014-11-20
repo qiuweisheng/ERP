@@ -1,20 +1,19 @@
 class SessionsController < ApplicationController
-  skip_before_action :store_location
   skip_before_action :need_super_permission
   before_action :need_login, only: [:destroy, :redirect]
+  
   def new
-
   end
 
   def create
     @user = User.find_by(serial_number: params[:serial_number])
     if @user and @user.authenticate(params[:password])
-      if @user.permission > 1
-        default_url = recent_records_url
+      if [User::PERM_SUPER, User::PERM_ADMIN].include? @user.permission
+        url = user_url @user
       else
-        default_url = user_url @user
+        url = recent_records_url
       end
-      redirect_to back_location(default_url)
+      redirect_to url
       session[:user_id] = @user.id
       session[:permission] = @user.permission
     else
@@ -25,17 +24,6 @@ class SessionsController < ApplicationController
   def destroy
     session[:user_id] = nil
     session[:permission] = nil
-    session[:current_location] = session[:previous_location] = nil
     redirect_to login_url
-  end
-
-  def redirect
-    @user = User.find(session[:user_id])
-    if @user.permission > 1
-      url = recent_records_url
-    else
-      url = user_url @user
-    end
-    redirect_to url
   end
 end

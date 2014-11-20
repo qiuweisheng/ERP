@@ -1,12 +1,14 @@
+<% if alert %>
+  <div id="alert" class="ui-state-error">
+    <%= alert %>
+  </div>
+<% end %>
+
 <div class="title">
 请登陆
 </div>
 
 <div class="list_view">
-  <% if flash[:alert] %>
-  <p><%= flash[:alert] %></p>
-  <% end %>
-
   <%= form_tag do %>
     <table>
       <tbody>

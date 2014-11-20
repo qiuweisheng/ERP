@@ -25,9 +25,15 @@ update_balance_value = ->
   if $balance_value.length
     $balance_value.load('/reports/current_user_balance')
     # setTimeout(update_balance_value, 1000)
+    
+hide_notice_message = ->
+  setTimeout (-> 
+    $('#notice, #alert').hide('blind')
+  ), 2000
 
 $(document).on "ready page:change", ->
   set_layout()
   $(window).resize set_layout
   set_ui_widget()
   update_balance_value()
+  hide_notice_message()

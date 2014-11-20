@@ -12,13 +12,13 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: bold;
     background-color: #3b5998;
     border-bottom: $top_nav_border solid #133783;
     -webkit-box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .52);
 
-    ul {
+    #top_nav_intern {
       $ul_border: 1px;
       $height: $top_nav_height - $top_nav_border - $ul_border;
 
@@ -44,6 +44,12 @@ body {
         a:hover {
           border-bottom: $li_border solid #0084b4;
         }
+      }
+      .balance {
+        line-height: $top_nav_height;
+        float: right;
+        margin-right: 25px;
+        color: #fff;
       }
     }
   }
@@ -73,20 +79,20 @@ body {
   }
 
   #content {
-    margin: $top_nav_height auto 0 auto;
+    padding-top: $top_nav_height;
   }
 }
 
 
 .table_view {
-  padding: 20px 0;
+  padding: 10px 0;
   text-align: center;
 
   table {
     border-collapse: collapse;
     border-spacing: 0;
     margin: 0 auto 10px auto;
-    width: 800px;
+    min-width: 700px;
 
     th, td {
       border: 1px solid #bbb;
@@ -143,9 +149,14 @@ body {
 
 div.title {
   text-align: center;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
-  margin: 10px 0;
+  padding-top: 15px;
+}
+
+.button_group {
+  text-align: center;
+  padding-top: 10px;
 }
 
 .report {

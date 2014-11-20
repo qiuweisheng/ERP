@@ -4,12 +4,11 @@
     <tr>
       <th>日期</th>
       <th>类型</th>
-      <th>原料</th>
-      <th>成品</th>
+      <th>摘要</th>
       <th>重量</th>
-      <th>数量</th>
+      <th>件数</th>
       <th>柜台</th>
-      <th>收发人</th>
+      <th>交收人</th>
       <th>单号</th>
       <th>生产者</th>
       <th>客户</th>
@@ -20,7 +19,6 @@
       <tr>
         <td><%= @record.date_text %></td>
         <td><%= Record::RECORD_TYPES[@record.record_type] %></td>
-        <td><%= @record.origin.try(:name) %></td>
         <td><%= @record.product.try(:name) %></td>
         <td><%= @record.weight %></td>
         <td><%= @record.count %></td>

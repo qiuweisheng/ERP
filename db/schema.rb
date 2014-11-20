@@ -54,7 +54,6 @@ ActiveRecord::Schema.define(version: 20141108134258) do
 
   create_table "records", force: true do |t|
     t.integer  "record_type"
-    t.integer  "origin_id"
     t.integer  "product_id"
     t.decimal  "weight"
     t.integer  "count",            default: 0
@@ -71,7 +70,6 @@ ActiveRecord::Schema.define(version: 20141108134258) do
 
   add_index "records", ["client_id"], name: "index_records_on_client_id"
   add_index "records", ["employee_id"], name: "index_records_on_employee_id"
-  add_index "records", ["origin_id"], name: "index_records_on_origin_id"
   add_index "records", ["participant_id", "participant_type"], name: "index_records_on_participant_id_and_participant_type"
   add_index "records", ["product_id"], name: "index_records_on_product_id"
   add_index "records", ["user_id"], name: "index_records_on_user_id"

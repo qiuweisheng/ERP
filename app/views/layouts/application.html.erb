@@ -9,18 +9,23 @@
 
 <body>
   <div id="top_nav">
-    <ul>
-      <% if session[:user_id]%>
-        <% if (2..3) === session[:permission] %>
-          <li><%= link_to '录入', recent_records_path %></li>
+    <div id="top_nav_intern">
+      <ul>
+        <% if session[:user_id]%>
+          <% if (2..3) === session[:permission] %>
+            <li><%= link_to '录入', recent_records_path %></li>
+          <% end %>
+          <li><%= link_to '报表', '/' %></li>
+          <li><%= link_to '管理', user_path(session[:user_id]) %></li>
+          <% if session[:user_id] %>
+            <li><%= link_to '退出', logout_path, method: :delete %></li>
+          <% end %>
         <% end %>
-        <li><%= link_to '报表', '/' %></li>
-        <li><%= link_to '管理', user_path(session[:user_id]) %></li>
-        <% if session[:user_id] %>
-          <li><%= link_to '退出', logout_path, method: :delete %></li>
-        <% end %>
+      </ul>
+      <% if session[:user_id] and session[:permission] > 1 %>
+        <span class="balance">余额: <span id="balance_value">0</span></span>
       <% end %>
-    </ul>
+  </div>
   </div>
 
   <% unless @no_side_bar or session[:user_id].nil? or session[:permission] > 1 %>

@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get '/reports/production_by_employees' => 'reports#production_by_employees'
   get '/reports/production_by_type' => 'reports#production_by_type'
   get '/reports/production_summary' => 'reports#production_summary'
+  get '/reports/current_user_balance' => 'reports#current_user_balance'
 
   resources :contractors
 

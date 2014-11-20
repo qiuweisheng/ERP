@@ -1,15 +1,21 @@
-
+<div class="button_group">
+	<%= link_to '收发', new_record_path(type: 'normal'), class: 'button' %>
+	<%= link_to '盘点', new_record_path(type: 'check'), class: 'button' %>
+  <%= link_to '打磨', new_record_path(type: 'polish'), class: 'button' %>
+  <%= link_to '包装', new_record_path(type: 'package'), class: 'button' %>
+  <%= link_to '客户称差', new_record_path(type: 'weight_difference'), class: 'button' %>
+</div>
+  
 <div class="table_view">
   <table>
     <thead>
     <tr>
       <th>日期</th>
       <th>类型</th>
-      <th>原料</th>
-      <th>成品</th>
+      <th>交收人</th>
+      <th>摘要</th>
       <th>重量</th>
-      <th>数量</th>
-      <th>收发人</th>
+      <th>件数</th>
       <th>单号</th>
       <th>生产者</th>
       <th>客户</th>
@@ -21,11 +27,10 @@
       <tr>
         <td><%= record.date_text %></td>
         <td><%= Record::RECORD_TYPES[record.record_type] %></td>
-        <td><%= record.origin.try(:name) %></td>
+        <td><%= record.participant.name %></td>
         <td><%= record.product.try(:name) %></td>
         <td><%= record.weight %></td>
         <td><%= record.count %></td>
-        <td><%= record.participant.name %></td>
         <td><%= record.order_number %></td>
         <td><%= record.employee.try(:name) %></td>
         <td><%= record.client.try(:name) %></td>
@@ -33,10 +38,6 @@
     <% end %>
     </tbody>
   </table>
-
-  <div>
-  <%= link_to '新建记录', new_record_path, class: 'button' %>
-  </div>
 </div>
 
 

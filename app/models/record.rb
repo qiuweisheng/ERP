@@ -1,13 +1,28 @@
 class Record < ActiveRecord::Base
   PARTICIPANT_CLASS_NAMES = [:user, :employee, :client, :contractor]
-  TYPE_DISPATCH    = 0
-  TYPE_RECEIVE     = 1
-  TYPE_DAY_CHECK   = 2
-  TYPE_MONTH_CHECK = 3
-  TYPE_ADJUST      = 4
-  RECORD_TYPES = { TYPE_DISPATCH => '发货', TYPE_RECEIVE => '收货',  TYPE_DAY_CHECK => '日盘点', TYPE_MONTH_CHECK => '月盘点', TYPE_ADJUST => '补差额' }
+  
+  TYPE_DISPATCH         = 0
+  TYPE_RECEIVE          = 1
+  TYPE_DAY_CHECK        = 2
+  TYPE_MONTH_CHECK      = 3
+  TYPE_ADJUST           = 4
+  TYPE_RETURN           = 5
+  TYPE_PACKAGE_DISPATCH = 6
+  TYPE_PACKAGE_REVEIVE  = 7
+  TYPE_CLIENT_CHECK     = 8
+  
+  RECORD_TYPES = { 
+    TYPE_DISPATCH         => '发货',
+    TYPE_RECEIVE          => '收货', 
+    TYPE_DAY_CHECK        => '日盘点', 
+    TYPE_MONTH_CHECK      => '月盘点', 
+    TYPE_ADJUST           => '补差额',
+    TYPE_RETURN           => '退货',
+    TYPE_PACKAGE_DISPATCH => '包装发货',
+    TYPE_PACKAGE_REVEIVE  => '包装收货',
+    TYPE_CLIENT_CHECK     => '客户称差'
+  }
 
-  belongs_to :origin, class_name: 'Product'
   belongs_to :product
   belongs_to :user
   belongs_to :participant, polymorphic: true
@@ -17,7 +32,6 @@ class Record < ActiveRecord::Base
   validates :date_text, presence: { message: '日期必须填写'}
   validates :type_text, presence: { message: '类型必须填写'}
   validates :record_type, inclusion: { in: [TYPE_DISPATCH, TYPE_RECEIVE, TYPE_DAY_CHECK, TYPE_MONTH_CHECK, TYPE_ADJUST], message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
-  validates :origin_text, presence: { message: '原料必须填写'}, if: Proc.new { |record| record.record_type == 1 }
   validates :product_text, presence: { message: '成品必须填写'}, if: Proc.new { |record| (0..1).include? record.record_type }
   validates :weight, presence: { message: '重量必须填写'}
   validates :count, presence: { message: '件数必须填写'}
@@ -47,7 +61,7 @@ class Record < ActiveRecord::Base
     self.record_type = RECORD_TYPES[value] == name ? value : nil
   end
 
-  [:origin, :product, :user, :participant, :employee, :client].each do |name|
+  [:product, :user, :participant, :employee, :client].each do |name|
     class_eval <<-END
       def #{name}_text
         #{name}.to_s
@@ -55,16 +69,12 @@ class Record < ActiveRecord::Base
     END
   end
 
-  [:origin, :product, :user, :participant, :employee, :client].each do |name|
+  [:product, :user, :participant, :employee, :client].each do |name|
     class_eval <<-END
       def #{name}_text=(text)
         self.#{name} = represent_to_object #{name.to_s.classify}, text
       end
     END
-  end
-
-  def origin_text=(text)
-    self.origin = represent_to_object Product, text
   end
 
   def participant_text=(text)

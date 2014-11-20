@@ -2,7 +2,6 @@ class CreateRecords < ActiveRecord::Migration
   def change
     create_table :records do |t|
       t.integer :record_type
-      t.references :origin, index: true
       t.references :product, index: true
       t.decimal :weight
       t.integer :count, default: 0

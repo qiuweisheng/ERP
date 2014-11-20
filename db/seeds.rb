@@ -114,10 +114,9 @@ Record.delete_all
 open('./db/record.txt', 'r:bom|utf-8') do |file|
   file.each_line do |line|
     unless line.strip.empty?
-      type, origin, product, weight, count, user, participant, klass, date = line.strip.split(/\s+/)
+      type, _, product, weight, count, user, participant, klass, date = line.strip.split(/\s+/)
       Record.create!({
           record_type: type.to_i,
-          origin_id: Product.find_by(name: origin).try(:id),
           product_id: Product.find_by(name: product).try(:id),
           weight: weight.to_f,
           count: count.to_i,

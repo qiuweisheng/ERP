@@ -169,6 +169,7 @@ Employee.class_eval do
 end
 
 class ReportsController < ApplicationController
+  skip_before_action :need_super_permission
   def day_detail
     @date = Date.parse('2014-11-13')
     @user = User.find_by(name: '003陈小艳')
@@ -445,7 +446,16 @@ class ReportsController < ApplicationController
       values = r1[:values].zip(r2[:values]).map { |v1, v2| v1 + v2 }
       { values: values }
     end
-    totals.update name: '合计', type: :total
+    totals.update name: '合计', type: :sum
     @report.push totals
+  end
+  
+  def current_user_balance
+    user = User.find(session[:user_id])
+    date = Time.now.to_date
+    last_balance = user.yesterday_balance_as_host(date)
+    dispatch_sum, receive_sum = user.today_sum_as_host(date)
+    @balance = last_balance + receive_sum - dispatch_sum
+    render(layout: false)
   end
 end

@@ -13,7 +13,9 @@ class UsersController < ApplicationController
   # GET /users/1
   # GET /users/1.json
   def show
-    check_permission
+    unless is_admin_or_login_user?
+      redirect_to back_location(user_url(login_user)), notice: '帐户权限不够'
+    end
   end
 
   # GET /users/new
@@ -24,7 +26,9 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
-    check_permission
+    unless is_admin_or_login_user?
+      redirect_to back_location(user_url(login_user)), notice: '帐户权限不够'
+    end
   end
 
   # POST /users
@@ -84,11 +88,9 @@ class UsersController < ApplicationController
       params.require(:user).permit(:name, :password, :password_confirmation, :permission)
     end
 
-    def check_permission
+    def is_admin_or_login_user?
       # At this point, the user has already login
       login_user = User.find(session[:user_id])
-      unless login_user == @user or [0, 1].include? login_user.permission
-        redirect_to back_location(user_url(login_user)), notice: '帐户权限不够'
-      end
+      login_user == @user or [0, 1].include? login_user.permission
     end
 end

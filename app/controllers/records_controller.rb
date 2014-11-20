@@ -1,5 +1,7 @@
-class RecordsController < ApplicationController
+class RecordsController < ApplicationController  
   skip_before_action :need_super_permission
+  before_action :need_admin_permission, only: [:index, :edit, :show, :update, :destroy]
+  before_action :need_login, only: [:new, :create, :recent]
   before_action :set_record, only: [:show, :edit, :update, :destroy]
 
   # GET /records
@@ -14,11 +16,8 @@ class RecordsController < ApplicationController
   end
 
   # GET /records/new
-  # type: 'normal', 'check', 'polish', 'package', 'weight_difference' 
   def new
-    @record = Record.new date: Time.now.to_date, count: 0
-    @type = params[:type]
-    redirect_to(recent_records_url) unless set_title_and_partial(@type)
+    @record = Record.new date: Time.now.to_date, count: 0, user_id: session[:user_id]
   end
 
   # GET /records/1/edit
@@ -29,8 +28,6 @@ class RecordsController < ApplicationController
   # POST /records.json
   def create
     @record = Record.new(record_params)
-    @type = params[:type]
-    set_title_and_partial @type
 
     respond_to do |format|
       if @record.save
@@ -80,28 +77,6 @@ class RecordsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def record_params
-      params.require(:record).permit(:date_text, :type_text, :product_text, :weight, :count, :user_text, :participant_text, :order_number, :employee_text, :client_text)
-    end
-    
-    def set_title_and_partial(type)
-      case type
-      when 'normal'
-        @title = '收发记录'
-        @partial = 'normal_form'
-      when 'check'
-        @title = '盘点记录'
-        @partial = 'check_form'
-      when 'polish'
-        @title = '打磨记录'
-        @partial = 'form'
-      when 'package'
-        @title = '包装记录'
-        @partial = 'package_form'
-      when 'weight_difference'
-        @title = '客户称差记录'
-        @partial = 'difference_form'
-      else
-        false
-      end
+      params.require(:record).permit(:date_text, :record_type, :product_text, :weight, :count, :user_id, :participant_text, :order_number, :employee_text, :client_text)
     end
 end

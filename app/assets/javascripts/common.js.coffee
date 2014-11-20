@@ -24,7 +24,7 @@ update_balance_value = ->
   $balance_value = $('#balance_value')
   if $balance_value.length
     $balance_value.load('/reports/current_user_balance')
-    setTimeout(update_balance_value, 1000)
+    # setTimeout(update_balance_value, 1000)
 
 $(document).on "ready page:change", ->
   set_layout()

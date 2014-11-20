@@ -1,4 +1,28 @@
 module RecordsHelper
+  def record_type_options_for_normal
+    [Record::TYPE_DISPATCH, Record::TYPE_RECEIVE, Record::TYPE_RETURN].collect do |type|
+      [Record::RECORD_TYPES[type], type]
+    end
+  end
+  
+  def record_type_options_for_check
+    [Record::TYPE_DAY_CHECK, Record::TYPE_MONTH_CHECK].collect do |type|
+      [Record::RECORD_TYPES[type], type]
+    end
+  end
+  
+  def record_type_options_for_polish
+    [Record::TYPE_DISPATCH, Record::TYPE_RECEIVE, Record::YTPE_APPORTION].collect do |type|
+      [Record::RECORD_TYPES[type], type]
+    end
+  end
+  
+  def record_type_options
+    Record::RECORD_TYPES.collect do |type, name|
+      [name, type]
+    end
+  end
+    
   def type_texts
     Record::RECORD_TYPES.collect do |index, type|
       "#{index}-#{type}"

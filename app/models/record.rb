@@ -1,26 +1,31 @@
 class Record < ActiveRecord::Base
   PARTICIPANT_CLASS_NAMES = [:user, :employee, :client, :contractor]
   
-  TYPE_DISPATCH         = 0
-  TYPE_RECEIVE          = 1
-  TYPE_DAY_CHECK        = 2
-  TYPE_MONTH_CHECK      = 3
-  TYPE_ADJUST           = 4
-  TYPE_RETURN           = 5
-  TYPE_PACKAGE_DISPATCH = 6
-  TYPE_PACKAGE_REVEIVE  = 7
-  TYPE_CLIENT_CHECK     = 8
+  TYPE_DISPATCH          = 0
+  TYPE_RECEIVE           = 1
+  TYPE_PACKAGE_DISPATCH  = 2
+  TYPE_PACKAGE_RECEIVE   = 3
+  TYPE_POLISH_DISPATCH   = 4
+  TYPE_POLISH_RECEIVE    = 5
+  TYPE_DAY_CHECK         = 6
+  TYPE_MONTH_CHECK       = 7
+  YTPE_APPORTION         = 8
+  TYPE_RETURN            = 9
+  TYPE_WEIGHT_DIFFERENCE = 10
+  
   
   RECORD_TYPES = { 
-    TYPE_DISPATCH         => '发货',
-    TYPE_RECEIVE          => '收货', 
-    TYPE_DAY_CHECK        => '日盘点', 
-    TYPE_MONTH_CHECK      => '月盘点', 
-    TYPE_ADJUST           => '补差额',
-    TYPE_RETURN           => '退货',
-    TYPE_PACKAGE_DISPATCH => '包装发货',
-    TYPE_PACKAGE_REVEIVE  => '包装收货',
-    TYPE_CLIENT_CHECK     => '客户称差'
+    TYPE_DISPATCH          => '发货',
+    TYPE_RECEIVE           => '收货',
+    TYPE_PACKAGE_DISPATCH  => '<包装>发货',
+    TYPE_PACKAGE_RECEIVE   => '<包装>收货',
+    TYPE_POLISH_DISPATCH   => '<打磨>发货',
+    TYPE_POLISH_RECEIVE    => '<打磨>收货',
+    TYPE_DAY_CHECK         => '<日>盘点', 
+    TYPE_MONTH_CHECK       => '<月>盘点', 
+    YTPE_APPORTION         => '打磨分摊',
+    TYPE_RETURN            => '客户退货',
+    TYPE_WEIGHT_DIFFERENCE => '客户称差' 
   }
 
   belongs_to :product
@@ -30,15 +35,19 @@ class Record < ActiveRecord::Base
   belongs_to :client
 
   validates :date_text, presence: { message: '日期必须填写'}
-  validates :type_text, presence: { message: '类型必须填写'}
-  validates :record_type, inclusion: { in: [TYPE_DISPATCH, TYPE_RECEIVE, TYPE_DAY_CHECK, TYPE_MONTH_CHECK, TYPE_ADJUST], message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
-  validates :product_text, presence: { message: '成品必须填写'}, if: Proc.new { |record| (0..1).include? record.record_type }
-  validates :weight, presence: { message: '重量必须填写'}
+  validates :record_type, presence: { message: '类型必须填写'}
+  validates :record_type, inclusion: { in: RECORD_TYPES.keys, message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
+  validates :product_text, presence: { message: '摘要必须填写'}, unless: Proc.new { |record| [TYPE_DAY_CHECK, TYPE_MONTH_CHECK, YTPE_APPORTION].include? record.record_type }
+  validates :weight, presence: { message: '重量必须填写'} 
   validates :count, presence: { message: '件数必须填写'}
   validates :count, numericality: { greater_than_or_equal_to: 0, message: '件数必须大于或等于0' }
-  validates :user_text, presence: { message: '柜台必须填写'}
-  validates :participant_text, presence: { message: '收发人必须填写'}
-  # validates :participant_type, presence: { message: '收发人类型必须填写'}
+  validates :user_id, presence: { message: '柜台必须填写'}
+  validates :participant_text, presence: { message: '交收人必须填写'}
+  with_options if: :is_polish_or_package_type? do |r|
+    r.validates :order_number, presence: { message: '单号必须填写' }
+    r.validates :client_text, presence: { message: '客户必须填写' }
+  end
+  validates :employee_text, presence: { message: '生产人必须填写' }, if: :is_polish_type?
 
   def date_text
     date.try(:strftime, "%Y-%m-%d")
@@ -48,29 +57,11 @@ class Record < ActiveRecord::Base
     self.date = Date.parse(text) rescue nil
   end
 
-  def type_text
-    unless RECORD_TYPES[record_type]
-      return ''
-    end
-    "#{record_type}-#{RECORD_TYPES[record_type]}"
-  end
-
-  def type_text=(text)
-    value, name = text.strip.split('-')
-    value = value.to_i
-    self.record_type = RECORD_TYPES[value] == name ? value : nil
-  end
-
-  [:product, :user, :participant, :employee, :client].each do |name|
+  [:product, :participant, :employee, :client].each do |name|
     class_eval <<-END
       def #{name}_text
         #{name}.to_s
       end
-    END
-  end
-
-  [:product, :user, :participant, :employee, :client].each do |name|
-    class_eval <<-END
       def #{name}_text=(text)
         self.#{name} = represent_to_object #{name.to_s.classify}, text
       end
@@ -94,8 +85,20 @@ class Record < ActiveRecord::Base
       serial_number, name = text.strip.split('-')
       klass.where(serial_number: serial_number, name: name).first
     end
+    
+    def is_polish_type?
+      [TYPE_POLISH_DISPATCH, TYPE_POLISH_RECEIVE].include? self.record_type
+    end
+    
+    def is_package_type?
+      [TYPE_PACKAGE_DISPATCH, TYPE_PACKAGE_RECEIVE].include? self.record_type
+    end
+    
+    def is_polish_or_package_type?
+      is_polish_type? or is_package_type?
+    end
 
-
+  # Class Methods
   class << self
     def participants(date=nil)
       date = Time.now.to_date unless date

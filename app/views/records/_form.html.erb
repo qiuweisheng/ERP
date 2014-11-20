@@ -10,58 +10,55 @@
       </div>
     <% end %>
     
-    <%= hidden_field_tag :type, @type %>
+    <%= f.hidden_field :user_id%>
     
     <table>
       <tbody>
-        <tr>
+        <tr id="type_select">
+          <td class="label"><%= f.label :record_type, '类型' %></td>
+          <td><%= f.select :record_type, record_type_options %></td>
+        </tr>
+        <tr id='participant'>
           <td class="label"><%= f.label :participant_text, '交收人' %></td>
           <td class="autocomplete">
             <%= f.text_field :participant_text %>
             <div class="data" style="display: none;"><%= participant_texts %></div>
           </td>
         </tr>
-        <tr>
-          <td class="label"><%= f.label :type_text, '类型' %></td>
-          <td class="autocomplete">
-            <%= f.text_field :type_text %>
-            <div class="data" style="display: none;"><%= type_texts %></div>
-          </td>
-        </tr>
-        <tr>
+        <tr id="product">
           <td class="label"><%= f.label :product_text, '摘要' %></td>
           <td class="autocomplete">
             <%= f.text_field :product_text %>
             <div class="data" style="display: none;"><%= product_texts %></div>
           </td>
         </tr>
-        <tr>
+        <tr id="weight">
           <td class="label"><%= f.label :weight, '重量' %></td>
           <td><%= f.text_field :weight %></td>
         </tr>
-        <tr>
+        <tr id="count">
           <td class="label"><%= f.label :count, '件数' %></td>
           <td><%= f.text_field :count %></td>
         </tr>
-        <tr>
+        <tr id="order_number">
           <td class="label"><%= f.label :order_number, '单号' %></td>
           <td><%= f.text_field :order_number %></td>
         </tr>
-        <tr>
+        <tr id="client">
           <td class="label"><%= f.label :client_text, '客户' %></td>
           <td class="autocomplete">
             <%= f.text_field :client_text %>
             <div class="data" style="display: none;"><%= client_texts %></div>
           </td>
         </tr>
-        <tr>
-          <td class="label"><%= f.label :employee_text, '生产者' %></td>
+        <tr id="employee">
+          <td class="label"><%= f.label :employee_text, '生产人' %></td>
           <td class="autocomplete">
             <%= f.text_field :employee_text %>
             <div class="data" style="display: none;"><%= employee_texts %></div>
           </td>
         </tr>
-        <tr>
+        <tr id="date">
           <td class="label"><%= f.label :date_text, '日期' %></td>
           <td class="date_picker"><%= f.text_field :date_text %></td>
         </tr>

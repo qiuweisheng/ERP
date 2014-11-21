@@ -53,7 +53,8 @@ module Statistics
         params[:date] = check_date
         balance = self.transactions.where(condition, params).sum('weight')
       else
-        check_date = self.transactions.order('created_at').first.date - 1.day
+        first_record = self.records.order('created_at').first
+        check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
       end
       condition = 'record_type = :record_type AND date < :today AND date > :check_date'
       condition << ' AND user_id = :user' if user
@@ -118,7 +119,8 @@ User.class_eval do
       params[:participant] = self
       balance = self.records.where(condition, params).sum('weight')
     else
-      check_date = self.records.order('created_at').first.date - 1
+      first_record = self.records.order('created_at').first
+      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
     end
     condition = 'date > :check_date AND date < :today AND record_type = :record_type'
     params = { check_date: check_date, today: today, record_type: Record::TYPE_DISPATCH }
@@ -145,7 +147,6 @@ User.class_eval do
   def actual_balance_as_host(today)
     condition = 'participant_id = :participant and date = :date and record_type = :record_type'
     params = { participant: self, date: today, record_type: Record::TYPE_DAY_CHECK }
-    logger.info "+++++++ #{self.records.where(condition, params).count}"
     if self.records.where(condition, params).count > 0
       self.records.where(condition, params).sum('weight')
     else
@@ -170,10 +171,12 @@ end
 
 class ReportsController < ApplicationController
   skip_before_action :need_super_permission
+  
   def day_detail
-    @date = Date.parse('2014-11-13')
-    @user = User.find_by(name: '003陈小艳')
-    # Get every participant's statistics
+    @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
+    user_id = params[:user_id] || session[:user_id]
+    @user = User.find(user_id)
+    
     @report = []
     @user.participants(@date).each do |participant|
       last_balance = participant.yesterday_balance(@date, user: @user)
@@ -230,8 +233,10 @@ class ReportsController < ApplicationController
   end
 
   def day_summary
-    @date = Date.parse('2014-11-13')
-    @user = User.find_by(name: '001游玲')
+    @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
+    user_id = params[:user_id] || session[:user_id]
+    @user = User.find(user_id)
+
     @report = []
     total_dispatch_sum = 0
     total_receive_sum = 0

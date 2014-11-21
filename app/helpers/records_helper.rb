@@ -22,6 +22,11 @@ module RecordsHelper
       [name, type]
     end
   end
+  
+  def user_options
+    User.all.reject  { |user| [User::PERM_SUPER, User::PERM_ADMIN].include? user.permission }
+            .collect { |user| [user.name, user.id] }
+  end
     
   def type_texts
     Record::RECORD_TYPES.collect do |index, type|

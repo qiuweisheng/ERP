@@ -19,12 +19,12 @@ body {
     -webkit-box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .52);
 
     #top_nav_intern {
-      $ul_border: 1px;
-      $height: $top_nav_height - $top_nav_border - $ul_border;
+      $top_nav_intern_border: 1px;
+      $height: $top_nav_height - $top_nav_border;
 
       height: $height;
       margin-left: 10px;
-      border-bottom: $ul_border solid rgba(0,0,0,0.15);
+      border-bottom: $top_nav_intern_border solid rgba(0,0,0,0.15);
 
       li {
         $li_border: 3px;
@@ -160,7 +160,7 @@ div.title {
 }
 
 .report {
-  padding: 20px 0;
+  padding: 10px 0;
 
   table {
     border-collapse: collapse;
@@ -201,4 +201,23 @@ div.title {
 
 #notice {
   color: #92c35d;
+}
+
+#filter_fields {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #ddd;
+  
+  input {
+    margin-right: 5px;
+    font-size: 13px;
+    width: 100px;
+  }
+  
+  select {
+    margin-right: 5px;
+    width: 100px;
+  }
 }

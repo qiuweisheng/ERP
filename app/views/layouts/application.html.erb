@@ -35,13 +35,15 @@
       <% if controller.controller_name == 'reports' %>
         <li><%= link_to '日报表（明细）', reports_day_detail_path %></li>
         <li><%= link_to '日报表（汇总）', reports_day_summary_path %></li>
-        <li><%= link_to '黄金分布明（细表）', reports_goods_distribution_detail_path %></li>
-        <li><%= link_to '员工货物明（细表）', reports_goods_in_employees_path %></li>
         <li><%= link_to '损耗明细汇总表', reports_depletion_path %></li>
-        <li><%= link_to '各柜台称差明细汇总表', reports_weight_diff_path %></li>
-        <li><%= link_to '生产统计表（生产组）', reports_production_by_employees_path %></li>
-        <li><%= link_to '生产统计表（品种）', reports_production_by_type_path %></li>
-        <li><%= link_to '生产统计汇总表', reports_production_summary_path %></li>
+        <% if [User::PERM_SUPER, User::PERM_ADMIN].include? session[:permission] %>
+          <li><%= link_to '黄金分布明（细表）', reports_goods_distribution_detail_path %></li>
+          <li><%= link_to '员工货物明（细表）', reports_goods_in_employees_path %></li>
+          <li><%= link_to '各柜台称差明细汇总表', reports_weight_diff_path %></li>
+          <li><%= link_to '生产统计表（生产组）', reports_production_by_employees_path %></li>
+          <li><%= link_to '生产统计表（品种）', reports_production_by_type_path %></li>
+          <li><%= link_to '生产统计汇总表', reports_production_summary_path %></li>
+        <% end %>
       <% else %>
         <li><%= link_to '产品', products_path  %></li>
         <li><%= link_to '部门', departments_path %></li>

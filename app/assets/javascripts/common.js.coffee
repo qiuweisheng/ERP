@@ -5,7 +5,7 @@ set_layout = ->
     $('#content').css 'margin-left': $sidebar.width()
 
 set_ui_widget = ->
-  $('.date_picker input[type="text"]').datepicker
+  $('.date_picker input[type="text"], input.date_picker').datepicker
     dateFormat: 'yy-mm-dd'
     showButtonPanel: true
 

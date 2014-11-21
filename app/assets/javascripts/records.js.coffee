@@ -30,7 +30,7 @@ show_record_input_field = ->
   
     
   
-$(document).on "ready page:change", ->
+$(document).on "page:change", ->
   show_record_input_field()
   $('#record_record_type').change ->
     show_record_input_field()

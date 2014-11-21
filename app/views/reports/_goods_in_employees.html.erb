@@ -1,0 +1,30 @@
+<div class="report">
+  <table>
+    <thead>
+    <tr class="title">
+      <th colspan="3">员工货物明细表</th>
+    </tr>
+    <tr>
+      <th colspan="3">日期：<%= @date.strftime '%Y-%m-%d' %></th>
+    </tr>
+    <tr>
+      <th>名称</th>
+      <th>数量</th>
+      <th>人均用金量</th>
+    </tr>
+    </thead>
+    <tbody>
+      <% @report.each do |report| %>
+        <% if report[:type] %>
+        <tr class="<%= report[:type] %>">
+        <% else %>
+        <tr>
+        <% end %>
+          <td><%= report[:name] %></td>
+          <td><%= report[:sum] %></td>
+          <td><%= report[:average] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

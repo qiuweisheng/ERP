@@ -31,7 +31,7 @@ hide_notice_message = ->
     $('#notice, #alert').hide('blind')
   ), 2000
 
-$(document).on "ready page:change", ->
+$(document).on "page:change", ->
   set_layout()
   $(window).resize set_layout
   set_ui_widget()

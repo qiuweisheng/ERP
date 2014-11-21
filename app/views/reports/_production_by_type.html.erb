@@ -1,0 +1,39 @@
+<div class="report">
+  <table>
+    <thead>
+    <tr class="title">
+      <th colspan="6">生产统计表(品种)</th>
+    </tr>
+    <tr>
+      <th>品种</th>
+      <th>日期</th>
+      <th>生产组</th>
+      <th>数量</th>
+      <th>件数</th>
+      <th>人均产量</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @report.each do |report| %>
+        <% if report[:total] %>
+            <tr class="total">
+                <td >合计</td>
+                <td></td>
+                <td></td>
+                <td><%=report[:produce_total_weight] %></td>
+                <td></td>
+                <td></td>
+        <% else %>
+            <tr>
+                <td ><%=report[:product_name] %></td>
+                <td><%= report[:date] %></td>
+                <td><%= report[:employee_name] %></td>
+                <td><%= report[:produce_weight] %></td>
+                <td><%= report[:product_num] %></td>
+                <td><%= report[:product_per_employee] %></td>
+        <% end %>
+            </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>

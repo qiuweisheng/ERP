@@ -1,0 +1,37 @@
+<div class="report">
+  <table>
+    <thead>
+      <tr class="title">
+        <th colspan="<%= @column * 2 + 4 %>"><%= @from_date.strftime '%Y-%m-%d' %>至<%= @to_date.strftime '%Y-%m-%d' %>各组损耗明细汇总表</th>
+      </tr>
+      <tr>
+        <th rowspan="2">生产组长</th>
+        <% (@from_date..@to_date).each do |date| %>
+          <th colspan="2"><%= date.strftime '%Y-%m-%d' %></th>
+        <% end %>
+        <th colspan="2">合计</th>
+        <th rowspan="2">合计</th>
+      </tr>
+      <tr>
+        <% @column.times do %>
+          <th>组内欠金</th>
+          <th>打磨扣欠金</th>
+        <% end %>
+        <th>组内欠金</th>
+        <th>打磨扣欠金</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @report.each do |report| %>
+        <tr>
+          <td><%= report[:name] %></td>
+          <% report[:values][0...-1].each do |value| %>
+            <td><%= value[:depletion] %></td>
+            <td></td>
+          <% end %>
+          <td><%= report[:values][-1] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

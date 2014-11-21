@@ -53,7 +53,7 @@ module Statistics
         params[:date] = check_date
         balance = self.transactions.where(condition, params).sum('weight')
       else
-        first_record = self.records.order('created_at').first
+        first_record = self.transactions.order('created_at').first
         check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
       end
       condition = 'record_type = :record_type AND date < :today AND date > :check_date'
@@ -285,7 +285,8 @@ class ReportsController < ApplicationController
   def goods_distribution_detail
     milli = ->(sum) { sum / 1000 }
     gram = ->(sum) { "%.4f" % [sum / 26.717] }
-    @date = Date.parse('2014-11-13')
+    
+    @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date   
     @report = []
     total = 0
     Record.users(@date).each do |user|
@@ -302,7 +303,7 @@ class ReportsController < ApplicationController
   end
 
   def goods_in_employees
-    @date = Date.parse('2014-11-13')
+    @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
     @report = []
     total = 0
     Record.employees(@date).each do |employee|
@@ -314,14 +315,14 @@ class ReportsController < ApplicationController
   end
 
   def depletion
-    @from = Date.parse('2014-11-12')
-    @to = Date.parse('2014-11-13')
-    @column = (@to - @from).to_i + 1
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
+    @column = (@to_date - @from_date).to_i + 1
     @report = []
-    Record.employees(@to).each do |employee|
+    Record.employees(@to_date).each do |employee|
       values = []
       depletion_sum = 0
-      (@from..@to).each do |date|
+      (@from_date..@to_date).each do |date|
         last_balance = employee.yesterday_balance(date, check_type: Record::TYPE_DAY_CHECK)
         dispatch_sum, receive_sum = employee.today_sum(date)
         actual_balance = employee.actual_balance(date)
@@ -337,14 +338,14 @@ class ReportsController < ApplicationController
   
 
   def production_by_employees
-    @begin_date = Date.parse('2014-11-11')
-    @end_date = Date.parse('2014-11-13')
-    employees = Record.where('date <= ? AND participant_type = ?', @end_date, Employee.name).group('participant_id').collect do |record|
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
+    employees = Record.where('date <= ? AND participant_type = ?', @to_date, Employee.name).group('participant_id').collect do |record|
       record.participant
     end
     @report = []
     employees.each do |employee|
-      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @begin_date, @end_date, employee, Record::TYPE_RECEIVE)
+      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE)
       records.each_with_index do |record, i|
         attr = {
             employee_name: (i==0) ? employee.name : '',
@@ -358,7 +359,7 @@ class ReportsController < ApplicationController
         @report.push attr
       end
 
-      weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @begin_date, @end_date, employee, Record::TYPE_RECEIVE).sum('weight')
+      weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
       attr = {
           produce_total_weight: weight_sum,
           product_total_per_employee: weight_sum/employee.colleague_number,
@@ -369,13 +370,13 @@ class ReportsController < ApplicationController
   end
 
   def production_by_type
-    @begin_date = Date.parse('2014-11-11')
-    @end_date = Date.parse('2014-11-13')
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     products = Product.all
 
     @report = []
     products.each do |product|
-      records = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @begin_date, @end_date, product, Employee.name, Record::TYPE_RECEIVE)
+      records = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, product, Employee.name, Record::TYPE_RECEIVE)
       if (records != nil) && (records.size > 0)
         records.each_with_index do |record, i|
           attr = {
@@ -389,7 +390,7 @@ class ReportsController < ApplicationController
           }
           @report.push attr
         end
-        weight_sum = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @begin_date, @end_date, product, Employee.name, Record::TYPE_RECEIVE).sum('weight')
+        weight_sum = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, product, Employee.name, Record::TYPE_RECEIVE).sum('weight')
         attr = {
             produce_total_weight: weight_sum,
             total: true
@@ -400,14 +401,14 @@ class ReportsController < ApplicationController
   end
 
   def production_summary
-    @begin_date = Date.parse('2014-11-11')
-    @end_date = Date.parse('2014-11-13')
-    employees = Record.where('date <= ? AND participant_type = ?', @end_date, Employee.name).group('participant_id').collect do |record|
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
+    employees = Record.where('date <= ? AND participant_type = ?', @to_date, Employee.name).group('participant_id').collect do |record|
       record.participant
     end
     @report = []
     employees.each do |employee|
-      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @begin_date, @end_date, employee, Record::TYPE_RECEIVE)
+      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE)
       records.each_with_index do |record, i|
         attr = {
             employee_name: (i==0) ? employee.name : '',
@@ -421,7 +422,7 @@ class ReportsController < ApplicationController
         @report.push attr
       end
 
-      weight_sum = Record.where('date >= ? AND date <= ? and participant_id = ? AND record_type = ?', @begin_date, @end_date, employee, Record::TYPE_RECEIVE).sum('weight')
+      weight_sum = Record.where('date >= ? AND date <= ? and participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
       attr = {
           produce_total_weight: weight_sum,
           product_total_per_employee: weight_sum/employee.colleague_number,
@@ -432,11 +433,11 @@ class ReportsController < ApplicationController
   end
   
   def weight_diff
-    @from = Date.parse('2014-11-1')
-    @to = Date.parse('2014-11-30')
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     @report = []
-    @users = Record.users(@to)
-    (@from..@to).each do |date|
+    @users = Record.users(@to_date)
+    (@from_date..@to_date).each do |date|
       values = []
       @users.each do |user|
         last_balance = user.yesterday_balance_as_host(date)
@@ -447,7 +448,8 @@ class ReportsController < ApplicationController
       end
       @report.push name: date.strftime('%Y-%m-%d'), values: values
     end
-    totals = @report.reduce do |r1, r2|
+    init = { values: Array.new(@users.size) { 0 } }
+    totals = @report.reduce(init) do |r1, r2|
       values = r1[:values].zip(r2[:values]).map { |v1, v2| v1 + v2 }
       { values: values }
     end

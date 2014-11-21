@@ -214,10 +214,15 @@ div.title {
     margin-right: 5px;
     font-size: 13px;
     width: 100px;
+    padding-left: 3px;
+    padding-right: 3px;
   }
   
   select {
     margin-right: 5px;
     width: 100px;
+  }
+  span {
+    margin-right: 5px;
   }
 }

@@ -45,6 +45,7 @@ body {
           border-bottom: $li_border solid #0084b4;
         }
       }
+      
       .balance {
         line-height: $top_nav_height;
         float: right;
@@ -101,9 +102,22 @@ body {
     }
 
     th.action, td.action {
-      border: 0;
+      border: none;
+      border-bottom: 1px solid #bbb;
       padding: 4px 0 3px 4px;
-      width: 28px;
+//      width: 28px;
+    }
+    
+    th.action {
+      border-top: 1px solid #bbb;;
+    }
+    
+    .even {
+      background-color: #ebebeb;
+    }
+    
+    tr.head {
+      background-color: #d9d9d9;
     }
   }
 }

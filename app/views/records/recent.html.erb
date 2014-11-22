@@ -11,7 +11,7 @@
 <div class="table_view">
   <table>
     <thead>
-    <tr>
+    <tr class="head">
       <th>日期</th>
       <th>类型</th>
       <th>交收人</th>
@@ -26,7 +26,7 @@
 
     <tbody>
     <% @records.each do |record| %>
-      <tr>
+      <tr class="<%= cycle('odd', 'even') %>">
         <td><%= record.date_text %></td>
         <td><%= Record::RECORD_TYPES[record.record_type] %></td>
         <td><%= record.participant.name %></td>

@@ -25,8 +25,9 @@ show_record_input_field = ->
       # 客户称差
       when 10
         row_ids = ['#type_select','#participant','#product','#weight','#date']
-    $('#new_record tbody tr').hide()
+    $('tbody tr').hide()
     $(row_ids.join()).show()
+    $('tbody tr:hidden input').val('')
   
     
   

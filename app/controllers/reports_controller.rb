@@ -1,174 +1,3 @@
-module Statistics
-  def today_transactions(today, user: nil)
-    transactions = { dispatch: [], receive: [] }
-    condition = 'record_type = :record_type AND date = :date '
-    condition << ' AND user_id = :user' if user
-    params = { date: today, user: user }
-    # Dispatch
-    params[:record_type] = Record::TYPE_DISPATCH
-    self.transactions.select('product_id, weight').where(condition, params).each do |record|
-      transactions[:dispatch].push [record.product.name, record.weight]
-    end
-    # Receive
-    params[:record_type] = Record::TYPE_RECEIVE
-    self.transactions.select('product_id, weight').where(condition, params).each do |record|
-      transactions[:receive].push [record.product.name, record.weight]
-    end
-    transactions
-  end
-
-  def today_sum(today, user: nil)
-    condition = 'record_type = :record_type AND date = :date'
-    condition << ' AND user_id = :user' if user
-    params = { date: today, user: user }
-    params[:record_type] = Record::TYPE_DISPATCH
-    dispatch_sum = self.transactions.where(condition, params).sum('weight')
-    params[:record_type] = Record::TYPE_RECEIVE
-    receive_sum = self.transactions.where(condition, params).sum('weight')
-    [dispatch_sum, receive_sum]
-  end
-
-  def actual_balance(today, user: nil)
-    condition = 'record_type = :record_type AND date = :date'
-    condition << ' AND user_id = :user' if user
-    params = { date: today, user: user, record_type: Record::TYPE_DAY_CHECK }
-    if self.transactions.where(condition, params).count > 0
-      self.transactions.where(condition, params).sum('weight')
-    else
-      yesterday_balance(today, user: user)
-    end
-  end
-
-  def yesterday_balance(today, user: nil, check_type: nil)
-    condition = 'record_type = :record_type AND date < :date'
-    condition << ' AND user_id = :user' if user
-    if self.class == Employee
-      check_type = Record::TYPE_MONTH_CHECK unless check_type
-      params = { date: today, user: user, record_type: check_type }
-      balance = 0
-      check_date = self.transactions.where(condition, params).order('created_at DESC').first.try(:date)
-      if check_date
-        condition = 'record_type = :record_type AND date = :date'
-        condition << ' AND user_id = :user' if user
-        params[:date] = check_date
-        balance = self.transactions.where(condition, params).sum('weight')
-      else
-        first_record = self.transactions.order('created_at').first
-        check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
-      end
-      condition = 'record_type = :record_type AND date < :today AND date > :check_date'
-      condition << ' AND user_id = :user' if user
-      params = { today: today, check_date: check_date, user: user }
-      params[:record_type] = Record::TYPE_DISPATCH
-      balance += self.transactions.where(condition, params).sum('weight')
-      params[:record_type] = Record::TYPE_RECEIVE
-      balance -= self.transactions.where(condition, params).sum('weight')
-    else
-      params = { date: today, user: user }
-      params[:record_type] = Record::TYPE_DISPATCH
-      balance = self.transactions.where(condition, params).sum('weight')
-      params[:record_type] = Record::TYPE_RECEIVE
-      balance -= self.transactions.where(condition, params).sum('weight')
-    end
-    balance
-  end
-end
-
-Client.class_eval do
-  include Statistics
-
-  def actual_balance(today, user: nil)
-  end
-
-  # alias original_today_transactions today_transactions
-  # def today_transactions(today, user: nil)
-  #   transactions = original_today_transactions(today, user: user)
-  #   { dispatch: transactions[:receive], receive: transactions[:dispatch] }
-  # end
-  #
-  # alias original_yesterday_balance yesterday_balance
-  # def yesterday_balance(today, user: nil)
-  #   - original_yesterday_balance(today, user: user)
-  # end
-  #
-  # alias original_today_sum today_sum
-  # def today_sum(today, user: nil)
-  #   dispatch_sum, receive_sum = original_today_sum(today, user: user)
-  #   [receive_sum, dispatch_sum]
-  # end
-end
-
-Contractor.class_eval do
-  include Statistics
-
-  def actual_balance(today, user: nil)
-  end
-end
-
-User.class_eval do
-  include Statistics
-
-  def yesterday_balance_as_host(today)
-    condition = 'date < :date AND record_type = :record_type'
-    params = { date: today, record_type: Record::TYPE_DAY_CHECK }
-    check_date = self.records.where(condition, params).order('created_at DESC').first.try(:date)
-    balance = 0
-    if check_date
-      condition = 'participant_id = :participant AND date = :date AND record_type = :record_type'
-      params[:date] = check_date
-      params[:participant] = self
-      balance = self.records.where(condition, params).sum('weight')
-    else
-      first_record = self.records.order('created_at').first
-      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
-    end
-    condition = 'date > :check_date AND date < :today AND record_type = :record_type'
-    params = { check_date: check_date, today: today, record_type: Record::TYPE_DISPATCH }
-    balance -= self.records.where(condition, params).sum('weight')
-    balance += self.transactions.where(condition, params).sum('weight')
-    params[:record_type] = Record::TYPE_RECEIVE
-    balance += self.records.where(condition, params).sum('weight')
-    balance - self.transactions.where(condition, params).sum('weight')
-  end
-
-  def today_sum_as_host(today)
-    condition = 'date = :date AND record_type = :record_type'
-    params = { date: today, record_type: Record::TYPE_DISPATCH }
-    other_dispatch_sum = self.transactions.where(condition, params).sum('weight')
-    dispatch_sum = self.records.where(condition, params).sum('weight')
-    params[:record_type] = Record::TYPE_RECEIVE
-    other_receive_sum = self.transactions.where(condition, params).sum('weight')
-    receive_sum = self.records.where(condition, params).sum('weight')
-    dispatch_sum += other_receive_sum
-    receive_sum += other_dispatch_sum
-    [dispatch_sum, receive_sum, other_dispatch_sum, other_receive_sum]
-  end
-
-  def actual_balance_as_host(today)
-    condition = 'participant_id = :participant and date = :date and record_type = :record_type'
-    params = { participant: self, date: today, record_type: Record::TYPE_DAY_CHECK }
-    if self.records.where(condition, params).count > 0
-      self.records.where(condition, params).sum('weight')
-    else
-      yesterday_balance_as_host(today)
-    end
-  end
-
-  def participants(date)
-    group = self.records.where('date = ? and record_type != ?', date, 2).group('participant_id')
-              .collect  { |r| r.participant }
-              .group_by { |p| p.class }
-    [Employee, User, Contractor, Client]
-      .map    { |c| group[c] }
-      .select { |p| p }
-      .flatten
-  end
-end
-
-Employee.class_eval do
-  include Statistics
-end
-
 class ReportsController < ApplicationController
   skip_before_action :need_super_permission
   
@@ -465,4 +294,175 @@ class ReportsController < ApplicationController
     @balance = last_balance + receive_sum - dispatch_sum
     render(layout: false)
   end
+end
+
+module Statistics
+  def today_transactions(today, user: nil)
+    transactions = { dispatch: [], receive: [] }
+    condition = 'record_type = :record_type AND date = :date '
+    condition << ' AND user_id = :user' if user
+    params = { date: today, user: user }
+    # Dispatch
+    params[:record_type] = Record::TYPE_DISPATCH
+    self.transactions.select('product_id, weight').where(condition, params).each do |record|
+      transactions[:dispatch].push [record.product.name, record.weight]
+    end
+    # Receive
+    params[:record_type] = Record::TYPE_RECEIVE
+    self.transactions.select('product_id, weight').where(condition, params).each do |record|
+      transactions[:receive].push [record.product.name, record.weight]
+    end
+    transactions
+  end
+
+  def today_sum(today, user: nil)
+    condition = 'record_type = :record_type AND date = :date'
+    condition << ' AND user_id = :user' if user
+    params = { date: today, user: user }
+    params[:record_type] = Record::TYPE_DISPATCH
+    dispatch_sum = self.transactions.where(condition, params).sum('weight')
+    params[:record_type] = Record::TYPE_RECEIVE
+    receive_sum = self.transactions.where(condition, params).sum('weight')
+    [dispatch_sum, receive_sum]
+  end
+
+  def actual_balance(today, user: nil)
+    condition = 'record_type = :record_type AND date = :date'
+    condition << ' AND user_id = :user' if user
+    params = { date: today, user: user, record_type: Record::TYPE_DAY_CHECK }
+    if self.transactions.where(condition, params).count > 0
+      self.transactions.where(condition, params).sum('weight')
+    else
+      yesterday_balance(today, user: user)
+    end
+  end
+
+  def yesterday_balance(today, user: nil, check_type: nil)
+    condition = 'record_type = :record_type AND date < :date'
+    condition << ' AND user_id = :user' if user
+    if self.class == Employee
+      check_type = Record::TYPE_MONTH_CHECK unless check_type
+      params = { date: today, user: user, record_type: check_type }
+      balance = 0
+      check_date = self.transactions.where(condition, params).order('created_at DESC').first.try(:date)
+      if check_date
+        condition = 'record_type = :record_type AND date = :date'
+        condition << ' AND user_id = :user' if user
+        params[:date] = check_date
+        balance = self.transactions.where(condition, params).sum('weight')
+      else
+        first_record = self.transactions.order('created_at').first
+        check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
+      end
+      condition = 'record_type = :record_type AND date < :today AND date > :check_date'
+      condition << ' AND user_id = :user' if user
+      params = { today: today, check_date: check_date, user: user }
+      params[:record_type] = Record::TYPE_DISPATCH
+      balance += self.transactions.where(condition, params).sum('weight')
+      params[:record_type] = Record::TYPE_RECEIVE
+      balance -= self.transactions.where(condition, params).sum('weight')
+    else
+      params = { date: today, user: user }
+      params[:record_type] = Record::TYPE_DISPATCH
+      balance = self.transactions.where(condition, params).sum('weight')
+      params[:record_type] = Record::TYPE_RECEIVE
+      balance -= self.transactions.where(condition, params).sum('weight')
+    end
+    balance
+  end
+end
+
+Client.class_eval do
+  include Statistics
+
+  def actual_balance(today, user: nil)
+  end
+
+  # alias original_today_transactions today_transactions
+  # def today_transactions(today, user: nil)
+  #   transactions = original_today_transactions(today, user: user)
+  #   { dispatch: transactions[:receive], receive: transactions[:dispatch] }
+  # end
+  #
+  # alias original_yesterday_balance yesterday_balance
+  # def yesterday_balance(today, user: nil)
+  #   - original_yesterday_balance(today, user: user)
+  # end
+  #
+  # alias original_today_sum today_sum
+  # def today_sum(today, user: nil)
+  #   dispatch_sum, receive_sum = original_today_sum(today, user: user)
+  #   [receive_sum, dispatch_sum]
+  # end
+end
+
+Contractor.class_eval do
+  include Statistics
+
+  def actual_balance(today, user: nil)
+  end
+end
+
+User.class_eval do
+  include Statistics
+
+  def yesterday_balance_as_host(today)
+    condition = 'date < :date AND record_type = :record_type'
+    params = { date: today, record_type: Record::TYPE_DAY_CHECK }
+    check_date = self.records.where(condition, params).order('created_at DESC').first.try(:date)
+    balance = 0
+    if check_date
+      condition = 'participant_id = :participant AND date = :date AND record_type = :record_type'
+      params[:date] = check_date
+      params[:participant] = self
+      balance = self.records.where(condition, params).sum('weight')
+    else
+      first_record = self.records.order('created_at').first
+      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
+    end
+    condition = 'date > :check_date AND date < :today AND record_type = :record_type'
+    params = { check_date: check_date, today: today, record_type: Record::TYPE_DISPATCH }
+    balance -= self.records.where(condition, params).sum('weight')
+    balance += self.transactions.where(condition, params).sum('weight')
+    params[:record_type] = Record::TYPE_RECEIVE
+    balance += self.records.where(condition, params).sum('weight')
+    balance - self.transactions.where(condition, params).sum('weight')
+  end
+
+  def today_sum_as_host(today)
+    condition = 'date = :date AND record_type = :record_type'
+    params = { date: today, record_type: Record::TYPE_DISPATCH }
+    other_dispatch_sum = self.transactions.where(condition, params).sum('weight')
+    dispatch_sum = self.records.where(condition, params).sum('weight')
+    params[:record_type] = Record::TYPE_RECEIVE
+    other_receive_sum = self.transactions.where(condition, params).sum('weight')
+    receive_sum = self.records.where(condition, params).sum('weight')
+    dispatch_sum += other_receive_sum
+    receive_sum += other_dispatch_sum
+    [dispatch_sum, receive_sum, other_dispatch_sum, other_receive_sum]
+  end
+
+  def actual_balance_as_host(today)
+    condition = 'participant_id = :participant and date = :date and record_type = :record_type'
+    params = { participant: self, date: today, record_type: Record::TYPE_DAY_CHECK }
+    if self.records.where(condition, params).count > 0
+      self.records.where(condition, params).sum('weight')
+    else
+      yesterday_balance_as_host(today)
+    end
+  end
+
+  def participants(date)
+    group = self.records.where('date = ? and record_type != ?', date, 2).group('participant_id')
+              .collect  { |r| r.participant }
+              .group_by { |p| p.class }
+    [Employee, User, Contractor, Client]
+      .map    { |c| group[c] }
+      .select { |p| p }
+      .flatten
+  end
+end
+
+Employee.class_eval do
+  include Statistics
 end

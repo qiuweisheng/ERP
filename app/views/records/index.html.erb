@@ -1,44 +1,74 @@
+<% if notice %>
+  <div id="notice" class="ui-state-highlight">
+    <%= notice %>
+  </div>
+<% end %>
+
+<% unless @is_admin %>
+  <div class="button_group">
+  	<%= link_to '新建记录', new_record_path, class: 'button' %>
+  </div>
+<% end %>
 
 <div class="table_view">
   <table>
     <thead>
-      <tr>
+      <tr class="head">
         <th>日期</th>
         <th>类型</th>
         <th>摘要</th>
         <th>重量</th>
         <th>件数</th>
-        <th>柜台</th>
+        <% if @is_admin %>
+          <th>柜台</th>
+        <% end %>
         <th>交收人</th>
         <th>单号</th>
         <th>生产者</th>
         <th>客户</th>
-        <th colspan="3" class="action"></th>
+        <% if @is_admin %>
+          <th colspan="3" class="action">操作</th>
+        <% else %>
+          <th class="action">操作</th>
+        <% end %>
       </tr>
     </thead>
 
     <tbody>
       <% @records.each do |record| %>
-        <tr>
+        <tr class="<%= cycle('odd', 'even') %>">
           <td><%= record.date_text %></td>
           <td><%= Record::RECORD_TYPES[record.record_type] %></td>
           <td><%= record.product.try(:name) %></td>
           <td><%= record.weight %></td>
-          <td><%= record.count %></td>
+          <% if @is_admin %>
+            <td><%= record.count %></td>
+          <% end %>
           <td><%= record.user.name %></td>
           <td><%= record.participant.name %></td>
           <td><%= record.order_number %></td>
           <td><%= record.employee.try(:name) %></td>
           <td><%= record.client.try(:name) %></td>
-          <td class="action"><%= link_to '查看', record %></td>
-          <td class="action"><%= link_to '编辑', edit_record_path(record) %></td>
-          <td class="action"><%= link_to '删除', record, method: :delete, data: { confirm: '你确定删除记录？' } %></td>
+          <% if @is_admin %>
+            <td class="action"><%= link_to '查看', record %></td>
+            <td class="action"><%= link_to '编辑', edit_record_path(record) %></td>
+            <td class="action"><%= link_to '删除', record, method: :delete, data: { confirm: '你确定删除记录？' } %></td>
+          <% else %>
+            <td class="action"><%= link_to '复制', new_record_path(record: record) %></td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>
   </table>
-
-  <br>
-
-  <%= link_to '新建记录', new_record_path %>
+  <div class="page_navigation">
+    <% if @prev_page %>
+      <span><%= link_to '《 上一页', records_path(page: @prev_page) %></span>
+    <% end %>
+    <% if @prev_page and @next_page %>
+      &nbsp;|&nbsp;
+    <% end %>
+    <% if @next_page %>
+      <span><%= link_to '下一页 》', records_path(page: @next_page) %></span>
+    <% end %>
+  </div>
 </div>

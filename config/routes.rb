@@ -8,24 +8,22 @@ Rails.application.routes.draw do
     delete 'logout' => :destroy
   end
 
-    match '/reports/day_detail', to: 'reports#day_detail', via: [:get, :post]
-    match '/reports/day_summary', to: 'reports#day_summary', via: [:get, :post]
-    match '/reports/goods_distribution_detail', to: 'reports#goods_distribution_detail', via: [:get, :post]
-    match '/reports/goods_in_employees', to: 'reports#goods_in_employees', via: [:get, :post]
-    match '/reports/depletion', to: 'reports#depletion', via: [:get, :post]
-    match '/reports/weight_diff', to: 'reports#weight_diff', via: [:get, :post]
-    match '/reports/production_by_employees', to: 'reports#production_by_employees', via: [:get, :post]
-    match '/reports/production_by_type', to: 'reports#production_by_type', via: [:get, :post]
-    match '/reports/production_summary', to: 'reports#production_summary', via: [:get, :post]
-    match '/reports/current_user_balance', to: 'reports#current_user_balance', via: [:get, :post]
+    get '/reports/day_detail' => 'reports#day_detail'
+    get '/reports/day_summary' => 'reports#day_summary'
+    get '/reports/goods_distribution_detail' => 'reports#goods_distribution_detail'
+    get '/reports/goods_in_employees' => 'reports#goods_in_employees'
+    get '/reports/depletion' => 'reports#depletion'
+    get '/reports/weight_diff' => 'reports#weight_diff'
+    get '/reports/production_by_employees' => 'reports#production_by_employees'
+    get '/reports/production_by_type' => 'reports#production_by_type'
+    get '/reports/production_summary' => 'reports#production_summary'
+    get '/reports/current_user_balance' => 'reports#current_user_balance'
 
   resources :contractors
 
   resources :departments
 
-  resources :records do
-    get :recent, on: :collection
-  end
+  resources :records
 
   resources :users
 

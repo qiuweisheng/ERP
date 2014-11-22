@@ -1,6 +1,6 @@
 class SessionsController < ApplicationController
   skip_before_action :need_super_permission
-  before_action :need_login, only: [:destroy, :redirect]
+  prepend_before_action :need_login, only: [:destroy, :redirect]
   
   def new
   end
@@ -25,15 +25,5 @@ class SessionsController < ApplicationController
   def redirect
     @user = User.find(session[:user_id])
     redirect_to_main_page @user
-  end
-  
-  protected
-  def redirect_to_main_page(user)
-    if [User::PERM_SUPER, User::PERM_ADMIN].include? user.permission
-      url = user_url user
-    else
-      url = recent_records_url
-    end
-    redirect_to url
   end
 end

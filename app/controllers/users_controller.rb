@@ -1,8 +1,9 @@
 class UsersController < ApplicationController
   skip_before_action :need_super_permission
-  before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
-  before_action :need_login, except: [:index, :new, :create, :destroy]
+  prepend_before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
+  prepend_before_action :need_login, only: [:show, :edit]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :check_for_admin_or_login_user, only: [:show, :edit]
 
   # GET /users
   # GET /users.json
@@ -13,9 +14,6 @@ class UsersController < ApplicationController
   # GET /users/1
   # GET /users/1.json
   def show
-    unless is_admin_or_login_user?
-      redirect_to back_location(user_url(login_user)), notice: '帐户权限不够'
-    end
   end
 
   # GET /users/new
@@ -26,9 +24,6 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
-    unless is_admin_or_login_user?
-      redirect_to back_location(user_url(login_user)), notice: '帐户权限不够'
-    end
   end
 
   # POST /users
@@ -67,12 +62,12 @@ class UsersController < ApplicationController
     login_user = User.find(session[:user_id])
     if (login_user != @user && login_user.permission < @user.permission)
       @user.destroy
-      msg = '成功删除'
+      message = '成功删除'
     else
-      msg = '权限不够'
+      message = '权限不够'
     end
     respond_to do |format|
-      format.html { redirect_to users_url, notice: msg }
+      format.html { redirect_to users_url, notice: message }
       format.json { head :no_content }
     end
   end
@@ -88,9 +83,11 @@ class UsersController < ApplicationController
       params.require(:user).permit(:name, :password, :password_confirmation, :permission)
     end
 
-    def is_admin_or_login_user?
+    def check_for_admin_or_login_user
       # At this point, the user has already login
       login_user = User.find(session[:user_id])
-      login_user == @user or [0, 1].include? login_user.permission
+      unless login_user == @user or [User::PERM_SUPER, User::PERM_ADMIN].include? login_user.permission
+        redirect_to_main_page login_user, notice: '帐户权限不够'
+      end
     end
 end

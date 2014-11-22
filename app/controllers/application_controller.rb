@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  before_action :need_super_permission
+  prepend_before_action :need_super_permission
 
   protected
     def authorize(permission: User::PERM_SUPER, only_check_login: false)
@@ -19,12 +19,7 @@ class ApplicationController < ActionController::Base
           permission = User::PERM_SUPER
         end
         unless user.permission <= permission
-          if [User::PERM_SUPER, User::PERM_ADMIN].include? user.permission
-            url = user_url(user)
-          else
-            url = recent_records_url
-          end
-          redirect_to url, notice: '帐户权限不够'
+          redirect_to_main_page user, notice: '帐户权限不够'
         end
       end
     end
@@ -47,5 +42,14 @@ class ApplicationController < ActionController::Base
 
     def need_login
       authorize(only_check_login: true)
+    end
+    
+    def redirect_to_main_page(user, notice: nil)
+      if [User::PERM_SUPER, User::PERM_ADMIN].include? user.permission
+        url = user_url user
+      else
+        url = records_url
+      end
+      redirect_to url, notice: notice
     end
 end

@@ -1,13 +1,30 @@
 class RecordsController < ApplicationController  
   skip_before_action :need_super_permission
-  before_action :need_admin_permission, only: [:index, :edit, :show, :update, :destroy]
-  before_action :need_login, only: [:new, :create, :recent]
+  prepend_before_action :need_admin_permission, only: [:edit, :show, :update, :destroy]
+  prepend_before_action :need_login, only: [:index, :new, :create, :recent]
+  before_action :check_for_account_user, only: [:new, :create, :recent]
   before_action :set_record, only: [:show, :edit, :update, :destroy]
 
   # GET /records
   # GET /records.json
   def index
-    @records = Record.all
+    page_size = 20
+    page_num = (params[:page] || 1).to_i
+    if [User::PERM_SUPER, User::PERM_ADMIN].include? session[:permission]
+      @is_admin = true
+      page_total = (Record.count + page_size) / page_size
+      @records = Record.order('created_at DESC').limit(page_size).offset((page_num - 1) * page_size)
+    else
+      @no_side_bar = true
+      page_total = (Record.where(user_id: session[:user_id]).count + page_size) / page_size
+      @records = Record.where(user_id: session[:user_id]).order('created_at DESC').limit(page_size).offset((page_num - 1) * page_size)
+    end
+    if page_num > 1
+      @prev_page = page_num - 1
+    end
+    if page_num < page_total
+      @next_page = page_num + 1
+    end
   end
 
   # GET /records/1
@@ -17,7 +34,10 @@ class RecordsController < ApplicationController
 
   # GET /records/new
   def new
-    @record = Record.new date: Time.now.to_date, count: 0, user_id: session[:user_id]
+    @record = Record.find_by(id: params[:record]) || Record.new
+    @record.date = Time.now.to_date
+    @record.date = session[:user_id]
+    @record.count ||= 0
   end
 
   # GET /records/1/edit
@@ -31,7 +51,7 @@ class RecordsController < ApplicationController
 
     respond_to do |format|
       if @record.save
-        format.html { redirect_to recent_records_url, notice: '记录创建成功' }
+        format.html { redirect_to records_url, notice: '记录创建成功' }
         format.json { render :show, status: :created, location: @record }
       else
         format.html { render :new }
@@ -65,7 +85,6 @@ class RecordsController < ApplicationController
   end
 
   def recent
-    @no_side_bar = true
     @records = Record.where(user_id: session[:user_id]).order('created_at DESC').first(18)
   end
 
@@ -79,4 +98,13 @@ class RecordsController < ApplicationController
     def record_params
       params.require(:record).permit(:date_text, :record_type, :product_text, :weight, :count, :user_id, :participant_text, :order_number, :employee_text, :client_text)
     end
+    
+    def check_for_account_user
+      if [User::PERM_SUPER, User::PERM_ADMIN].include? session[:permission]
+        user = User.find(session[:user_id])
+        redirect_to user_url(user), notice: '只有柜台帐户可以输入记录'
+      else
+        @no_side_bar = true
+      end
+    end 
 end

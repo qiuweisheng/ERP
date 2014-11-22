@@ -21,6 +21,9 @@ class ContractorsController < ApplicationController
 
   # GET /contractors/1/edit
   def edit
+    if @contractor.state == State::STATE_SHADOW
+      redirect_to contractors_url, notice: '已回收资源不允许编辑'
+    end
   end
 
   # POST /contractors
@@ -30,7 +33,7 @@ class ContractorsController < ApplicationController
 
     respond_to do |format|
       if @contractor.save
-        format.html { redirect_to @contractor, notice: 'Contractor was successfully created.' }
+        format.html { redirect_to @contractor, notice: '代工客户创建成功' }
         format.json { render :show, status: :created, location: @contractor }
       else
         format.html { render :new }
@@ -44,7 +47,7 @@ class ContractorsController < ApplicationController
   def update
     respond_to do |format|
       if @contractor.update(contractor_params)
-        format.html { redirect_to @contractor, notice: 'Contractor was successfully updated.' }
+        format.html { redirect_to @contractor, notice: '代工客户更新成功' }
         format.json { render :show, status: :ok, location: @contractor }
       else
         format.html { render :edit }
@@ -56,9 +59,13 @@ class ContractorsController < ApplicationController
   # DELETE /contractors/1
   # DELETE /contractors/1.json
   def destroy
-    @contractor.destroy
+    if @contractor.try_destroy
+      message = '代工客户删除成功'
+    else
+      message = '代工客户资源已回收'
+    end
     respond_to do |format|
-      format.html { redirect_to contractors_url, notice: 'Contractor was successfully destroyed.' }
+      format.html { redirect_to contractors_url, notice: message }
       format.json { head :no_content }
     end
   end

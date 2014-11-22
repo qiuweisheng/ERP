@@ -27,13 +27,6 @@ module RecordsHelper
     User.all.reject  { |user| [User::PERM_SUPER, User::PERM_ADMIN].include? user.permission }
             .collect { |user| [user.name, user.id] }
   end
-    
-  def type_texts
-    Record::RECORD_TYPES.collect do |index, type|
-      "#{index}-#{type}"
-    end
-    .to_json
-  end
 
   %w[product user employee client].each do |name|
     class_eval <<-END

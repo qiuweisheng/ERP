@@ -1,3 +1,9 @@
+<% if notice %>
+  <div id="notice" class="ui-state-highlight">
+    <%= notice %>
+  </div>
+<% end %>
+
 <div class="table_view">
   <table>
     <thead>
@@ -5,13 +11,18 @@
     <th>名称</th>
     </thead>
     <tbody>
-    <tr>
+    <% if @client.state == State::STATE_SHADOW %>
+      <tr class="shadow">
+    <% else %>
+      <tr>
+    <% end %>
       <td><%= @client.serial_number %></td>
       <td><%= @client.name %></td>
     </tr>
     </tbody>
   </table>
-
-  <%= link_to '编辑', edit_client_path(@client) %> |
+  <% unless @client.state == State::STATE_SHADOW %>
+    <%= link_to '编辑', edit_client_path(@client) %> |
+  <% end %>
   <%= link_to '返回', clients_path %>
 </div>

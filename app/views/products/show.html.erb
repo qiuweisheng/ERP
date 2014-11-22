@@ -1,3 +1,9 @@
+<% if notice %>
+  <div id="notice" class="ui-state-highlight">
+    <%= notice %>
+  </div>
+<% end %>
+
 <div class="table_view">
   <table>
     <thead>
@@ -5,13 +11,18 @@
       <th>名称</th>
     </thead>
     <tbody>
+      <% if @product.state == State::STATE_SHADOW %>
+      <tr class="shadow">
+      <% else %>
       <tr>
+      <% end %>
         <td><%= @product.serial_number %></td>
         <td><%= @product.name %></td>
       </tr>
     </tbody>
   </table>
-
-  <%= link_to '编辑', edit_product_path(@product) %> |
+  <% unless @product.state == State::STATE_SHADOW %>
+    <%= link_to '编辑', edit_product_path(@product) %> |
+  <% end %>
   <%= link_to '返回', products_path %>
 </div>

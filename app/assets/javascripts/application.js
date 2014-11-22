@@ -14,6 +14,7 @@
 //= require jquery-ui/datepicker
 //= require jquery-ui/autocomplete
 //= require jquery-ui/button
+//= require jquery-ui/effect-blind
 //= require jquery_ujs
 //= require turbolinks
 //= require common

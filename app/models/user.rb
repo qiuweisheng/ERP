@@ -6,6 +6,12 @@ class User < ActiveRecord::Base
   PERM_LEVEL_ONE = 2
   PERM_LEVEL_TWO = 3
   PERMISSION_TYPES = { 0 =>'超级用户', 1 => '管理员', 2 => '一级柜台', 3 => '二级柜台' }
+  
+  include State
+  include SerialNumber
+  has_serial_number
+
+  has_secure_password
 
   has_many :transactions, as: :participant, class_name: 'Record'
   has_many :records
@@ -24,9 +30,4 @@ class User < ActiveRecord::Base
       record.errors.add(attr, '不能修改权限')
     end
   end
-
-  has_secure_password
-
-  include SerialNumber
-  has_serial_number
 end

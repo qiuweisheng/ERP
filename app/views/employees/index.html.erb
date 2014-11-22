@@ -1,3 +1,9 @@
+<% if notice %>
+  <div id="notice" class="ui-state-highlight">
+    <%= notice %>
+  </div>
+<% end %>
+
 <div class="table_view">
   <table>
     <thead>
@@ -12,14 +18,22 @@
 
     <tbody>
       <% @employees.each do |employee| %>
-        <tr>
+        <% if employee.state == State::STATE_SHADOW %>
+          <tr class="shadow">
+        <% else %>
+          <tr>
+        <% end %>
           <td><%= employee.serial_number %></td>
           <td><%= employee.name %></td>
           <td><%= employee.colleague_number %></td>
           <td><%= employee.department.name %></td>
           <td class="action"><%= link_to '查看', employee %></td>
-          <td class="action"><%= link_to '编辑', edit_employee_path(employee) %></td>
-          <td class="action"><%= link_to '删除', employee, method: :delete, data: { confirm: "你确定删除员工帐户\"#{employee.serial_number}\"吗？" } %></td>
+          <% if employee.state == State::STATE_SHADOW %>
+            <td class="action"></td>
+          <% else %>
+            <td class="action"><%= link_to '编辑', edit_employee_path(employee) %></td>
+          <% end %>
+          <td class="action"><%= link_to '删除', employee, method: :delete, data: { confirm: "你确定删除员工帐户吗？" } %></td>
         </tr>
       <% end %>
     </tbody>

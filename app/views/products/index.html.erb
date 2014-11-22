@@ -1,3 +1,9 @@
+<% if notice %>
+  <div id="notice" class="ui-state-highlight">
+    <%= notice %>
+  </div>
+<% end %>
+
 <div class="table_view">
   <table>
     <thead>
@@ -7,12 +13,20 @@
     </thead>
     <tbody>
       <% @products.each do |product| %>
-        <tr>
+        <% if product.state == State::STATE_SHADOW %>
+          <tr class="shadow">
+        <% else %>
+          <tr>
+        <% end %>
           <td><%= product.serial_number %></td>
           <td><%= product.name %></td>
           <td class="action"><%= link_to '查看', product %></td>
-          <td class="action"><%= link_to '编辑', edit_product_path(product) %></td>
-          <td class="action"><%= link_to '删除', product, method: :delete, data: { confirm: "你确定删除产品\"#{product.name}\"吗？" } %></td>
+          <% if product.state == State::STATE_SHADOW %>
+            <td class="action"></td>
+          <% else %>
+            <td class="action"><%= link_to '编辑', edit_product_path(product) %></td>
+          <% end %>
+          <td class="action"><%= link_to '删除', product, method: :delete, data: { confirm: "你确定删除产品吗？" } %></td>
         </tr>
       <% end %>
     </tbody>

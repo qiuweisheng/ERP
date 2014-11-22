@@ -21,6 +21,9 @@ class EmployeesController < ApplicationController
 
   # GET /employees/1/edit
   def edit
+    if @employee.state == State::STATE_SHADOW
+      redirect_to employees_url, notice: '已回收资源不允许编辑'
+    end
   end
 
   # POST /employees
@@ -30,7 +33,7 @@ class EmployeesController < ApplicationController
 
     respond_to do |format|
       if @employee.save
-        format.html { redirect_to @employee, notice: 'Employee was successfully created.' }
+        format.html { redirect_to @employee, notice: '员工创建成功' }
         format.json { render :show, status: :created, location: @employee }
       else
         format.html { render :new }
@@ -44,7 +47,7 @@ class EmployeesController < ApplicationController
   def update
     respond_to do |format|
       if @employee.update(employee_params)
-        format.html { redirect_to @employee, notice: 'Employee was successfully updated.' }
+        format.html { redirect_to @employee, notice: '员工更新成功' }
         format.json { render :show, status: :ok, location: @employee }
       else
         format.html { render :edit }
@@ -56,9 +59,13 @@ class EmployeesController < ApplicationController
   # DELETE /employees/1
   # DELETE /employees/1.json
   def destroy
-    @employee.destroy
+    if @employee.try_destroy
+      message = '员工删除成功'
+    else
+      message = '员工资源已回收'
+    end
     respond_to do |format|
-      format.html { redirect_to employees_url, notice: 'Employee was successfully destroyed.' }
+      format.html { redirect_to employees_url, notice: message }
       format.json { head :no_content }
     end
   end

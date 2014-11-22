@@ -24,6 +24,9 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
+    if @user.state == State::STATE_SHADOW
+      redirect_to users_url, notice: '已回收资源不允许编辑'
+    end
   end
 
   # POST /users
@@ -33,7 +36,7 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
+        format.html { redirect_to @user, notice: '用户创建成功' }
         format.json { render :show, status: :created, location: @user }
       else
         format.html { render :new }
@@ -47,7 +50,7 @@ class UsersController < ApplicationController
   def update
     respond_to do |format|
       if @user.update(user_params)
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
+        format.html { redirect_to @user, notice: '用户更新成功' }
         format.json { render :show, status: :ok, location: @user }
       else
         format.html { render :edit }
@@ -60,9 +63,13 @@ class UsersController < ApplicationController
   # DELETE /users/1.json
   def destroy
     login_user = User.find(session[:user_id])
+    # Can not delete himself
     if (login_user != @user && login_user.permission < @user.permission)
-      @user.destroy
-      message = '成功删除'
+      if @user.try_destroy
+        message = '用户删除成功'
+      else
+        message = '用户资源已回收'
+      end
     else
       message = '权限不够'
     end

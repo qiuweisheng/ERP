@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(version: 20141108134258) do
   create_table "clients", force: true do |t|
     t.integer  "serial_number"
     t.string   "name"
+    t.integer  "state",         default: 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -23,6 +24,7 @@ ActiveRecord::Schema.define(version: 20141108134258) do
   create_table "contractors", force: true do |t|
     t.integer  "serial_number"
     t.string   "name"
+    t.integer  "state",         default: 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -39,6 +41,7 @@ ActiveRecord::Schema.define(version: 20141108134258) do
     t.string   "name"
     t.integer  "department_id"
     t.integer  "colleague_number"
+    t.integer  "state",            default: 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -48,6 +51,7 @@ ActiveRecord::Schema.define(version: 20141108134258) do
   create_table "products", force: true do |t|
     t.integer  "serial_number"
     t.string   "name"
+    t.integer  "state",         default: 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -5,6 +5,7 @@ class CreateEmployees < ActiveRecord::Migration
       t.string :name
       t.references :department, index: true
       t.integer :colleague_number
+      t.integer :state, default: 0
 
       t.timestamps
     end

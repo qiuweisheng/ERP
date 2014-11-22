@@ -17,12 +17,20 @@
 
     <tbody>
       <% @users.each do |user| %>
-        <tr>
+        <% if user.state == State::STATE_SHADOW %>
+          <tr class="shadow">
+        <% else %>
+          <tr>
+        <% end %>
           <td><%= user.serial_number %></td>
           <td><%= user.name %></td>
           <td><%= User::PERMISSION_TYPES[user.permission] %></td>
           <td class="action"><%= link_to '查看', user %></td>
-          <td class="action"><%= link_to '编辑', edit_user_path(user) %></td>
+          <% if user.state == State::STATE_SHADOW %>
+            <td class="action"></td>
+          <% else %>
+            <td class="action"><%= link_to '编辑', edit_user_path(user) %></td>
+          <% end %>
           <td class="action"><%= link_to '删除', user, method: :delete, data: { confirm: '你确定删除用户信息？' } %></td>
         </tr>
       <% end %>

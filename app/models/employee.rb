@@ -1,6 +1,10 @@
 class Employee < ActiveRecord::Base
   MIN_ID = 10001
   MAX_ID = Rails.env == 'test' ? 10010 : 19999
+  
+  include State
+  include SerialNumber
+  has_serial_number
 
   has_many :transactions, as: :participant, class_name: 'Record'
   has_many :records
@@ -10,7 +14,4 @@ class Employee < ActiveRecord::Base
   validates :department_id, presence: { message: '部门必须填写'}
   validates :colleague_number, presence: { message: '人数必须填写' }
   validates :colleague_number, numericality: { greater_than: 0, message: '人数必须大于 0' }
-
-  include SerialNumber
-  has_serial_number
 end

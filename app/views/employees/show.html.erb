@@ -1,3 +1,9 @@
+<% if notice %>
+  <div id="notice" class="ui-state-highlight">
+    <%= notice %>
+  </div>
+<% end %>
+
 <div class="table_view">
   <table>
     <thead>
@@ -7,7 +13,11 @@
     <th>部门</th>
     </thead>
     <tbody>
+    <% if @employee.state == State::STATE_SHADOW %>
+    <tr class="shadow">
+    <% else %>
     <tr>
+    <% end %>
       <td><%= @employee.serial_number %></td>
       <td><%= @employee.name %></td>
       <td><%= @employee.colleague_number %></td>
@@ -15,7 +25,8 @@
     </tr>
     </tbody>
   </table>
-
-  <%= link_to '编辑', edit_employee_path(@employee) %> |
+  <% unless @employee.state == State::STATE_SHADOW %>
+    <%= link_to '编辑', edit_employee_path(@employee) %> |
+  <% end %>
   <%= link_to '返回', employees_path %>
 </div>

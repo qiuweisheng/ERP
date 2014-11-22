@@ -1,3 +1,9 @@
+<% if notice %>
+  <div id="notice" class="ui-state-highlight">
+    <%= notice %>
+  </div>
+<% end %>
+
 <div class="table_view">
   <table>
     <thead>
@@ -10,16 +16,24 @@
 
     <tbody>
       <% @contractors.each do |contractor| %>
-        <tr>
+        <% if contractor.state == State::STATE_SHADOW %>
+          <tr class="shadow">
+        <% else %>
+          <tr>
+        <% end %>
           <td><%= contractor.serial_number %></td>
           <td><%= contractor.name %></td>
           <td class="action"><%= link_to '查看', contractor %></td>
-          <td class="action"><%= link_to '编辑', edit_contractor_path(contractor) %></td>
-          <td class="action"><%= link_to '删除', contractor, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+          <% if contractor.state == State::STATE_SHADOW %>
+            <td class="action"></td>
+          <% else %>
+            <td class="action"><%= link_to '编辑', edit_contractor_path(contractor) %></td>
+          <% end  %>
+          <td class="action"><%= link_to '删除', contractor, method: :delete, data: { confirm: '你确定删除代工客户吗？' } %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
 
-  <%= link_to '新建承包商', new_contractor_path %>
+  <%= link_to '新建代工客户', new_contractor_path %>
 </div>

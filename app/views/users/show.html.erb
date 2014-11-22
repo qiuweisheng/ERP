@@ -12,7 +12,11 @@
     <th>类型</th>
     </thead>
     <tbody>
+    <% if @user.state == State::STATE_SHADOW %>
+    <tr class="shadow">
+    <% else %>
     <tr>
+    <% end %>
       <td><%= @user.serial_number %></td>
       <td><%= @user.name %></td>
       <td><%= User::PERMISSION_TYPES[@user.permission] %></td>
@@ -20,6 +24,13 @@
     </tbody>
   </table>
 
-  <%= link_to '编辑', edit_user_path(@user) %> |
-  <%= link_to '返回', users_path %>
+  <% unless @user.state == State::STATE_SHADOW %>
+    <%= link_to '编辑', edit_user_path(@user) %>
+  <% end %>
+  <% if @user.state != State::STATE_SHADOW and [User::PERM_SUPER, User::PERM_ADMIN].include? session[:permission] %>
+    |
+  <% end %>
+  <% if [User::PERM_SUPER, User::PERM_ADMIN].include? session[:permission] %>
+    <%= link_to '返回', users_path %>
+  <% end %>
 </div>

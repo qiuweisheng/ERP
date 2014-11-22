@@ -3,6 +3,7 @@ class CreateClients < ActiveRecord::Migration
     create_table :clients do |t|
       t.integer :serial_number
       t.string :name
+      t.integer :state, default: 0
 
       t.timestamps
     end

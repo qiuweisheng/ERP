@@ -21,6 +21,9 @@ class ProductsController < ApplicationController
 
   # GET /products/1/edit
   def edit
+    if @product.state == State::STATE_SHADOW
+      redirect_to products_url, notice: '已回收资源不允许编辑'
+    end
   end
 
   # POST /products
@@ -30,7 +33,7 @@ class ProductsController < ApplicationController
 
     respond_to do |format|
       if @product.save
-        format.html { redirect_to @product, notice: 'Product was successfully created.' }
+        format.html { redirect_to @product, notice: '产品创建成功' }
         format.json { render :show, status: :created, location: @product }
       else
         format.html { render :new }
@@ -44,7 +47,7 @@ class ProductsController < ApplicationController
   def update
     respond_to do |format|
       if @product.update(product_params)
-        format.html { redirect_to @product, notice: 'Product was successfully updated.' }
+        format.html { redirect_to @product, notice: '产品更新成功' }
         format.json { render :show, status: :ok, location: @product }
       else
         format.html { render :edit }
@@ -56,9 +59,13 @@ class ProductsController < ApplicationController
   # DELETE /products/1
   # DELETE /products/1.json
   def destroy
-    @product.destroy
+    if @product.try_destroy
+      message = '产品删除成功'
+    else
+      message = '产品资源已回收'
+    end
     respond_to do |format|
-      format.html { redirect_to products_url, notice: 'Product was successfully destroyed.' }
+      format.html { redirect_to products_url, notice: message }
       format.json { head :no_content }
     end
   end

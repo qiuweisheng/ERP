@@ -41,10 +41,10 @@
           <td><%= Record::RECORD_TYPES[record.record_type] %></td>
           <td><%= record.product.try(:name) %></td>
           <td><%= record.weight %></td>
+          <td><%= record.count %></td>
           <% if @is_admin %>
-            <td><%= record.count %></td>
-          <% end %>
           <td><%= record.user.name %></td>
+          <% end %>
           <td><%= record.participant.name %></td>
           <td><%= record.order_number %></td>
           <td><%= record.employee.try(:name) %></td>

@@ -12,7 +12,9 @@
  *
  *= require clear_default_styles
  *= require layout
- *= require jquery-ui
+ *= require jquery-ui/datepicker
+ *= require jquery-ui/autocomplete
+ *= require jquery-ui/button
  *= require_tree .
  *= require_self
  */

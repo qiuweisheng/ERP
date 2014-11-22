@@ -79,6 +79,7 @@ ActiveRecord::Schema.define(version: 20141108134258) do
     t.string   "name"
     t.string   "password_digest"
     t.integer  "permission"
+    t.integer  "state",           default: 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end

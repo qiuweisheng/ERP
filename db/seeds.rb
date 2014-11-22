@@ -107,6 +107,32 @@ Client.create!([
 ])
 
 class Record < ActiveRecord::Base
+  TYPE_DISPATCH          = 0
+  TYPE_RECEIVE           = 1
+  TYPE_PACKAGE_DISPATCH  = 2
+  TYPE_PACKAGE_RECEIVE   = 3
+  TYPE_POLISH_DISPATCH   = 4
+  TYPE_POLISH_RECEIVE    = 5
+  TYPE_DAY_CHECK         = 6
+  TYPE_MONTH_CHECK       = 7
+  YTPE_APPORTION         = 8
+  TYPE_RETURN            = 9
+  TYPE_WEIGHT_DIFFERENCE = 10
+  
+  
+  RECORD_TYPES = { 
+    '发货' => TYPE_DISPATCH,
+    '收货' => TYPE_RECEIVE,
+    # TYPE_PACKAGE_DISPATCH  => '<包装>发货',
+    # TYPE_PACKAGE_RECEIVE   => '<包装>收货',
+    # TYPE_POLISH_DISPATCH   => '<打磨>发货',
+    # TYPE_POLISH_RECEIVE    => '<打磨>收货',
+    '<日>盘点' => TYPE_DAY_CHECK, 
+    # TYPE_MONTH_CHECK       => '<月>盘点',
+    # YTPE_APPORTION         => '打磨分摊',
+    # TYPE_RETURN            => '客户退货',
+    # TYPE_WEIGHT_DIFFERENCE => '客户称差'
+  }
 end
 
 Record.delete_all
@@ -116,7 +142,7 @@ open('./db/record.txt', 'r:bom|utf-8') do |file|
     unless line.strip.empty?
       type, _, product, weight, count, user, participant, klass, date = line.strip.split(/\s+/)
       Record.create!({
-          record_type: type.to_i,
+          record_type: Record::RECORD_TYPES[type],
           product_id: Product.find_by(name: product).try(:id),
           weight: weight.to_f,
           count: count.to_i,

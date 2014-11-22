@@ -39,8 +39,7 @@ class Record < ActiveRecord::Base
   validates :record_type, inclusion: { in: RECORD_TYPES.keys, message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
   validates :product_text, presence: { message: '摘要必须填写'}, unless: Proc.new { |record| [TYPE_DAY_CHECK, TYPE_MONTH_CHECK, YTPE_APPORTION].include? record.record_type }
   validates :weight, presence: { message: '重量必须填写'} 
-  validates :count, presence: { message: '件数必须填写'}
-  validates :count, numericality: { greater_than_or_equal_to: 0, message: '件数必须大于或等于0' }
+  validates :count, numericality: { greater_than_or_equal_to: 0, message: '件数必须大于或等于0' }, allow_blank: true
   validates :user_id, presence: { message: '柜台必须填写'}
   validates :participant_text, presence: { message: '交收人必须填写'}
   with_options if: :is_polish_or_package_type? do |r|

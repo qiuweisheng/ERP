@@ -35,9 +35,8 @@ class RecordsController < ApplicationController
   # GET /records/new
   def new
     @record = Record.find_by(id: params[:record]) || Record.new
+    @record.user_id = session[:user_id]
     @record.date = Time.now.to_date
-    @record.date = session[:user_id]
-    @record.count ||= 0
   end
 
   # GET /records/1/edit
@@ -82,10 +81,6 @@ class RecordsController < ApplicationController
       format.html { redirect_to records_url, notice: 'Record was successfully destroyed.' }
       format.json { head :no_content }
     end
-  end
-
-  def recent
-    @records = Record.where(user_id: session[:user_id]).order('created_at DESC').first(18)
   end
 
   private

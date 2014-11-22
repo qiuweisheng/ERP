@@ -12,7 +12,7 @@
   <div id="top_nav">
     <div id="top_nav_intern">
       <ul>
-        <% if session[:user_id]%>
+        <% if session[:user_id] %>
           <% if (2..3) === session[:permission] %>
             <li><%= link_to '录入', records_path %></li>
           <% end %>
@@ -55,8 +55,7 @@
           <li><%= link_to '记录', records_path %></li>
         <% else %>
           <li><%= link_to '我的帐户', user_path(session[:user_id]) %></li>
-        <% end %>
-        
+        <% end %>   
       <% end %>
     </ul>
   </div>

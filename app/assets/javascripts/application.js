@@ -11,7 +11,9 @@
 // about supported directives.
 //
 //= require jquery
-//= require jquery-ui
+//= require jquery-ui/datepicker
+//= require jquery-ui/autocomplete
+//= require jquery-ui/button
 //= require jquery_ujs
 //= require turbolinks
 //= require common

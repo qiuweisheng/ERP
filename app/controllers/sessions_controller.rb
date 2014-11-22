@@ -3,6 +3,8 @@ class SessionsController < ApplicationController
   prepend_before_action :need_login, only: [:destroy, :redirect]
   
   def new
+    session[:user_id] = nil
+    session[:permission] = nil
   end
 
   def create

@@ -45,6 +45,7 @@
           <li><%= link_to '生产统计汇总表', reports_production_summary_path %></li>
         <% end %>
       <% else %>
+        <li><%= link_to '我的帐户', user_path(session[:user_id]) %></li>
         <% if is_admin_permission? session[:permission] %>
           <li><%= link_to '产品', products_path  %></li>
           <li><%= link_to '部门', departments_path %></li>
@@ -53,8 +54,6 @@
           <li><%= link_to '客户', clients_path %></li>
           <li><%= link_to '代工客户', contractors_path %></li>
           <li><%= link_to '记录', records_path %></li>
-        <% else %>
-          <li><%= link_to '我的帐户', user_path(session[:user_id]) %></li>
         <% end %>   
       <% end %>
     </ul>

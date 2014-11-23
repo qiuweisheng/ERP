@@ -5,11 +5,13 @@
 <% end %>
 
 <div class="table_view">
+  <%= link_to '新建产品', new_product_path %>
+  
   <table>
     <thead>
       <th>编号</th>
       <th>名称</th>
-      <th colspan="3" class="action"></th>
+      <th colspan="3" class="action">操作</th>
     </thead>
     <tbody>
       <% @products.each do |product| %>
@@ -31,6 +33,5 @@
       <% end %>
     </tbody>
   </table>
-
-  <%= link_to '新建产品', new_product_path %>
+  <%= render partial: 'shared/page', locals: { prev_page: @prev_page, next_page: @next_page, path: products_path } %>
 </div>

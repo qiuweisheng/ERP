@@ -1,4 +1,7 @@
 class UsersController < ApplicationController
+  include Page
+  self.page_size = 20
+  
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
   prepend_before_action :need_login, only: [:show, :edit]
@@ -8,7 +11,8 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    @users = User.limit(page_size).offset(offset(params[:page]))
+    @prev_page, @next_page = prev_and_next_page(params[:page], User.count)
   end
 
   # GET /users/1
@@ -93,7 +97,7 @@ class UsersController < ApplicationController
     def check_for_admin_or_login_user
       # At this point, the user has already login
       login_user = User.find(session[:user_id])
-      unless login_user == @user or [User::PERM_SUPER, User::PERM_ADMIN].include? login_user.permission
+      unless login_user == @user or is_admin_permission? login_user.permission
         redirect_to_main_page login_user, notice: '帐户权限不够'
       end
     end

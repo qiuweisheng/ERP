@@ -1,4 +1,7 @@
 class DepartmentsController < ApplicationController
+  include Page
+  self.page_size = 20
+  
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission
   before_action :set_department, only: [:show, :edit, :update, :destroy]
@@ -6,7 +9,8 @@ class DepartmentsController < ApplicationController
   # GET /departments
   # GET /departments.json
   def index
-    @departments = Department.all
+    @departments = Department.limit(page_size).offset(offset(params[:page]))
+    @prev_page, @next_page = prev_and_next_page(params[:page], Department.count)
   end
 
   # GET /departments/1

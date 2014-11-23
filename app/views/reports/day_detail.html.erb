@@ -1,2 +1,4 @@
-<%= render partial: 'filter_date_and_user', locals: { path: reports_day_detail_path } %>
+<% if is_admin_permission? session[:permission] %>
+  <%= render partial: 'filter_date_and_user', locals: { path: reports_day_detail_path } %>
+<% end %>
 <%= render 'day_detail' %>

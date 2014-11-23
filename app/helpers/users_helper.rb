@@ -4,4 +4,8 @@ module UsersHelper
       [name, i]
     end
   end
+  
+  def is_admin_permission?(permission)
+    [User::PERM_SUPER, User::PERM_ADMIN].include? permission
+  end
 end

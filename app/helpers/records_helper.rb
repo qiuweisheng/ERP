@@ -24,7 +24,7 @@ module RecordsHelper
   end
   
   def user_options
-    User.all.reject  { |user| [User::PERM_SUPER, User::PERM_ADMIN].include? user.permission }
+    User.all.reject  { |user| is_admin_permission? user.permission }
             .collect { |user| [user.name, user.id] }
   end
 

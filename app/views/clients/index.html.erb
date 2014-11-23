@@ -5,12 +5,13 @@
 <% end %>
 
 <div class="table_view">
+  <%= link_to '新建客户信息', new_client_path %>
   <table>
     <thead>
       <tr>
         <th>编号</th>
         <th>名称</th>
-        <th colspan="3" class="action"></th>
+        <th colspan="3" class="action">操作</th>
       </tr>
     </thead>
 
@@ -34,6 +35,5 @@
       <% end %>
     </tbody>
   </table>
-
-  <%= link_to '新建客户信息', new_client_path %>
+  <%= render partial: 'shared/page', locals: { prev_page: @prev_page, next_page: @next_page, path: clients_path } %>
 </div>

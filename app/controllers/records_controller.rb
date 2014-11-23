@@ -1,4 +1,7 @@
-class RecordsController < ApplicationController  
+class RecordsController < ApplicationController
+  include Page
+  self.page_size = 20
+  
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission, only: [:edit, :show, :update, :destroy]
   prepend_before_action :need_login, only: [:index, :new, :create, :recent]
@@ -8,22 +11,14 @@ class RecordsController < ApplicationController
   # GET /records
   # GET /records.json
   def index
-    page_size = 20
-    page_num = (params[:page] || 1).to_i
-    if [User::PERM_SUPER, User::PERM_ADMIN].include? session[:permission]
+    if is_admin_permission? session[:permission]
       @is_admin = true
-      page_total = (Record.count + page_size) / page_size
-      @records = Record.order('created_at DESC').limit(page_size).offset((page_num - 1) * page_size)
+      @records = Record.order('created_at DESC').limit(page_size).offset(offset(params[:page]))
+      @prev_page, @next_page = prev_and_next_page(params[:page], Record.count)
     else
       @no_side_bar = true
-      page_total = (Record.where(user_id: session[:user_id]).count + page_size) / page_size
-      @records = Record.where(user_id: session[:user_id]).order('created_at DESC').limit(page_size).offset((page_num - 1) * page_size)
-    end
-    if page_num > 1
-      @prev_page = page_num - 1
-    end
-    if page_num < page_total
-      @next_page = page_num + 1
+      @records = Record.where(user_id: session[:user_id]).order('created_at DESC').limit(page_size).offset(offset(params[:page]))
+      @prev_page, @next_page = prev_and_next_page(page_num(params[:page]), Record.where(user_id: session[:user_id]).count)
     end
   end
 
@@ -95,7 +90,7 @@ class RecordsController < ApplicationController
     end
     
     def check_for_account_user
-      if [User::PERM_SUPER, User::PERM_ADMIN].include? session[:permission]
+      if is_admin_permission? session[:permission]
         user = User.find(session[:user_id])
         redirect_to user_url(user), notice: '只有柜台帐户可以输入记录'
       else

@@ -1,4 +1,7 @@
 class ClientsController < ApplicationController
+  include Page
+  self.page_size = 20
+  
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission
   before_action :set_client, only: [:show, :edit, :update, :destroy]
@@ -6,7 +9,8 @@ class ClientsController < ApplicationController
   # GET /clients
   # GET /clients.json
   def index
-    @clients = Client.all
+    @clients = Client.limit(page_size).offset(offset(params[:page]))
+    @prev_page, @next_page = prev_and_next_page(params[:page], Client.count)
   end
 
   # GET /clients/1

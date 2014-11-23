@@ -1,7 +1,13 @@
 class ReportsController < ApplicationController
   skip_before_action :need_super_permission
-  
+  prepend_before_action :need_admin_permission, except: [:day_detail, :day_summary, :current_user_balance]
+  before_action :need_login, only: [:day_detail, :day_summary, :current_user_balance]
+
   def day_detail
+    unless is_admin_permission? session[:permission]
+      params[:date] = nil
+      params[:user_id] = nil
+    end
     @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
     user_id = params[:user_id] || session[:user_id]
     @user = User.find(user_id)
@@ -62,6 +68,11 @@ class ReportsController < ApplicationController
   end
 
   def day_summary
+    unless is_admin_permission? session[:permission]
+      params[:date] = nil
+      params[:user_id] = nil
+    end
+    
     @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
     user_id = params[:user_id] || session[:user_id]
     @user = User.find(user_id)
@@ -287,12 +298,15 @@ class ReportsController < ApplicationController
   end
   
   def current_user_balance
-    user = User.find(session[:user_id])
+    @user = User.find(session[:user_id])
     date = Time.now.to_date
-    last_balance = user.yesterday_balance_as_host(date)
-    dispatch_sum, receive_sum = user.today_sum_as_host(date)
+    last_balance = @user.yesterday_balance_as_host(date)
+    dispatch_sum, receive_sum = @user.today_sum_as_host(date)
     @balance = last_balance + receive_sum - dispatch_sum
-    render(layout: false)
+    respond_to do |format|
+      format.html { render layout: false }
+      format.js
+    end
   end
 end
 

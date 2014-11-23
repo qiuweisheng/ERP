@@ -44,12 +44,17 @@ class ApplicationController < ActionController::Base
       authorize(only_check_login: true)
     end
     
+    def is_admin_permission?(permission)
+      [User::PERM_SUPER, User::PERM_ADMIN].include? permission
+    end
+    
     def redirect_to_main_page(user, notice: nil)
-      if [User::PERM_SUPER, User::PERM_ADMIN].include? user.permission
+      if is_admin_permission? user.permission
         url = user_url user
       else
         url = records_url
       end
       redirect_to url, notice: notice
     end
+    
 end

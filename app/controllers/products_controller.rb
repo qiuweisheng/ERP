@@ -1,4 +1,7 @@
 class ProductsController < ApplicationController
+  include Page
+  self.page_size = 20
+  
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission
   before_action :set_product, only: [:show, :edit, :update, :destroy]
@@ -6,7 +9,8 @@ class ProductsController < ApplicationController
   # GET /products
   # GET /products.json
   def index
-    @products = Product.all
+    @products = Product.limit(page_size).offset(offset(params[:page]))
+    @prev_page, @next_page = prev_and_next_page(params[:page], Product.count)
   end
 
   # GET /products/1

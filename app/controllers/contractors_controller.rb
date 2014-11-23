@@ -1,4 +1,7 @@
 class ContractorsController < ApplicationController
+  include Page
+  self.page_size = 20
+  
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission
   before_action :set_contractor, only: [:show, :edit, :update, :destroy]
@@ -6,7 +9,8 @@ class ContractorsController < ApplicationController
   # GET /contractors
   # GET /contractors.json
   def index
-    @contractors = Contractor.all
+    @contractors = Contractor.limit(page_size).offset(offset(params[:page]))
+    @prev_page, @next_page = prev_and_next_page(params[:page], Contractor.count)
   end
 
   # GET /contractors/1

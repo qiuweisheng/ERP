@@ -28,9 +28,10 @@ module SerialNumber
       # In that case, we can reuse those ID. Try to find one.
       new_id = self.class::MIN_ID - 1
       self.class.order('serial_number').lazy.each do |account|
-        if account.serial_number - new_id > 1
-          break
-        else
+        if account.serial_number
+          if account.serial_number - new_id > 1
+            break
+          end
           new_id = account.serial_number
         end
       end

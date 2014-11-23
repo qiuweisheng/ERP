@@ -21,13 +21,14 @@ set_ui_widget = ->
   $('a.button, input[type=submit]').button()
 
 update_balance_value = ->
-  $balance_value = $('#balance_value')
+  $balance_value = $('#balance')
   if $balance_value.length
-    $balance_value.load('/reports/current_user_balance')
+    $.getScript '/reports/current_user_balance'
+    # $balance_value.load('/reports/current_user_balance')
     # setTimeout(update_balance_value, 1000)
     
 hide_notice_message = ->
-  setTimeout (-> 
+	setTimeout (-> 
     $('#notice, #alert').hide('blind')
   ), 2000
 

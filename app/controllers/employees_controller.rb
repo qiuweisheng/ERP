@@ -1,4 +1,7 @@
 class EmployeesController < ApplicationController
+  include Page
+  self.page_size = 20
+  
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission
   before_action :set_employee, only: [:show, :edit, :update, :destroy]
@@ -6,7 +9,8 @@ class EmployeesController < ApplicationController
   # GET /employees
   # GET /employees.json
   def index
-    @employees = Employee.all
+    @employees = Employee.limit(page_size).offset(offset(params[:page]))
+    @prev_page, @next_page = prev_and_next_page(params[:page], Client.count)
   end
 
   # GET /employees/1

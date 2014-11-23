@@ -16,6 +16,8 @@ class ProductsController < ApplicationController
   # GET /products/1
   # GET /products/1.json
   def show
+    index = Product.where('created_at <= ?', @product.created_at).count
+    @page = index_to_page(index)
   end
 
   # GET /products/new

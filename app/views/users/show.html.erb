@@ -31,6 +31,6 @@
     |
   <% end %>
   <% if is_admin_permission? session[:permission] %>
-    <%= link_to '返回', users_path %>
+    <%= link_to '返回', users_path(page: @page) %>
   <% end %>
 </div>

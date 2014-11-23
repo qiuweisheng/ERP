@@ -16,6 +16,8 @@ class EmployeesController < ApplicationController
   # GET /employees/1
   # GET /employees/1.json
   def show
+    index = Employee.where('created_at <= ?', @employee.created_at).count
+    @page = index_to_page(index)
   end
 
   # GET /employees/new

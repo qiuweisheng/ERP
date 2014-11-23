@@ -1,6 +1,6 @@
 class ClientsController < ApplicationController
   include Page
-  self.page_size = 20
+  self.page_size = 2
   
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission
@@ -16,6 +16,8 @@ class ClientsController < ApplicationController
   # GET /clients/1
   # GET /clients/1.json
   def show
+    index = Client.where('created_at <= ?', @client.created_at).count
+    @page = index_to_page(index)
   end
 
   # GET /clients/new

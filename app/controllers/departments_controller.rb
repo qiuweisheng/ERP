@@ -16,6 +16,8 @@ class DepartmentsController < ApplicationController
   # GET /departments/1
   # GET /departments/1.json
   def show
+    index = Department.where('created_at <= ?', @department.created_at).count
+    @page = index_to_page(index)
   end
 
   # GET /departments/new

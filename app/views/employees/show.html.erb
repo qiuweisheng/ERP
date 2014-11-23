@@ -28,5 +28,5 @@
   <% unless @employee.state == State::STATE_SHADOW %>
     <%= link_to '编辑', edit_employee_path(@employee) %> |
   <% end %>
-  <%= link_to '返回', employees_path %>
+  <%= link_to '返回', employees_path(page: @page) %>
 </div>

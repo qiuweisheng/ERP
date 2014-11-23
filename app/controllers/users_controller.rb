@@ -18,6 +18,8 @@ class UsersController < ApplicationController
   # GET /users/1
   # GET /users/1.json
   def show
+    index = User.where('created_at <= ?', @user.created_at).count
+    @page = index_to_page(index)
   end
 
   # GET /users/new

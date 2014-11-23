@@ -25,6 +25,12 @@ class RecordsController < ApplicationController
   # GET /records/1
   # GET /records/1.json
   def show
+    if is_admin_permission? session[:permission]
+      index = Record.where('created_at >= ?', @record.created_at).count
+    else
+      index = Record.where('created_at >= ? and user_id = ?', @record.created_at, session[:user_id]).count
+    end
+    @page = index_to_page(index)
   end
 
   # GET /records/new

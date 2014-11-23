@@ -16,6 +16,8 @@ class ContractorsController < ApplicationController
   # GET /contractors/1
   # GET /contractors/1.json
   def show
+    index = Contractor.where('created_at <= ?', @contractor.created_at).count
+    @page = index_to_page(index)
   end
 
   # GET /contractors/new

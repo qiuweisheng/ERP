@@ -8,16 +8,19 @@ Rails.application.routes.draw do
     delete 'logout' => :destroy
   end
 
-    get '/reports/day_detail' => 'reports#day_detail'
-    get '/reports/day_summary' => 'reports#day_summary'
-    get '/reports/goods_distribution_detail' => 'reports#goods_distribution_detail'
-    get '/reports/goods_in_employees' => 'reports#goods_in_employees'
-    get '/reports/depletion' => 'reports#depletion'
-    get '/reports/weight_diff' => 'reports#weight_diff'
-    get '/reports/production_by_employees' => 'reports#production_by_employees'
-    get '/reports/production_by_type' => 'reports#production_by_type'
-    get '/reports/production_summary' => 'reports#production_summary'
-    get '/reports/current_user_balance' => 'reports#current_user_balance'
+  get '/reports/day_detail' => 'reports#day_detail'
+  get '/reports/day_summary' => 'reports#day_summary'
+  get '/reports/goods_distribution_detail' => 'reports#goods_distribution_detail'
+  get '/reports/goods_in_employees' => 'reports#goods_in_employees'
+  get '/reports/depletion' => 'reports#depletion'
+  get '/reports/weight_diff' => 'reports#weight_diff'
+  get '/reports/production_by_employees' => 'reports#production_by_employees'
+  get '/reports/production_by_type' => 'reports#production_by_type'
+  get '/reports/production_summary' => 'reports#production_summary'
+  get '/reports/current_user_balance' => 'reports#current_user_balance'
+  get '/reports/client_weight_difference' => 'reports#client_weight_difference'
+  get '/reports/client_transactions' => 'reports#client_transactions'
+  get '/reports/contractor_transactions' => 'reports#contractor_transactions'
 
   resources :contractors
 

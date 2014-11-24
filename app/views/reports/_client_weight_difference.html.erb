@@ -1,0 +1,27 @@
+<div class="report">
+  <table>
+    <thead>
+      <tr class="title">
+        <th colspan="3">客户称差统计表</th>
+      </tr>
+      <tr>
+        <th>出货日期</th>
+        <th>客户名称</th>
+        <th>称差</th>
+      </tr>
+    </thead>
+    <tbody>
+    <% @report.each do |report| %>
+        <% if report[:type]%>
+            <tr class="<%= report[:type] %>">
+        <% else %>
+            <tr>
+        <% end %>
+        <td><%= report[:date] %></td>
+        <td><%= report[:client_name] %></td>
+        <td><%= report[:value] %></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>

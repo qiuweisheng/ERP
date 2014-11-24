@@ -1,0 +1,59 @@
+<div class="report">
+  <table>
+    <thead>
+    <tr class="title">
+      <th colspan= "<%= @clients.size + 2 %>" >客户往来台帐</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>客户</th>
+      <% @clients.each do |client| %>
+          <th><%= client.name %></th>
+      <% end %>
+    </tr>
+    </thead>
+    <tbody>
+      <% @report.each do |report| %>
+        <% if report[:type] %>
+            <tr class="<%= report[:type] %>">
+        <% else %>
+            <tr>
+        <% end %>
+        <% if report[:last_balance] %>
+            <% report[:last_balance].each do |value| %>
+                <td><%= value %></td>
+            <% end %>
+            </tr>
+        <% end%>
+        <% if report[:balance] %>
+            <% report[:balance].each do |value| %>
+                <td><%= value %></td>
+            <% end %>
+            </tr>
+        <% end%>
+        <% if report[:weight_diff] %>
+            <% report[:weight_diff].each do |value| %>
+                <td><%= value %></td>
+            <% end %>
+            </tr>
+        <% end%>
+        <% if report[:type] %>
+            <tr>
+            <% if report[:receive] %>
+              <% report[:receive].each do |receive| %>
+                <td><%= receive %></td>
+              <% end %>
+            </tr>
+            <% end %>
+            <tr>
+            <% if report[:dispatch] %>
+                <% report[:dispatch].each do |dispatch| %>
+                    <td><%= dispatch %></td>
+                <% end %>
+            <% end %>
+            </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

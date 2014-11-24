@@ -123,6 +123,20 @@ class Record < ActiveRecord::Base
         record.participant
       end
     end
+    
+    def clients(date=nil)
+      date = Time.now.to_date unless date
+      self.where('date <= ? AND participant_type = ?', date, Client.name).group('participant_id').collect do |record|
+        record.participant
+      end
+    end
+    
+    def contractors(date=nil)
+      date = Time.now.to_date unless date
+      self.where('date <= ? AND participant_type = ?', date, Contractor.name).group('participant_id').collect do |record|
+        record.participant
+      end
+    end
   end
 
 end

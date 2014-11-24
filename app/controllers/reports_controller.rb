@@ -308,6 +308,140 @@ class ReportsController < ApplicationController
       format.js
     end
   end
+  
+  def client_weight_difference
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
+    @report = []
+    @clients = Record.clients(@to_date)
+    @clients.each do |client|
+      (@from_date..@to_date).each do |date|
+        weight_diff = Record.where('date = ? AND participant_id = ? AND record_type = ?', date, client, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+        attr = {
+            date: date.strftime('%Y-%m-%d'),
+            client_name: client.name,
+            value: weight_diff
+        }
+        @report.push attr
+      end
+      weight_diff = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+      attr = {
+          date: '合计',
+          value: weight_diff,
+          type: :sum
+      }
+      @report.push attr
+    end
+    weight_diff = Record.where('date >= ? AND date <= ?AND participant_type = ? AND record_type = ?', @from_date, @to_date, Client.name, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+    attr = {
+        date: '总计',
+        value: weight_diff,
+        type: :total
+    }
+    @report.push attr
+  end
+
+  def client_transactions
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
+    @clients = Record.clients(@to_date)
+
+    @report = []
+    last_balance = []
+    last_balance.push '日期'
+    last_balance.push '上期余额'
+    month_receive_sum = []
+    month_dispatch_sum = []
+    month_receive_sum << '本月合计'<<'收回'
+    month_dispatch_sum << '本月合计'<<'交与'
+
+    balance = []
+    balance << '' << '本月余额'
+    weight_diff = []
+    weight_diff << '' << '称差'
+    @clients.each do |client|
+      bal_val = client.yesterday_balance(@from_date)
+      last_balance.push bal_val
+
+      rev_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_RECEIVE).sum('weight')
+      dis_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_DISPATCH).sum('weight')
+      month_receive_sum.push rev_value
+      month_dispatch_sum.push dis_value
+
+      diff = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+      weight_diff.push diff
+      balance.push (bal_val + dis_value - rev_value - diff)
+    end
+    @report.push last_balance: last_balance, type: :head
+
+    (@from_date..@to_date).each do |date|
+      dispatch = []
+      receive = []
+      dispatch << date.strftime('%Y-%m-%d') << '交与'
+      receive << date.strftime('%Y-%m-%d') << '收回'
+      @clients.each do |client|
+        dis, rev = client.today_sum(date)
+        receive << rev
+        dispatch << dis
+      end
+      @report.push receive: receive, dispatch: dispatch, type: :value
+    end
+    #summary
+    @report.push receive: month_receive_sum, dispatch: month_dispatch_sum, type: :value
+    #weitgh diff
+    @report.push weight_diff: weight_diff, type: :weight_diff
+    #today balance
+    @report.push balance: balance, type: :total
+  end
+
+  def contractor_transactions
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
+    @contractors = Record.contractors(@to_date)
+
+    @report = []
+    last_balance = []
+    last_balance.push '日期'
+    last_balance.push '上期余额'
+    month_receive_sum = []
+    month_dispatch_sum = []
+    month_receive_sum << '本月合计'<<'收回'
+    month_dispatch_sum << '本月合计'<<'交与'
+
+    balance = []
+    balance << '' << '本月余额'
+
+    @contractors.each do |contractors|
+      bal_val = contractors.yesterday_balance(@from_date)
+      last_balance.push bal_val
+
+      rev_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, contractors, Record::TYPE_RECEIVE).sum('weight')
+      dis_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, contractors, Record::TYPE_DISPATCH).sum('weight')
+      month_receive_sum.push rev_value
+      month_dispatch_sum.push dis_value
+
+      balance.push (bal_val + dis_value - rev_value)
+    end
+    @report.push last_balance: last_balance, type: :head
+
+    (@from_date..@to_date).each do |date|
+      dispatch = []
+      receive = []
+      dispatch << date.strftime('%Y-%m-%d') << '交与'
+      receive << date.strftime('%Y-%m-%d') << '收回'
+      @contractors.each do |contractor|
+        dis, rev = contractor.today_sum(date)
+        receive << rev
+        dispatch << dis
+      end
+      @report.push receive: receive, dispatch: dispatch, type: :value
+    end
+    #summary
+    @report.push receive: month_receive_sum, dispatch: month_dispatch_sum, type: :value
+    #today balance
+    @report.push balance: balance, type: :total
+  end
+  
 end
 
 module Statistics

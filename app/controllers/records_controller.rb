@@ -18,7 +18,7 @@ class RecordsController < ApplicationController
     else
       @no_side_bar = true
       @records = Record.where(user_id: session[:user_id]).order('created_at DESC').limit(page_size).offset(offset(params[:page]))
-      @prev_page, @next_page = prev_and_next_page(page_num(params[:page]), Record.where(user_id: session[:user_id]).count)
+      @prev_page, @next_page = prev_and_next_page(params[:page], Record.where(user_id: session[:user_id]).count)
     end
   end
 
@@ -35,7 +35,7 @@ class RecordsController < ApplicationController
 
   # GET /records/new
   def new
-    @record = Record.find_by(id: params[:record]) || Record.new
+    @record = Record.find_by(id: params[:record]).dup || Record.new
     @record.user_id = session[:user_id]
     @record.date = Time.now.to_date
   end

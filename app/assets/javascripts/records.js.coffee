@@ -28,10 +28,21 @@ show_record_input_field = ->
     $('tbody tr').hide()
     $(row_ids.join()).show()
     $('tbody tr:hidden input').val('')
+    $('tbody tr input').removeAttr('shortcut')
+    $('tbody tr select').attr('shortcut', 'ctrl+1')
+    $('tbody tr:visible input').each((index, item) ->
+      $(item).attr('shortcut', 'ctrl+' + (index + 2))
+    )
   
-    
+handle_key_down = (event) ->
+  if event.ctrlKey
+    if event.which > 48 && event.which < 58
+      shortcut = 'ctrl+' + (event.which - 48)
+      $('tbody tr [shortcut="' + shortcut + '"]').focus().click()
+        
   
 $(document).on "page:change", ->
+  $(document).keydown(handle_key_down)
   show_record_input_field()
   $('#record_record_type').change ->
     show_record_input_field()

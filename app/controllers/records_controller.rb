@@ -35,7 +35,7 @@ class RecordsController < ApplicationController
 
   # GET /records/new
   def new
-    @record = Record.find_by(id: params[:record]).dup || Record.new
+    @record = Record.find_by(id: params[:record]).try(:dup) || Record.new
     @record.user_id = session[:user_id]
     @record.date = Time.now.to_date
   end

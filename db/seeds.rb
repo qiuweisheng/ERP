@@ -25,25 +25,35 @@ User.create!([
         permission: 2
     },
     {
-        name: '001游玲',
+        name: '黄滢仪',
         password: 'z',
         permission: 3
     },
     {
-        name: '002陈仪雅',
+        name: '叶静娇',
         password: 'z',
         permission: 3
     },
     {
-        name: '003陈小艳',
+        name: '付田',
         password: 'z',
         permission: 3
     },
     {
-        name: '004颜锦枝',
+        name: '李意璇',
         password: 'z',
         permission: 3
-    }
+    },
+    {
+        name: '林太1',
+        password: 'z',
+        permission: 3
+    },
+    {
+        name: '林太2',
+        password: 'z',
+        permission: 3
+    },
 ])
 
 Product.delete_all
@@ -68,7 +78,23 @@ Client.create!([
     # c4
     { name: '周老板' },
     # c5
-    { name: '李老板' }
+    { name: '李老板' },
+    # c6
+    { name: '克徕帝' },
+    # c7
+    { name: '六福' },
+    # c8
+    { name: '崔琦' },
+    # c9
+    { name: '华友' },
+    # c10
+    { name: '金福佳' },
+    # c11
+    { name: '金嘉福' },
+    # c12
+    { name: '六六福' },
+    # c13
+    { name: 'TSL' }
 ])
 
 Department.delete_all
@@ -94,16 +120,32 @@ open('./db/employee.txt') do |file|
   end
 end
 
-Client.delete_all
-Client.create!([
-  {name: 'DEE'},
-  {name: 'CRD'},
-  {name: 'TSL'},
-  {name: '金兴利'},
-  {name: '周小姐'},
-  {name: '兴劢'},
-  {name: '权淦'},
-  {name: '古太'}
+#Client.delete_all
+#Client.create!([
+#  {name: 'DEE'},
+#  {name: 'CRD'},
+#  {name: 'TSL'},
+#  {name: '金兴利'},
+#  {name: '周小姐'},
+#  {name: '兴劢'},
+#  {name: '权淦'},
+#  {name: '古太'}
+#])
+
+Contractor.delete_all
+Contractor.create!([
+  {name: '晋圣'},
+  {name: '高纯亮'},
+  {name: '莫泽超'},
+  {name: '德隆'},
+  {name: '鑫宏'},
+  {name: '鸿艺'},
+  {name: '兆嘉'},
+  {name: '杨永舒'},
+  {name: '新新星'},
+  {name: '宝泰鑫'},
+  {name: '乾鑫'},
+  {name: '西普'}
 ])
 
 class Record < ActiveRecord::Base
@@ -120,18 +162,31 @@ class Record < ActiveRecord::Base
   TYPE_WEIGHT_DIFFERENCE = 10
   
   
-  RECORD_TYPES = { 
-    '发货' => TYPE_DISPATCH,
-    '收货' => TYPE_RECEIVE,
+  #RECORD_TYPES = {
+  #  '发货' => TYPE_DISPATCH,
+  #  '收货' => TYPE_RECEIVE,
     # TYPE_PACKAGE_DISPATCH  => '<包装>发货',
     # TYPE_PACKAGE_RECEIVE   => '<包装>收货',
     # TYPE_POLISH_DISPATCH   => '<打磨>发货',
     # TYPE_POLISH_RECEIVE    => '<打磨>收货',
-    '<日>盘点' => TYPE_DAY_CHECK, 
+  #  '<日>盘点' => TYPE_DAY_CHECK,
     # TYPE_MONTH_CHECK       => '<月>盘点',
     # YTPE_APPORTION         => '打磨分摊',
     # TYPE_RETURN            => '客户退货',
     # TYPE_WEIGHT_DIFFERENCE => '客户称差'
+  #}
+  RECORD_TYPES = {
+      '发货' => TYPE_DISPATCH,
+      '收货' => TYPE_RECEIVE,
+      '<包装>发货' => TYPE_PACKAGE_DISPATCH,
+      '<包装>收货' => TYPE_PACKAGE_RECEIVE,
+      '<打磨>发货' => TYPE_POLISH_DISPATCH,
+      '<打磨>收货' => TYPE_POLISH_RECEIVE,
+      '<日>盘点' => TYPE_DAY_CHECK,
+      '<月>盘点' => TYPE_MONTH_CHECK,
+      '打磨分摊' => YTPE_APPORTION,
+      '客户退货' => TYPE_RETURN,
+      '客户称差' => TYPE_WEIGHT_DIFFERENCE
   }
 end
 

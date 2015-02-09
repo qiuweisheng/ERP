@@ -61,7 +61,7 @@ class ReportsController < ApplicationController
         dispatch_value: host_dispatch_sum,
         receive_value: host_receive_sum,
         balance: host_balance,
-        difference: host_balance - host_actual_balance,
+        difference: host_actual_balance - host_balance,
         actual_balance: host_actual_balance,
         type: :total
     )
@@ -453,12 +453,12 @@ module Statistics
     # Dispatch
     params[:record_type] = Record::TYPE_DISPATCH
     self.transactions.select('product_id, weight').where(condition, params).each do |record|
-      transactions[:dispatch].push [record.product.name, record.weight]
+      transactions[:dispatch].push [record.product.try(:name), record.weight]
     end
     # Receive
     params[:record_type] = Record::TYPE_RECEIVE
     self.transactions.select('product_id, weight').where(condition, params).each do |record|
-      transactions[:receive].push [record.product.name, record.weight]
+      transactions[:receive].push [record.product.try(:name), record.weight]
     end
     transactions
   end

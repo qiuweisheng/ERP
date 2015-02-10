@@ -14,10 +14,10 @@
       </tr>
       <tr>
         <% @column.times do %>
-          <th>组内欠金</th>
+          <th>地沙/损耗</th>
           <th>打磨扣欠金</th>
         <% end %>
-        <th>组内欠金</th>
+        <th>地沙/损耗</th>
         <th>打磨扣欠金</th>
       </tr>
     </thead>
@@ -27,7 +27,7 @@
           <td><%= report[:name] %></td>
           <% report[:values][0...-1].each do |value| %>
             <td><%= value[:depletion] %></td>
-            <td></td>
+            <td><%= value[:polish_depletion] %></td>
           <% end %>
           <td><%= report[:values][-1] %></td>
         </tr>

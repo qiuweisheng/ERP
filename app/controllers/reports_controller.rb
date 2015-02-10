@@ -159,20 +159,40 @@ class ReportsController < ApplicationController
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     @column = (@to_date - @from_date).to_i + 1
     @report = []
+
     Record.employees(@to_date).each do |employee|
-      values = []
       depletion_sum = 0
+      polish_depletion_sum = 0
+
+      value_array = []
       (@from_date..@to_date).each do |date|
+        values = {}
+
         last_balance = employee.yesterday_balance(date, check_type: Record::TYPE_DAY_CHECK)
         dispatch_sum, receive_sum = employee.today_sum(date)
         actual_balance = employee.actual_balance(date)
         depletion = last_balance + dispatch_sum - receive_sum - actual_balance
         depletion_sum += depletion
-        values.push depletion: depletion
+        values[:depletion] = depletion
+
+        #组长被补偿的打磨损耗(分摊出去部分)
+        polish_depletion_compensation = employee.transactions.where('date = ? AND record_type = ?', @to_date, Record::YTPE_APPORTION).sum('weight')
+        #损耗分摊(被分摊部分)
+        polish_depletion_share = Record.where('date = ? AND employee_id = ? AND record_type = ?', @to_date, employee, Record::YTPE_APPORTION).sum('weight')
+        polish_depletion = polish_depletion_share - polish_depletion_compensation
+        polish_depletion_sum += polish_depletion
+
+        values[:polish_depletion] = polish_depletion
+        value_array << values
       end
-      values.push depletion: depletion_sum
-      values.push depletion_sum
-      @report.push name: employee.name, values: values
+      values = {}
+      values[:depletion] = depletion_sum
+      values[:polish_depletion] = polish_depletion_sum
+      value_array << values
+
+      value_array << (depletion_sum + polish_depletion_sum)
+
+      @report.push name: employee.name, values: value_array
     end
   end
   

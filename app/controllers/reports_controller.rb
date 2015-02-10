@@ -512,17 +512,48 @@ User.class_eval do
       first_record = self.records.order('created_at').first
       check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
     end
-    balance -= self.records.of_type(Record::TYPE_DISPATCH).between_date_exclusive(check_date, date).sum('weight')
-    balance += self.transactions.of_type(Record::TYPE_DISPATCH).between_date_exclusive(check_date, date).sum('weight')
-    balance += self.records.of_type(Record::TYPE_RECEIVE).between_date_exclusive(check_date, date).sum('weight')
-    balance -= self.transactions.of_type(Record::TYPE_RECEIVE).between_date_exclusive(check_date, date).sum('weight')
+    records = self.records.between_date_exclusive(check_date, date)
+    transactions = self.transactions.between_date_exclusive(check_date, date)
+    # 发货
+    balance -= records.of_type(Record::TYPE_DISPATCH).sum('weight')
+    balance -= records.of_type(Record::TYPE_PACKAGE_DISPATCH).sum('weight')
+    balance -= records.of_type(Record::TYPE_POLISH_DISPATCH).sum('weight')
+    # 收货
+    balance += records.of_type(Record::TYPE_RECEIVE).sum('weight')
+    balance += records.of_type(Record::TYPE_PACKAGE_RECEIVE).sum('weight')
+    balance += records.of_type(Record::TYPE_POLISH_RECEIVE).sum('weight')
+    # 客户退货
+    balance += records.of_type(Record::TYPE_RETURN).sum('weight')
+    # 去别的柜台领货
+    balance += transactions.of_type(Record::TYPE_DISPATCH).sum('weight')
+    balance += transactions.of_type(Record::TYPE_PACKAGE_DISPATCH).sum('weight')
+    balance += transactions.of_type(Record::TYPE_POLISH_DISPATCH).sum('weight')
+    # 去别的柜台还货
+    balance -= transactions.of_type(Record::TYPE_RECEIVE).sum('weight')
+    balance -= transactions.of_type(Record::TYPE_PACKAGE_RECEIVE).sum('weight')
+    balance -= transactions.of_type(Record::TYPE_POLISH_RECEIVE).sum('weight') 
   end
 
   def weights_at_date_as_host(date)
-    other_dispatch_weight = self.transactions.of_type(Record::TYPE_DISPATCH).at_date(date).sum('weight')
-    dispatch_weight = self.records.of_type(Record::TYPE_DISPATCH).at_date(date).sum('weight')
-    other_receive_weight = self.transactions.of_type(Record::TYPE_RECEIVE).at_date(date).sum('weight')
-    receive_weight = self.records.of_type(Record::TYPE_RECEIVE).at_date(date).sum('weight')
+    records = self.records.at_date(date)
+    transactions = self.transactions.at_date(date)
+    # 去别的柜台领货
+    other_dispatch_weight = transactions.of_type(Record::TYPE_DISPATCH).sum('weight')
+    other_dispatch_weight += transactions.of_type(Record::TYPE_PACKAGE_DISPATCH).sum('weight')
+    other_dispatch_weight += transactions.of_type(Record::TYPE_POLISH_DISPATCH).sum('weight')
+    # 去别的柜台还货
+    other_receive_weight = transactions.of_type(Record::TYPE_RECEIVE).sum('weight')
+    other_receive_weight += transactions.of_type(Record::TYPE_PACKAGE_RECEIVE).sum('weight')
+    other_receive_weight += transactions.of_type(Record::TYPE_POLISH_RECEIVE).sum('weight') 
+    # 发货
+    dispatch_weight = records.of_type(Record::TYPE_DISPATCH).sum('weight')
+    dispatch_weight += records.of_type(Record::TYPE_PACKAGE_DISPATCH).sum('weight')
+    dispatch_weight += records.of_type(Record::TYPE_POLISH_DISPATCH).sum('weight')
+    # 收货
+    receive_weight = records.of_type(Record::TYPE_RECEIVE).sum('weight')
+    receive_weight += records.of_type(Record::TYPE_PACKAGE_RECEIVE).sum('weight')
+    receive_weight += records.of_type(Record::TYPE_POLISH_RECEIVE).sum('weight')
+    
     dispatch_weight += other_receive_weight
     receive_weight += other_dispatch_weight
     [dispatch_weight, receive_weight, other_dispatch_weight, other_receive_weight]

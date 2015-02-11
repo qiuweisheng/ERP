@@ -65,6 +65,12 @@ class ReportsController < ApplicationController
         checked_balance_at_date: host_checked_balance_at_date,
         type: :total
     )
+    
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx
+    end
   end
 
   def day_summary

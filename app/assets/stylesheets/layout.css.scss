@@ -175,7 +175,7 @@ div.title {
 
 .report {
   padding: 15px 0;
-
+  
   table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -228,12 +228,16 @@ div.title {
   background-color: #f9f9f9;
   border-bottom: 1px solid #ddd;
   
-  input {
+  button {
     margin-right: 5px;
     font-size: 13px;
-    width: 100px;
     padding-left: 3px;
     padding-right: 3px;
+  }
+  
+  input {
+    @extend button;
+    width: 100px;
   }
   
   select {

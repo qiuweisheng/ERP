@@ -18,7 +18,7 @@ set_ui_widget = ->
         matcher = RegExp '^' + $.ui.autocomplete.escapeRegex(request.term), 'i'
         response $.grep($element.data('data'), (item) -> matcher.test item)
 
-  $('a.button, input[type=submit]').button()
+  $('a.button, input[type=submit], button').button()
 
 update_balance_value = ->
   $balance_value = $('#balance')

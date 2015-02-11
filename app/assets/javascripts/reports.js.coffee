@@ -7,8 +7,14 @@ $(document).on 'page:change', ->
     dateFormat: 'yy-mm-dd'
     showButtonPanel: true
     onClose: (date) -> $('#to_date').datepicker("option", "minDate", date)
+
   $("#to_date").datepicker
     dateFormat: 'yy-mm-dd'
     showButtonPanel: true
     onClose: (date) -> $('#from_date').datepicker("option", "maxDate", date)
-    
+
+  $("form.date_and_user input.xlsx").click (event)->
+    event.preventDefault()
+    parent = $(this).parent()
+    url = parent.attr('action') + '.xlsx?' + parent.serialize() 
+    window.open(url)

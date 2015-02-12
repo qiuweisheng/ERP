@@ -3,14 +3,21 @@ class ReportsController < ApplicationController
   prepend_before_action :need_admin_permission, except: [:day_detail, :day_summary, :current_user_balance]
   before_action :need_login, only: [:day_detail, :day_summary, :current_user_balance]
 
-  def day_detail
-    unless is_admin_permission? session[:permission]
-      params[:date] = nil
-      params[:user_id] = nil
+
+  private def check_date_and_user_param()
+    if is_admin_permission? session[:permission]
+      params[:date] ||= Time.now.to_date.strftime("%Y-%m-%d")
+      params[:user_id] ||= session[:user_id]
+    else
+      params[:date] = Time.now.to_date.strftime("%Y-%m-%d")
+      params[:user_id] = session[:user_id]
     end
-    @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
-    user_id = params[:user_id] || session[:user_id]
-    @user = User.find(user_id)
+  end
+  
+  def day_detail
+    check_date_and_user_param()
+    @date = Date.parse(params[:date])
+    @user = User.find(params[:user_id])
     
     @report = []
     @user.participants(@date).each do |participant|
@@ -475,10 +482,10 @@ module Statistics
     transactions = { dispatch: [], receive: [] }
     records = self.transactions.select('product_id, weight').at_date(date)
     records = records.created_by_user(user) if user
-    records.of_type(Record::TYPE_DISPATCH).each do |record|
+    records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).each do |record|
       transactions[:dispatch].push [record.product.try(:name), record.weight]
     end
-    records.of_type(Record::TYPE_RECEIVE).each do |record|
+    records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).each do |record|
       transactions[:receive].push [record.product.try(:name), record.weight]
     end
     transactions
@@ -487,8 +494,8 @@ module Statistics
   def weights_at_date(date, user: nil)
     records = self.transactions.at_date(date)
     records = records.created_by_user(user) if user
-    dispatch_weight = records.of_type(Record::TYPE_DISPATCH).sum('weight')
-    receive_weight = records.of_type(Record::TYPE_RECEIVE).sum('weight')
+    dispatch_weight = records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
+    receive_weight = records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
     [dispatch_weight, receive_weight]
   end
 
@@ -505,8 +512,8 @@ module Statistics
   def balance_before_date(date, user: nil)
     records = self.transactions.before_date(date)
     records = records.created_by_user(user) if user
-    balance = records.of_type(Record::TYPE_DISPATCH).sum('weight')
-    balance -= records.of_type(Record::TYPE_RECEIVE).sum('weight')
+    balance = records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
+    balance -= records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
   end
 end
 
@@ -541,44 +548,28 @@ User.class_eval do
     records = self.records.between_date_exclusive(check_date, date)
     transactions = self.transactions.between_date_exclusive(check_date, date)
     # 发货
-    balance -= records.of_type(Record::TYPE_DISPATCH).sum('weight')
-    balance -= records.of_type(Record::TYPE_PACKAGE_DISPATCH).sum('weight')
-    balance -= records.of_type(Record::TYPE_POLISH_DISPATCH).sum('weight')
+    balance -= records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
     # 收货
-    balance += records.of_type(Record::TYPE_RECEIVE).sum('weight')
-    balance += records.of_type(Record::TYPE_PACKAGE_RECEIVE).sum('weight')
-    balance += records.of_type(Record::TYPE_POLISH_RECEIVE).sum('weight')
+    balance += records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
     # 客户退货
     balance += records.of_type(Record::TYPE_RETURN).sum('weight')
     # 去别的柜台领货
-    balance += transactions.of_type(Record::TYPE_DISPATCH).sum('weight')
-    balance += transactions.of_type(Record::TYPE_PACKAGE_DISPATCH).sum('weight')
-    balance += transactions.of_type(Record::TYPE_POLISH_DISPATCH).sum('weight')
+    balance += transactions.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
     # 去别的柜台还货
-    balance -= transactions.of_type(Record::TYPE_RECEIVE).sum('weight')
-    balance -= transactions.of_type(Record::TYPE_PACKAGE_RECEIVE).sum('weight')
-    balance -= transactions.of_type(Record::TYPE_POLISH_RECEIVE).sum('weight') 
+    balance -= transactions.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
   end
 
   def weights_at_date_as_host(date)
     records = self.records.at_date(date)
     transactions = self.transactions.at_date(date)
     # 去别的柜台领货
-    other_dispatch_weight = transactions.of_type(Record::TYPE_DISPATCH).sum('weight')
-    other_dispatch_weight += transactions.of_type(Record::TYPE_PACKAGE_DISPATCH).sum('weight')
-    other_dispatch_weight += transactions.of_type(Record::TYPE_POLISH_DISPATCH).sum('weight')
+    other_dispatch_weight = transactions.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
     # 去别的柜台还货
-    other_receive_weight = transactions.of_type(Record::TYPE_RECEIVE).sum('weight')
-    other_receive_weight += transactions.of_type(Record::TYPE_PACKAGE_RECEIVE).sum('weight')
-    other_receive_weight += transactions.of_type(Record::TYPE_POLISH_RECEIVE).sum('weight') 
+    other_receive_weight = transactions.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
     # 发货
-    dispatch_weight = records.of_type(Record::TYPE_DISPATCH).sum('weight')
-    dispatch_weight += records.of_type(Record::TYPE_PACKAGE_DISPATCH).sum('weight')
-    dispatch_weight += records.of_type(Record::TYPE_POLISH_DISPATCH).sum('weight')
+    dispatch_weight = records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
     # 收货
-    receive_weight = records.of_type(Record::TYPE_RECEIVE).sum('weight')
-    receive_weight += records.of_type(Record::TYPE_PACKAGE_RECEIVE).sum('weight')
-    receive_weight += records.of_type(Record::TYPE_POLISH_RECEIVE).sum('weight')
+    receive_weight = records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
     
     dispatch_weight += other_receive_weight
     receive_weight += other_dispatch_weight
@@ -620,7 +611,7 @@ Employee.class_eval do
       first_record = self.transactions.order('created_at').first
       check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
     end
-    balance += records.of_type(Record::TYPE_DISPATCH).between_date_exclusive(check_date, date).sum('weight')
-    balance -= records.of_type(Record::TYPE_RECEIVE).between_date_exclusive(check_date, date).sum('weight')
+    balance += records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).between_date_exclusive(check_date, date).sum('weight')
+    balance -= records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).between_date_exclusive(check_date, date).sum('weight')
   end
 end

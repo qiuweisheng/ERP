@@ -140,6 +140,10 @@ class Record < ActiveRecord::Base
   end
   
   scope :of_type, lambda {|type| where("record_type = ?", type)}
+  scope :of_types, lambda {|types|
+    sql = types.map {"record_type = ?"}.join(" OR ")
+    where(sql, *types)
+  }
   scope :at_date, lambda {|date| where("date = ?", date)}
   scope :before_date, lambda {|date| where("date < ?", date)}
   scope :between_date_exclusive, lambda {|begin_date, end_date| where('date > ? AND date < ?', begin_date, end_date)}

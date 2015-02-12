@@ -533,14 +533,19 @@ end
 
 User.class_eval do
   include Statistics
-
+    
   def balance_before_date_as_host(date)
     balance = 0
-    # 找日盘点日期
-    check_date = self.records.of_type(Record::TYPE_DAY_CHECK).before_date(date).order('created_at DESC').first.try(:date)
+    # 找盘点日期
+    check_date = self.records.of_types([Record::TYPE_DAY_CHECK, Record::TYPE_MONTH_CHECK]).before_date(date).order('created_at DESC').first.try(:date)    
     if check_date
-      # 柜台当天的日盘点值
-      balance = self.records.of_type(Record::TYPE_DAY_CHECK).of_participant(self).at_date(check_date).sum('weight')
+      # 柜台前次盘点值(月盘点优先)
+      check_type = if self.records.of_type(Record::TYPE_MONTH_CHECK).count > 0
+        Record::TYPE_MONTH_CHECK
+      else
+        Record::TYPE_DAY_CHECK
+      end
+      balance = self.records.of_type(check_type).of_participant(self).at_date(check_date).sum('weight')
     else
       first_record = self.records.order('created_at').first
       check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day

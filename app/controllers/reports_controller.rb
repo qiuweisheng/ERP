@@ -14,51 +14,62 @@ class ReportsController < ApplicationController
     end
   end
   
+  private def participant_detail(date, user)
+    report = []
+    user.participants(date).each do |participant|
+      last_balance = participant.balance_before_date(date, user)
+      balance = last_balance
+      report.push(name: participant.name, last_balance: last_balance, balance: balance)
+      transactions = participant.transactions_at_date(date, user)
+      transactions[:dispatch].each do |name, value|
+        balance += value
+        report.push(product_name: name, dispatch_value: value, balance: balance)
+      end
+      transactions[:receive].each do |name, value|
+        balance -= value
+        report.push(product_name: name, receive_value: value, balance: balance)
+      end
+      dispatch_weight, receive_weight = participant.weights_at_date(date, user: user)
+      balance = last_balance + dispatch_weight - receive_weight
+      row = {name: '合计', last_balance: last_balance, dispatch_value: dispatch_weight, receive_value: receive_weight, balance: balance, type: :sum}
+      if participant.class == Employee
+        checked_balance_at_date = participant.checked_balance_at_date(date, user)
+        difference = balance - checked_balance_at_date
+        row[:checked_balance_at_date] = checked_balance_at_date
+        row[:depletion] = difference
+      end
+      report.push row
+    end
+    report
+  end
+  
+  private def user_detail_as_client(date, user)
+    report = []
+    user.users(date).each do |usr|
+      dispatch_weight, receive_weight = user.weights_at_date(date, user: usr)
+      report.push(product_name: usr.name, dispatch_value: dispatch_weight)
+      report.push(product_name: usr.name, receive_value: receive_weight)
+    end
+
+    other_dispatch_weight, other_receive_weight = user.weights_at_date(date)
+    report.push(
+        name: '本柜台',
+        dispatch_value: other_receive_weight,
+        receive_value: other_dispatch_weight,
+        type: :sum
+    )
+    report
+  end
+  
   def day_detail
     check_date_and_user_param()
     @date = Date.parse(params[:date])
     @user = User.find(params[:user_id])
     
-    @report = []
-    @user.participants(@date).each do |participant|
-      last_balance = participant.balance_before_date(@date, user: @user)
-      balance = last_balance
-      @report.push(name: participant.name, last_balance: last_balance, balance: balance)
-      transactions = participant.transactions_at_date(@date, user: @user)
-      transactions[:dispatch].each do |name, value|
-        balance += value
-        @report.push(product_name: name, dispatch_value: value, balance: balance)
-      end
-      transactions[:receive].each do |name, value|
-        balance -= value
-        @report.push(product_name: name, receive_value: value, balance: balance)
-      end
-      dispatch_sum, receive_sum = participant.weights_at_date(@date, user: @user)
-      balance = last_balance + dispatch_sum - receive_sum
-      attr = {
-          name: '合计',
-          last_balance: last_balance,
-          dispatch_value: dispatch_sum,
-          receive_value: receive_sum,
-          balance: balance,
-          type: :sum
-      }
-      if participant.class == Employee
-        checked_balance_at_date = participant.checked_balance_at_date(@date, user: @user)
-        difference = balance - checked_balance_at_date
-        attr[:checked_balance_at_date] = checked_balance_at_date
-        attr[:depletion] = difference
-      end
-      @report.push attr
-    end
+    @report = participant_detail(@date, @user)
+    @report.concat(user_detail_as_client(@date, @user))
 
-    host_dispatch_sum, host_receive_sum, other_dispatch_sum, other_receive_sum = @user.weights_at_date_as_host(@date)
-    @report.push(
-        name: '本柜台',
-        dispatch_value: other_receive_sum,
-        receive_value: other_dispatch_sum,
-        type: :sum
-    )
+    host_dispatch_sum, host_receive_sum = @user.weights_at_date_as_host(@date)
     host_last_balance = @user.balance_before_date_as_host(@date)
     host_balance = host_last_balance - host_dispatch_sum + host_receive_sum
     host_checked_balance_at_date = @user.checked_balance_at_date_as_host(@date)
@@ -94,12 +105,12 @@ class ReportsController < ApplicationController
     total_dispatch_sum = 0
     total_receive_sum = 0
     @user.participants(@date).each do |participant|
-      last_balance = participant.balance_before_date(@date, user: @user)
+      last_balance = participant.balance_before_date(@date, @user)
       dispatch_sum, receive_sum = participant.weights_at_date(@date, user: @user)
       total_dispatch_sum += dispatch_sum
       total_receive_sum += receive_sum
       balance = last_balance + dispatch_sum - receive_sum
-      checked_balance_at_date = participant.checked_balance_at_date(@date, user: @user)
+      checked_balance_at_date = participant.checked_balance_at_date(@date, @user)
       attr = {
           name: participant.name,
           last_balance: last_balance,
@@ -135,6 +146,7 @@ class ReportsController < ApplicationController
     )
   end
 
+  # TODO
   def goods_distribution_detail
     milli = ->(sum) { sum / 1000 }
     gram = ->(sum) { "%.4f" % [sum / 26.717] }
@@ -155,6 +167,7 @@ class ReportsController < ApplicationController
     @report.push name: '合计', milli: milli.call(total), gram: gram.call(total), type: :total
   end
 
+  # TODO
   def goods_in_employees
     @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
     @report = []
@@ -167,6 +180,7 @@ class ReportsController < ApplicationController
     @report.push name: '生产用金合计', sum: total, type: :total
   end
 
+  # TODO
   def depletion
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
@@ -374,6 +388,7 @@ class ReportsController < ApplicationController
     @report.push attr
   end
 
+  # TODO
   def client_transactions
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
@@ -426,7 +441,7 @@ class ReportsController < ApplicationController
     #today balance
     @report.push balance: balance, type: :total
   end
-
+  # TODO
   def contractor_transactions
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
@@ -478,14 +493,13 @@ class ReportsController < ApplicationController
 end
 
 module Statistics
-  def transactions_at_date(date, user: nil)
-    transactions = { dispatch: [], receive: [] }
-    records = self.transactions.select('product_id, weight').at_date(date)
-    records = records.created_by_user(user) if user
-    records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).each do |record|
+  def transactions_at_date(date, user)
+    transactions = {dispatch: [], receive: []}
+    records = self.transactions.select('product_id, weight').created_by_user(user).at_date(date)
+    records.of_types(Record::DISPATCH).each do |record|
       transactions[:dispatch].push [record.product.try(:name), record.weight]
     end
-    records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).each do |record|
+    records.of_types(Record::RECEIVE).each do |record|
       transactions[:receive].push [record.product.try(:name), record.weight]
     end
     transactions
@@ -494,40 +508,59 @@ module Statistics
   def weights_at_date(date, user: nil)
     records = self.transactions.at_date(date)
     records = records.created_by_user(user) if user
-    dispatch_weight = records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
-    receive_weight = records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
+    dispatch_weight = records.of_types(Record::DISPATCH).sum('weight')
+    receive_weight = records.of_types(Record::RECEIVE).sum('weight')
     [dispatch_weight, receive_weight]
   end
 
-  def checked_balance_at_date(date, user: nil)
-    records = self.transactions.at_date(date).of_type(Record::TYPE_DAY_CHECK)
-    records = records.created_by_user(user) if user
+  def checked_balance_at_date(date, user)
+    records = self.transactions.created_by_user(user).at_date(date).of_type(Record::TYPE_DAY_CHECK)
     if records.count > 0
       records.sum('weight')
     else
-      balance_before_date(date, user: user)
+      balance_before_date(date, user)
     end
   end
   
-  def balance_before_date(date, user: nil)
-    records = self.transactions.before_date(date)
-    records = records.created_by_user(user) if user
-    balance = records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
-    balance -= records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
+  def balance_before_date(date, user)
+    records = self.transactions.records.created_by_user(user).before_date(date)
+    balance = records.of_types(Record::DISPATCH).sum('weight')
+    balance -= records.of_types(Record::RECEIVE).sum('weight')
   end
+  
+  def day_check_date(date, user)
+    check_date = self.transactions.created_by_user(user).of_type(Record::TYPE_DAY_CHECK)
+                                  .before_date(date).order('created_at DESC').first.try(:date)
+    unless check_date
+      first_record = Record.order('created_at').first
+      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
+    end
+    check_date
+  end
+  
+  def month_check_date(date, user)
+    check_date = self.transactions.created_by_user(user).of_type(Record::TYPE_MONTH_CHECK)
+                                  .before_date(date).order('created_at DESC').first.try(:date)
+    unless check_date
+      first_record = Record.order('created_at').first
+      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
+    end
+    check_date
+  end
+  
 end
 
 Client.class_eval do
   include Statistics
 
-  def checked_balance_at_date(date, user: nil)
+  def checked_balance_at_date(date, user)
   end
 end
 
 Contractor.class_eval do
   include Statistics
 
-  def checked_balance_at_date(date, user: nil)
+  def checked_balance_at_date(date, user)
   end
 end
 
@@ -535,46 +568,39 @@ User.class_eval do
   include Statistics
     
   def balance_before_date_as_host(date)
-    balance = 0
-    # 找盘点日期
-    check_date = self.records.of_types([Record::TYPE_DAY_CHECK, Record::TYPE_MONTH_CHECK]).before_date(date).order('created_at DESC').first.try(:date)    
-    if check_date
-      # 柜台前次盘点值(月盘点优先)
-      check_type = if self.records.of_type(Record::TYPE_MONTH_CHECK).count > 0
-        Record::TYPE_MONTH_CHECK
-      else
-        Record::TYPE_DAY_CHECK
-      end
-      balance = self.records.of_type(check_type).of_participant(self).at_date(check_date).sum('weight')
+    day_check_date = day_check_date_as_host(date)
+    month_check_date = month_check_date_as_host(date)
+    if month_check_date >= day_check_date
+      check_date = month_check_date
+      check_type = Record::TYPE_MONTH_CHECK
     else
-      first_record = self.records.order('created_at').first
-      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
+      check_date = day_check_date
+      check_type = Record::TYPE_DAY_CHECK
     end
+    balance = self.records.of_type(check_type).of_participant(self).at_date(check_date).sum('weight')
     records = self.records.between_date_exclusive(check_date, date)
     transactions = self.transactions.between_date_exclusive(check_date, date)
     # 发货
-    balance -= records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
+    balance -= records.of_types(Record::DISPATCH).sum('weight')
     # 收货
-    balance += records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
+    balance += records.of_types(Record::RECEIVE).sum('weight')
     # 客户退货
     balance += records.of_type(Record::TYPE_RETURN).sum('weight')
-    # 去别的柜台领货
-    balance += transactions.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
-    # 去别的柜台还货
-    balance -= transactions.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
+    # 去别的柜台领货、去别的柜台还货
+    other_dispatch_weight, other_receive_weight = weights_at_date(date)
+    balance += other_dispatch_weight
+    balance -= other_receive_weight
   end
 
   def weights_at_date_as_host(date)
     records = self.records.at_date(date)
     transactions = self.transactions.at_date(date)
-    # 去别的柜台领货
-    other_dispatch_weight = transactions.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
-    # 去别的柜台还货
-    other_receive_weight = transactions.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
+    # 去别的柜台领货、去别的柜台还货
+    other_dispatch_weight, other_receive_weight = weights_at_date(date)
     # 发货
-    dispatch_weight = records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).sum('weight')
+    dispatch_weight = records.of_types(Record::DISPATCH).sum('weight')
     # 收货
-    receive_weight = records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).sum('weight')
+    receive_weight = records.of_types(Record::RECEIVE).sum('weight')
     
     dispatch_weight += other_receive_weight
     receive_weight += other_dispatch_weight
@@ -589,34 +615,59 @@ User.class_eval do
       balance_before_date_as_host(date)
     end
   end
+  
+  def day_check_date_as_host(date)
+    check_date = self.records.of_type(Record::TYPE_DAY_CHECK).before_date(date).order('created_at DESC').first.try(:date)
+    unless check_date
+      first_record = Record.order('created_at').first
+      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
+    end
+    check_date
+  end
+  
+  def month_check_date_as_host(date)
+    check_date = self.records.of_type(Record::TYPE_MONTH_CHECK).before_date(date).order('created_at DESC').first.try(:date)
+    unless check_date
+      first_record = Record.order('created_at').first
+      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
+    end
+    check_date
+  end
 
   def participants(date)
-    group = self.records.where('date = ? and record_type != ?', date, 2).group('participant_id')
-              .collect  { |r| r.participant }
-              .group_by { |p| p.class }
-    [Employee, User, Contractor, Client]
-      .map    { |c| group[c] }
-      .select { |p| p }
-      .flatten
+    self.records.at_date(date).group('participant_id').collect  { |r| r.participant }
+    # group = self.records.at_date(date).group('participant_id')
+    #           .collect  { |r| r.participant }
+    #           .group_by { |p| p.class }
+    # [Employee, User, Contractor, Client]
+    #   .map    { |c| group[c] }
+    #   .select { |p| p }
+    #   .flatten
+  end
+  
+  def users(date)
+    self.transactions.at_date(date).group('user_id').collect {|r| r.user}
   end
 end
 
 Employee.class_eval do
   include Statistics
   
-  def balance_before_date(date, user: nil, check_type: nil)
-    records = self.transactions
-    records = records.created_by_user(user) if user
+  def balance_before_date(date, user, check_type: nil)
     check_type = Record::TYPE_MONTH_CHECK unless check_type
-    check_date = records.of_type(check_type).before_date(date).order('created_at DESC').first.try(:date)
-    balance = 0
-    if check_date
-      balance = records.of_type(check_type).at_date(check_date).sum('weight')
+    check_date = case check_type
+    when Record::TYPE_MONTH_CHECK
+      month_check_date(date, user)
     else
-      first_record = self.transactions.order('created_at').first
-      check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
+      day_check_date(date, user)
     end
-    balance += records.of_types([Record::TYPE_DISPATCH, Record::TYPE_PACKAGE_DISPATCH, Record::TYPE_POLISH_DISPATCH]).between_date_exclusive(check_date, date).sum('weight')
-    balance -= records.of_types([Record::TYPE_RECEIVE, Record::TYPE_PACKAGE_RECEIVE, Record::TYPE_POLISH_RECEIVE]).between_date_exclusive(check_date, date).sum('weight')
+    records = self.transactions.created_by_user(user)
+    balance = records.of_type(check_type).at_date(check_date).sum('weight')
+    balance += records.of_types(Record::DISPATCH).between_date_exclusive(check_date, date).sum('weight')
+    balance -= records.of_types(Record::RECEIVE).between_date_exclusive(check_date, date).sum('weight')
+  end
+  
+  def users(date)
+    self.transactions.at_date(date).group('user_id').collect {|r| r.user}
   end
 end

@@ -27,6 +27,9 @@ class Record < ActiveRecord::Base
     TYPE_RETURN            => '客户退货',
     TYPE_WEIGHT_DIFFERENCE => '客户称差' 
   }
+  
+  DISPATCH = [TYPE_DISPATCH, TYPE_PACKAGE_DISPATCH, TYPE_POLISH_DISPATCH]
+  RECEIVE = [TYPE_RECEIVE, TYPE_PACKAGE_RECEIVE, TYPE_POLISH_RECEIVE]
 
   belongs_to :product
   belongs_to :user

@@ -161,13 +161,12 @@ class ReportsController < ApplicationController
     @report.push name: '合计', milli: milli.call(total), gram: gram.call(total), type: :total
   end
 
-  # TODO
   def goods_in_employees
     @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
     @report = []
     total = 0
     Record.employees(@date).each do |employee|
-      sum = employee.balance_before_date(@date + 1.day)
+      sum = employee.users.map {|user| employee.balance_before_date(@date + 1.day, user)}.reduce(0, :+)
       total += sum
       @report.push name: employee.name, sum: sum, average: sum / employee.colleague_number
     end

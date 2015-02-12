@@ -84,7 +84,7 @@ class ReportsController < ApplicationController
   
   private def user_detail_as_client(date, user)
     report = []
-    user.users(date).each do |usr|
+    user.users(date: date).each do |usr|
       dispatch_weight, receive_weight = user.weights_at_date(date, user: usr)
       report.push(product_name: usr.name, dispatch_value: dispatch_weight)
       report.push(product_name: usr.name, receive_value: receive_weight)
@@ -137,7 +137,6 @@ class ReportsController < ApplicationController
     @report += user_summary_as_host(@date, @user)
   end
 
-  # TODO
   def goods_distribution_detail
     milli = ->(sum) { sum / 1000 }
     gram = ->(sum) { "%.4f" % [sum / 26.717] }
@@ -151,7 +150,11 @@ class ReportsController < ApplicationController
       @report.push name: user.name, milli: milli.call(sum), gram: gram.call(sum)
     end
     Record.participants(@date).each do |participant|
-      sum = participant.balance_before_date(@date + 1.day)
+      if participant.class == User
+        sum = participant.balance_before_date_as_host(@date + 1.day)
+      else
+        sum = participant.users.map {|user| participant.balance_before_date(@date + 1.day, user)}.reduce(0, :+)
+      end
       total += sum
       @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)
     end
@@ -577,10 +580,8 @@ User.class_eval do
     balance += records.of_types(Record::RECEIVE).sum('weight')
     # 客户退货
     balance += records.of_type(Record::TYPE_RETURN).sum('weight')
-    # 去别的柜台领货、去别的柜台还货
-    other_dispatch_weight, other_receive_weight = weights_at_date(date)
-    balance += other_dispatch_weight
-    balance -= other_receive_weight
+    # 去别的柜台交易
+    balance += self.users.map {|user| self.balance_before_date(date, user)}.reduce(0, :+)
   end
 
   def weights_at_date_as_host(date)
@@ -636,8 +637,10 @@ User.class_eval do
     #   .flatten
   end
   
-  def users(date)
-    self.transactions.at_date(date).group('user_id').collect {|r| r.user}
+  def users(date: nil)
+    transactions = self.transactions
+    transactions = transactions.at_date(date) if date
+    transactions.group('user_id').collect {|r| r.user}
   end
 end
 
@@ -658,7 +661,9 @@ Employee.class_eval do
     balance -= records.of_types(Record::RECEIVE).between_date_exclusive(check_date, date).sum('weight')
   end
   
-  def users(date)
-    self.transactions.at_date(date).group('user_id').collect {|r| r.user}
+  def users(date: nil)
+    transactions = self.transactions
+    transactions = transactions.at_date(date) if date
+    transactions.group('user_id').collect {|r| r.user}
   end
 end

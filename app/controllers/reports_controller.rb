@@ -14,43 +14,64 @@ class ReportsController < ApplicationController
     end
   end
   
-  private def participant_detail(date, user)
+  private def participant_summary(date, user, participant)
     report = []
-    user.participants(date).each do |participant|
-      last_balance = participant.balance_before_date(date, user)
-      balance = last_balance
-      report.push(name: participant.name, last_balance: last_balance, balance: balance)
-      transactions = participant.transactions_at_date(date, user)
-      transactions[:dispatch].each do |name, value|
-        balance += value
-        report.push(product_name: name, dispatch_value: value, balance: balance)
-      end
-      transactions[:receive].each do |name, value|
-        balance -= value
-        report.push(product_name: name, receive_value: value, balance: balance)
-      end
-      dispatch_weight, receive_weight = participant.weights_at_date(date, user: user)
-      balance = last_balance + dispatch_weight - receive_weight
-      row = {name: '合计', last_balance: last_balance, dispatch_value: dispatch_weight, receive_value: receive_weight, balance: balance, type: :sum}
-      if participant.class == Employee
-        checked_balance_at_date = participant.checked_balance_at_date(date, user)
-        difference = balance - checked_balance_at_date
-        row[:checked_balance_at_date] = checked_balance_at_date
-        row[:depletion] = difference
-      end
+    last_balance = participant.balance_before_date(date, user)
+    dispatch_weight, receive_weight = participant.weights_at_date(date, user: user)
+    balance = last_balance + dispatch_weight - receive_weight
+    row = {
+      name: participant.name, 
+      last_balance: last_balance, 
+      dispatch_value: dispatch_weight, 
+      receive_value: receive_weight, 
+      balance: balance
+    }
+    if participant.class == Employee
+      checked_balance_at_date = participant.checked_balance_at_date(date, user)
+      difference = balance - checked_balance_at_date
+      row[:checked_balance_at_date] = checked_balance_at_date
+      row[:depletion] = difference
       report.push row
     end
     report
   end
   
-  private def user_detail_as_client(date, user)
+  private def participant_summarys_of_user(date, user)
     report = []
-    user.users(date).each do |usr|
-      dispatch_weight, receive_weight = user.weights_at_date(date, user: usr)
-      report.push(product_name: usr.name, dispatch_value: dispatch_weight)
-      report.push(product_name: usr.name, receive_value: receive_weight)
+    user.participants(date).each do |participant|
+      report += participant_summary(date, user, participant)
     end
-
+    report
+  end
+  
+  private def participant_detail(date, user, participant)
+    report = []
+    last_balance = participant.balance_before_date(date, user)
+    balance = last_balance
+    report.push(name: participant.name, last_balance: last_balance, balance: balance)
+    transactions = participant.transactions_at_date(date, user)
+    transactions[:dispatch].each do |name, value|
+      balance += value
+      report.push(product_name: name, dispatch_value: value, balance: balance)
+    end
+    transactions[:receive].each do |name, value|
+      balance -= value
+      report.push(product_name: name, receive_value: value, balance: balance)
+    end
+    report
+  end
+  
+  private def participant_details_of_user(date, user)
+    report = []
+    user.participants(date).each do |participant|
+      report += participant_detail(date, user, participant)
+      report += participant_summary(date, user, participant).map {|row| row.update(name: '合计', type: :sum)}
+    end
+    report
+  end
+  
+  private def user_summary_as_client(date, user)
+    report = []
     other_dispatch_weight, other_receive_weight = user.weights_at_date(date)
     report.push(
         name: '本柜台',
@@ -61,28 +82,43 @@ class ReportsController < ApplicationController
     report
   end
   
-  def day_detail
-    check_date_and_user_param()
-    @date = Date.parse(params[:date])
-    @user = User.find(params[:user_id])
-    
-    @report = participant_detail(@date, @user)
-    @report.concat(user_detail_as_client(@date, @user))
-
-    host_dispatch_sum, host_receive_sum = @user.weights_at_date_as_host(@date)
+  private def user_detail_as_client(date, user)
+    report = []
+    user.users(date).each do |usr|
+      dispatch_weight, receive_weight = user.weights_at_date(date, user: usr)
+      report.push(product_name: usr.name, dispatch_value: dispatch_weight)
+      report.push(product_name: usr.name, receive_value: receive_weight)
+    end
+    report += user_summary_as_client(date, user)
+  end
+  
+  private def user_summary_as_host(date, user)
+    report = []
+    host_dispatch_weight, host_receive_weight = @user.weights_at_date_as_host(@date)
     host_last_balance = @user.balance_before_date_as_host(@date)
-    host_balance = host_last_balance - host_dispatch_sum + host_receive_sum
+    host_balance = host_last_balance - host_dispatch_weight + host_receive_weight
     host_checked_balance_at_date = @user.checked_balance_at_date_as_host(@date)
-    @report.push(
+    report.push(
         name: '本柜当日结余',
         last_balance: host_last_balance,
-        dispatch_value: host_dispatch_sum,
-        receive_value: host_receive_sum,
+        dispatch_value: host_dispatch_weight,
+        receive_value: host_receive_weight,
         balance: host_balance,
         difference: host_checked_balance_at_date - host_balance,
         checked_balance_at_date: host_checked_balance_at_date,
         type: :total
     )
+    report
+  end
+  
+  def day_detail
+    check_date_and_user_param()
+    @date = Date.parse(params[:date])
+    @user = User.find(params[:user_id])
+    
+    @report = participant_details_of_user(@date, @user)
+    @report += user_detail_as_client(@date, @user)
+    @report += user_summary_as_host(@date, @user)
     
     respond_to do |format|
       format.html
@@ -90,60 +126,15 @@ class ReportsController < ApplicationController
       format.xlsx
     end
   end
-
+  
   def day_summary
-    unless is_admin_permission? session[:permission]
-      params[:date] = nil
-      params[:user_id] = nil
-    end
-    
-    @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date
-    user_id = params[:user_id] || session[:user_id]
-    @user = User.find(user_id)
+    check_date_and_user_param()
+    @date = Date.parse(params[:date])
+    @user = User.find(params[:user_id])
 
-    @report = []
-    total_dispatch_sum = 0
-    total_receive_sum = 0
-    @user.participants(@date).each do |participant|
-      last_balance = participant.balance_before_date(@date, @user)
-      dispatch_sum, receive_sum = participant.weights_at_date(@date, user: @user)
-      total_dispatch_sum += dispatch_sum
-      total_receive_sum += receive_sum
-      balance = last_balance + dispatch_sum - receive_sum
-      checked_balance_at_date = participant.checked_balance_at_date(@date, @user)
-      attr = {
-          name: participant.name,
-          last_balance: last_balance,
-          dispatch_sum: dispatch_sum,
-          receive_sum: receive_sum,
-          balance: balance,
-          checked_balance_at_date: checked_balance_at_date
-      }
-      if participant.class == Employee
-        attr[:depletion] = balance - checked_balance_at_date
-      end
-      @report.push attr
-    end
-    host_dispatch_sum, host_receive_sum, other_dispatch_sum, other_receive_sum = @user.weights_at_date_as_host(@date)
-    @report.push(
-        name: '本柜台',
-        dispatch_sum: other_receive_sum,
-        receive_sum: other_dispatch_sum,
-        type: :sum
-    )
-    host_last_balance = @user.balance_before_date_as_host(@date)
-    host_balance = host_last_balance - host_dispatch_sum + host_receive_sum
-    host_checked_balance_at_date = @user.checked_balance_at_date_as_host(@date)
-    @report.push(
-        name: '本柜当日结余',
-        last_balance: host_last_balance,
-        dispatch_sum: host_dispatch_sum,
-        receive_sum: host_receive_sum,
-        balance: host_balance,
-        difference: host_balance - host_checked_balance_at_date,
-        checked_balance_at_date: host_checked_balance_at_date,
-        type: :total
-    )
+    @report = participant_summarys_of_user(@date, @user) 
+    @report += user_summary_as_client(@date, @user)
+    @report += user_summary_as_host(@date, @user)
   end
 
   # TODO
@@ -196,9 +187,9 @@ class ReportsController < ApplicationController
         values = {}
 
         last_balance = employee.balance_before_date(date, check_type: Record::TYPE_DAY_CHECK)
-        dispatch_sum, receive_sum = employee.weights_at_date(date)
+        dispatch_weight, receive_weight = employee.weights_at_date(date)
         checked_balance_at_date = employee.checked_balance_at_date(date)
-        depletion = last_balance + dispatch_sum - receive_sum - checked_balance_at_date
+        depletion = last_balance + dispatch_weight - receive_weight - checked_balance_at_date
         depletion_sum += depletion
         values[:depletion] = depletion
 
@@ -328,9 +319,9 @@ class ReportsController < ApplicationController
       values = []
       @users.each do |user|
         last_balance = user.balance_before_date_as_host(date)
-        dispatch_sum, receive_sum = user.weights_at_date_as_host(date)
+        dispatch_weight, receive_weight = user.weights_at_date_as_host(date)
         checked_balance_at_date = user.checked_balance_at_date_as_host(date)
-        difference = last_balance + receive_sum - dispatch_sum - checked_balance_at_date
+        difference = last_balance + receive_weight - dispatch_weight - checked_balance_at_date
         values.push difference
       end
       @report.push name: date.strftime('%Y-%m-%d'), values: values
@@ -348,8 +339,8 @@ class ReportsController < ApplicationController
     @user = User.find(session[:user_id])
     date = Time.now.to_date
     last_balance = @user.balance_before_date_as_host(date)
-    dispatch_sum, receive_sum = @user.weights_at_date_as_host(date)
-    @balance = last_balance + receive_sum - dispatch_sum
+    dispatch_weight, receive_weight = @user.weights_at_date_as_host(date)
+    @balance = last_balance + receive_weight - dispatch_weight
     respond_to do |format|
       format.html { render layout: false }
       format.js
@@ -398,10 +389,10 @@ class ReportsController < ApplicationController
     last_balance = []
     last_balance.push '日期'
     last_balance.push '上期余额'
-    month_receive_sum = []
-    month_dispatch_sum = []
-    month_receive_sum << '本月合计'<<'收回'
-    month_dispatch_sum << '本月合计'<<'交与'
+    month_receive_weight = []
+    month_dispatch_weight = []
+    month_receive_weight << '本月合计'<<'收回'
+    month_dispatch_weight << '本月合计'<<'交与'
 
     balance = []
     balance << '' << '本月余额'
@@ -413,8 +404,8 @@ class ReportsController < ApplicationController
 
       rev_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_RECEIVE).sum('weight')
       dis_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_DISPATCH).sum('weight')
-      month_receive_sum.push rev_value
-      month_dispatch_sum.push dis_value
+      month_receive_weight.push rev_value
+      month_dispatch_weight.push dis_value
 
       diff = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
       weight_diff.push diff
@@ -435,7 +426,7 @@ class ReportsController < ApplicationController
       @report.push receive: receive, dispatch: dispatch, type: :value
     end
     #summary
-    @report.push receive: month_receive_sum, dispatch: month_dispatch_sum, type: :value
+    @report.push receive: month_receive_weight, dispatch: month_dispatch_weight, type: :value
     #weitgh diff
     @report.push weight_diff: weight_diff, type: :weight_diff
     #today balance
@@ -451,10 +442,10 @@ class ReportsController < ApplicationController
     last_balance = []
     last_balance.push '日期'
     last_balance.push '上期余额'
-    month_receive_sum = []
-    month_dispatch_sum = []
-    month_receive_sum << '本月合计'<<'收回'
-    month_dispatch_sum << '本月合计'<<'交与'
+    month_receive_weight = []
+    month_dispatch_weight = []
+    month_receive_weight << '本月合计'<<'收回'
+    month_dispatch_weight << '本月合计'<<'交与'
 
     balance = []
     balance << '' << '本月余额'
@@ -465,8 +456,8 @@ class ReportsController < ApplicationController
 
       rev_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, contractors, Record::TYPE_RECEIVE).sum('weight')
       dis_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, contractors, Record::TYPE_DISPATCH).sum('weight')
-      month_receive_sum.push rev_value
-      month_dispatch_sum.push dis_value
+      month_receive_weight.push rev_value
+      month_dispatch_weight.push dis_value
 
       balance.push (bal_val + dis_value - rev_value)
     end
@@ -485,7 +476,7 @@ class ReportsController < ApplicationController
       @report.push receive: receive, dispatch: dispatch, type: :value
     end
     #summary
-    @report.push receive: month_receive_sum, dispatch: month_dispatch_sum, type: :value
+    @report.push receive: month_receive_weight, dispatch: month_dispatch_weight, type: :value
     #today balance
     @report.push balance: balance, type: :total
   end

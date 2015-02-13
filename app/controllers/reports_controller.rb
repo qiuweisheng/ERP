@@ -195,10 +195,10 @@ class ReportsController < ApplicationController
         depletion_sum += depletion
         values[:depletion] = depletion
 
-        #组长被补偿的打磨损耗(分摊出去部分)
-        polish_depletion_compensation = employee.transactions.where('date = ? AND record_type = ?', date, Record::YTPE_APPORTION).sum('weight')
-        #损耗分摊(被分摊部分)
-        polish_depletion_share = Record.where('date = ? AND employee_id = ? AND record_type = ?', date, employee, Record::YTPE_APPORTION).sum('weight')
+        #打磨组:被补偿的打磨损耗(分摊出去部分)
+        polish_depletion_compensation = employee.transactions.where('date = ? AND record_type = ?', date, Record::TYPE_APPORTION).sum('weight')
+        #生产者:损耗分摊(被分摊部分)
+        polish_depletion_share = Record.where('date = ? AND employee_id = ? AND record_type = ?', date, employee, Record::TYPE_APPORTION).sum('weight')
         polish_depletion = polish_depletion_share - polish_depletion_compensation
         polish_depletion_sum += polish_depletion
 

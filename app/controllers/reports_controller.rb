@@ -516,7 +516,7 @@ module Statistics
   end
   
   def balance_before_date(date, user)
-    records = self.transactions.records.created_by_user(user).before_date(date)
+    records = self.transactions.created_by_user(user).before_date(date)
     balance = records.of_types(Record::DISPATCH).sum('weight')
     balance -= records.of_types(Record::RECEIVE).sum('weight')
   end

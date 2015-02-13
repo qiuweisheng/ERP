@@ -98,7 +98,7 @@ class ReportsController < ApplicationController
     host_last_balance = @user.balance_before_date_as_host(@date)
     host_balance = host_last_balance - host_dispatch_weight + host_receive_weight
     host_checked_balance_at_date = @user.checked_balance_at_date_as_host(@date)
-    report.push(
+    row = {
         name: '本柜当日结余',
         last_balance: host_last_balance,
         dispatch_value: host_dispatch_weight,
@@ -107,7 +107,11 @@ class ReportsController < ApplicationController
         difference: host_checked_balance_at_date - host_balance,
         checked_balance_at_date: host_checked_balance_at_date,
         type: :total
-    )
+    }
+    if user.records.of_type(Record::TYPE_DAY_CHECK).of_participant(user).at_date(date).count == 0
+      row.update(checked_balance_at_date: "待盘点")
+    end
+    report.push row
     report
   end
   

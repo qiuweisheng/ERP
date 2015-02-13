@@ -86,8 +86,8 @@ class ReportsController < ApplicationController
     report = []
     user.users(date: date).each do |usr|
       dispatch_weight, receive_weight = user.weights_at_date(date, user: usr)
-      report.push(product_name: user.name, dispatch_value: dispatch_weight)
-      report.push(product_name: user.name, receive_value: receive_weight)
+      report.push(product_name: usr.name, dispatch_value: receive_weight)
+      report.push(product_name: usr.name, receive_value: dispatch_weight)
     end
     report += user_summary_as_client(date, user)
   end

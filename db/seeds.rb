@@ -25,32 +25,32 @@ User.create!([
         permission: 2
     },
     {
-        name: '黄滢仪',
+        name: '001黄滢仪',
         password: 'z',
         permission: 3
     },
     {
-        name: '叶静娇',
+        name: '002叶静娇',
         password: 'z',
         permission: 3
     },
     {
-        name: '付田',
+        name: '003付田',
         password: 'z',
         permission: 3
     },
     {
-        name: '李意璇',
+        name: '004李意璇',
         password: 'z',
         permission: 3
     },
     {
-        name: '林太1',
+        name: '005林太1',
         password: 'z',
         permission: 3
     },
     {
-        name: '林太2',
+        name: '006林太2',
         password: 'z',
         permission: 3
     },
@@ -120,17 +120,6 @@ open('./db/employee.txt') do |file|
   end
 end
 
-#Client.delete_all
-#Client.create!([
-#  {name: 'DEE'},
-#  {name: 'CRD'},
-#  {name: 'TSL'},
-#  {name: '金兴利'},
-#  {name: '周小姐'},
-#  {name: '兴劢'},
-#  {name: '权淦'},
-#  {name: '古太'}
-#])
 
 Contractor.delete_all
 Contractor.create!([

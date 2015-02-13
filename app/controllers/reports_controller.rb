@@ -86,8 +86,8 @@ class ReportsController < ApplicationController
     report = []
     user.users(date: date).each do |usr|
       dispatch_weight, receive_weight = user.weights_at_date(date, user: usr)
-      report.push(product_name: usr.name, dispatch_value: dispatch_weight)
-      report.push(product_name: usr.name, receive_value: receive_weight)
+      report.push(product_name: user.name, dispatch_value: dispatch_weight)
+      report.push(product_name: user.name, receive_value: receive_weight)
     end
     report += user_summary_as_client(date, user)
   end
@@ -108,7 +108,7 @@ class ReportsController < ApplicationController
         checked_balance_at_date: host_checked_balance_at_date,
         type: :total
     }
-    if user.records.of_type(Record::TYPE_DAY_CHECK).of_participant(user).at_date(date).count == 0
+    if user.records.of_types([Record::TYPE_DAY_CHECK, Record::TYPE_MONTH_CHECK]).of_participant(user).at_date(date).count == 0
       row.update(checked_balance_at_date: "待盘点")
     end
     report.push row
@@ -511,18 +511,34 @@ module Statistics
   end
 
   def checked_balance_at_date(date, user)
-    records = self.transactions.created_by_user(user).at_date(date).of_type(Record::TYPE_DAY_CHECK)
-    if records.count > 0
-      records.sum('weight')
+    records = self.transactions.created_by_user(user).at_date(date)
+    if records.of_type(Record::TYPE_MONTH_CHECK).count > 0
+      records.of_type(Record::TYPE_MONTH_CHECK).sum('weight')
+    elsif records.of_type(Record::TYPE_DAY_CHECK).count > 0
+      records.of_type(Record::TYPE_DAY_CHECK).sum('weight')
     else
       balance_before_date(date, user)
     end
   end
   
-  def balance_before_date(date, user)
-    records = self.transactions.created_by_user(user).before_date(date)
-    balance = records.of_types(Record::DISPATCH).sum('weight')
-    balance -= records.of_types(Record::RECEIVE).sum('weight')
+  # def balance_before_date(date, user)
+  #   records = self.transactions.created_by_user(user).before_date(date)
+  #   balance = records.of_types(Record::DISPATCH).sum('weight')
+  #   balance -= records.of_types(Record::RECEIVE).sum('weight')
+  # end
+  
+  def balance_before_date(date, user, check_type: nil)
+    check_type = Record::TYPE_MONTH_CHECK unless check_type
+    check_date = case check_type
+    when Record::TYPE_MONTH_CHECK
+      month_check_date(date, user)
+    else
+      day_check_date(date, user)
+    end
+    records = self.transactions.created_by_user(user)
+    balance = records.of_type(check_type).at_date(check_date).sum('weight')
+    balance += records.of_types(Record::DISPATCH).between_date_exclusive(check_date, date).sum('weight')
+    balance -= records.of_types(Record::RECEIVE).between_date_exclusive(check_date, date).sum('weight')
   end
   
   def day_check_date(date, user)
@@ -545,6 +561,11 @@ module Statistics
     check_date
   end
   
+  def users(date: nil)
+    transactions = self.transactions
+    transactions = transactions.at_date(date) if date
+    transactions.group('user_id').collect {|r| r.user}.select {|u| u != self}
+  end 
 end
 
 Client.class_eval do
@@ -603,9 +624,11 @@ User.class_eval do
   end
 
   def checked_balance_at_date_as_host(date)
-    records = self.records.of_type(Record::TYPE_DAY_CHECK).of_participant(self).at_date(date)
-    if records.count > 0
-      records.sum('weight')
+    records = self.records.of_participant(self).at_date(date)
+    if records.of_type(Record::TYPE_MONTH_CHECK).count > 0
+      records.of_type(Record::TYPE_MONTH_CHECK).sum('weight')
+    elsif records.of_type(Record::TYPE_DAY_CHECK).count > 0
+      records.of_type(Record::TYPE_DAY_CHECK).sum('weight')
     else
       balance_before_date_as_host(date)
     end
@@ -630,7 +653,7 @@ User.class_eval do
   end
 
   def participants(date)
-    self.records.at_date(date).group('participant_id').collect  { |r| r.participant }
+    self.records.at_date(date).group('participant_id').collect  { |r| r.participant }.select {|p| p != self}
     # group = self.records.at_date(date).group('participant_id')
     #           .collect  { |r| r.participant }
     #           .group_by { |p| p.class }
@@ -639,34 +662,8 @@ User.class_eval do
     #   .select { |p| p }
     #   .flatten
   end
-  
-  def users(date: nil)
-    transactions = self.transactions
-    transactions = transactions.at_date(date) if date
-    transactions.group('user_id').collect {|r| r.user}
-  end
 end
 
 Employee.class_eval do
   include Statistics
-  
-  def balance_before_date(date, user, check_type: nil)
-    check_type = Record::TYPE_MONTH_CHECK unless check_type
-    check_date = case check_type
-    when Record::TYPE_MONTH_CHECK
-      month_check_date(date, user)
-    else
-      day_check_date(date, user)
-    end
-    records = self.transactions.created_by_user(user)
-    balance = records.of_type(check_type).at_date(check_date).sum('weight')
-    balance += records.of_types(Record::DISPATCH).between_date_exclusive(check_date, date).sum('weight')
-    balance -= records.of_types(Record::RECEIVE).between_date_exclusive(check_date, date).sum('weight')
-  end
-  
-  def users(date: nil)
-    transactions = self.transactions
-    transactions = transactions.at_date(date) if date
-    transactions.group('user_id').collect {|r| r.user}
-  end
 end

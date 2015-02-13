@@ -19,9 +19,7 @@
         <th>摘要</th>
         <th>重量</th>
         <th>件数</th>
-        <% if @is_admin %>
-          <th>柜台</th>
-        <% end %>
+        <th>柜台</th>
         <th>交收人</th>
         <th>单号</th>
         <th>生产者</th>
@@ -36,15 +34,17 @@
 
     <tbody>
       <% @records.each do |record| %>
+        <% if record.participant.id == session[:user_id] && record.user_id != session[:user_id] %>
+        <tr class="as_participant">
+        <% else %>
         <tr class="<%= cycle('odd', 'even') %>">
+        <% end %>
           <td><%= record.date_text %></td>
           <td><%= Record::RECORD_TYPES[record.record_type] %></td>
           <td><%= record.product.try(:name) %></td>
           <td><%= record.weight %></td>
           <td><%= record.count %></td>
-          <% if @is_admin %>
           <td><%= record.user.name %></td>
-          <% end %>
           <td><%= record.participant.name %></td>
           <td><%= record.order_number %></td>
           <td><%= record.employee.try(:name) %></td>

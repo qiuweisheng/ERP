@@ -191,7 +191,6 @@ class ReportsController < ApplicationController
       value_array = []
       (@from_date..@to_date).each do |date|
         values = {}
-
         last_balance = employee.balance_before_date(date, check_type: Record::TYPE_DAY_CHECK)
         dispatch_weight, receive_weight = employee.weights_at_date(date)
         checked_balance_at_date = employee.checked_balance_at_date(date)

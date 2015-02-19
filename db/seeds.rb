@@ -146,7 +146,7 @@ class Record < ActiveRecord::Base
   TYPE_POLISH_RECEIVE    = 5
   TYPE_DAY_CHECK         = 6
   TYPE_MONTH_CHECK       = 7
-  YTPE_APPORTION         = 8
+  TYPE_APPORTION         = 8
   TYPE_RETURN            = 9
   TYPE_WEIGHT_DIFFERENCE = 10
 
@@ -160,7 +160,7 @@ class Record < ActiveRecord::Base
       '<打磨>收货' => TYPE_POLISH_RECEIVE,
       '<日>盘点' => TYPE_DAY_CHECK,
       '<月>盘点' => TYPE_MONTH_CHECK,
-      '打磨分摊' => YTPE_APPORTION,
+      '打磨分摊' => TYPE_APPORTION,
       '客户退货' => TYPE_RETURN,
       '客户称差' => TYPE_WEIGHT_DIFFERENCE
   }

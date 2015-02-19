@@ -604,7 +604,9 @@ User.class_eval do
     # 客户退货
     balance += records.of_type(Record::TYPE_RETURN).sum('weight')
     # 去别的柜台交易
-    balance += self.users.map {|user| self.balance_before_date(date, user)}.reduce(0, :+)
+    trade_with_other_user = transactions.of_types(Record::DISPATCH).sum('weight')
+    trade_with_other_user -= transactions.of_types(Record::RECEIVE).sum('weight')
+    balance += trade_with_other_user
   end
 
   def weights_at_date_as_host(date)

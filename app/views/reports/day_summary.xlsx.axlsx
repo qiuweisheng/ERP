@@ -1,0 +1,26 @@
+workbook = xlsx_package.workbook
+workbook.styles do |style|
+  head_style = style.add_style sz: 18, alignment: { horizontal: :center }
+  workbook.add_worksheet(name: "收发日报表（汇总）") do |sheet|
+    sheet.add_row(["收发日报表（汇总）", "", "", "", "", "", "", ""], style: head_style)
+    sheet.add_row(["柜台", "#{@user.name}", "日期：#{@date.strftime("%Y-%m-%d")}", "", "", "", "", ""])
+    sheet.add_row(["客户名", "上期余额", "交与数量", "收回数量", "余额", "盘点值", "损耗/地沙", "称差"])
+    puts "--------------------------------------"
+    @report.each do |report|
+      puts "---OK---"
+      puts report
+      sheet.add_row([
+        "#{report[:name]}",
+        "#{report[:last_balance]}",
+        "#{report[:dispatch_value]}",
+        "#{report[:receive_value]}",
+        "#{report[:balance]}",
+        "#{report[:checked_balance_at_date]}",
+        "#{report[:depletion]}",
+        "#{report[:difference]}"])
+    end
+    sheet.merge_cells("A1:H1")
+    sheet.merge_cells("C2:E2")
+    sheet.merge_cells("F2:H2")
+  end
+end

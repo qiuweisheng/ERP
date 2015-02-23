@@ -5,9 +5,7 @@ workbook.styles do |style|
     sheet.add_row(["收发日报表（汇总）", "", "", "", "", "", "", ""], style: head_style)
     sheet.add_row(["柜台", "#{@user.name}", "日期：#{@date.strftime("%Y-%m-%d")}", "", "", "", "", ""])
     sheet.add_row(["客户名", "上期余额", "交与数量", "收回数量", "余额", "盘点值", "损耗/地沙", "称差"])
-    puts "--------------------------------------"
     @report.each do |report|
-      puts "---OK---"
       puts report
       sheet.add_row([
         "#{report[:name]}",

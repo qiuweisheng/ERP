@@ -51,12 +51,20 @@ class ReportsController < ApplicationController
     report.push(name: participant.name, last_balance: last_balance, balance: balance)
     transactions = participant.transactions_at_date(date, user)
     transactions[:dispatch].each do |name, value|
-      balance += value
-      report.push(product_name: name, dispatch_value: value, balance: balance)
+      if participant.class == Employee or participant.class == User #厂内客户 余额=期初余额-收回+交与
+        balance += value
+      else
+        balance -= value  #外部客户 余额=期初余额+收回-交与
+      end
+      report.push(product_name: name, dispatch_value: value, balance: balance) if (value != 0)
     end
     transactions[:receive].each do |name, value|
-      balance -= value
-      report.push(product_name: name, receive_value: value, balance: balance)
+      if participant.class == Employee or participant.class == User
+        balance -= value
+      else
+        balance += value
+      end
+      report.push(product_name: name, receive_value: value, balance: balance) if (value != 0)
     end
     report
   end
@@ -86,8 +94,8 @@ class ReportsController < ApplicationController
     report = []
     user.users(date: date).each do |usr|
       dispatch_weight, receive_weight = user.weights_at_date(date, user: usr)
-      report.push(product_name: usr.name, dispatch_value: receive_weight)
-      report.push(product_name: usr.name, receive_value: dispatch_weight)
+      report.push(product_name: usr.name, dispatch_value: receive_weight) if (receive_weight!=0)
+      report.push(product_name: usr.name, receive_value: dispatch_weight) if (dispatch_weight!=0)
     end
     report += user_summary_as_client(date, user)
   end
@@ -139,6 +147,12 @@ class ReportsController < ApplicationController
     @report = participant_summarys_of_user(@date, @user) 
     @report += user_summary_as_client(@date, @user)
     @report += user_summary_as_host(@date, @user)
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx
+    end
   end
 
   def goods_distribution_detail
@@ -158,6 +172,10 @@ class ReportsController < ApplicationController
         sum = participant.balance_before_date_as_host(@date + 1.day)
       else
         sum = participant.users.map {|user| participant.balance_before_date(@date + 1.day, user)}.reduce(0, :+)
+      end
+      #外部客户：余额=期初余额+收回-交与
+      unless (participant.class == User or participant.class == Employee)
+        sum = -sum
       end
       total += sum
       @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)
@@ -192,10 +210,8 @@ class ReportsController < ApplicationController
       (@from_date..@to_date).each do |date|
         values = {}
         last_balance = employee.balance_before_date(date, check_type: Record::TYPE_DAY_CHECK)
-        dispatch_weight, receive_weight = employee.weights_at_date(date) 
-        checked_balance_at_date = employee.users(date: date).reduce(0) do |sum, user|
-          sum += employee.checked_balance_at_date(date, user)
-        end
+        dispatch_weight, receive_weight = employee.weights_at_date(date)
+        checked_balance_at_date = employee.checked_balance_at_date(date)
         depletion = last_balance + dispatch_weight - receive_weight - checked_balance_at_date
         depletion_sum += depletion
         values[:depletion] = depletion

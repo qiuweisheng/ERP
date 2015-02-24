@@ -309,30 +309,54 @@ class ReportsController < ApplicationController
     end
     @report = []
     employees.each do |employee|
-      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE)
-      records.each_with_index do |record, i|
+      (@from_date..@to_date).each do |date|
+        products = Record.where('date = ? AND participant_id = ? AND record_type = ?', date, employee, Record::TYPE_RECEIVE).group('product_id').collect do |record|
+          record.product
+        end
+
+        products.each_with_index do |product, i|
+          records = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product)
+          unless records.size <= 0
+            sum = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product).sum('weight')
+            count = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product).sum('count')
+            attr = {
+                employee_name: (i==0)? employee.name: '',
+                date: date,
+                product_name: (records[0].product == nil) ? ('') : (records[0].product.name),
+                produce_weight: sum,
+                product_num: count,
+                product_per_employee: sum/employee.colleague_number,
+                total: false
+            }
+            @report.push attr
+          end
+        end
+
+      end
+
+      # for each employee,each product, cacl the sum of weight
+      weight_sum = Record.where('date >= ? AND date <= ? and participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
+      unless weight_sum == 0
         attr = {
-            employee_name: (i==0) ? employee.name : '',
-            date: record.date,
-            product_name: (record.product == nil) ? ('') : (record.product.name),
-            produce_weight: record.weight,
-            product_num: record.count,
-            product_per_employee: record.weight/employee.colleague_number,
-            total: false
+            produce_total_weight: weight_sum,
+            product_total_per_employee: weight_sum/employee.colleague_number,
+            total: true
         }
         @report.push attr
       end
-
-      weight_sum = Record.where('date >= ? AND date <= ? and participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
+    end
+    # for all employee, cacl the sum of product weight
+    weight_sum = Record.where('date >= ? AND date <= ? AND record_type = ?', @from_date, @to_date, Record::TYPE_RECEIVE).sum('weight')
+    unless weight_sum == 0
       attr = {
           produce_total_weight: weight_sum,
-          product_total_per_employee: weight_sum/employee.colleague_number,
+          product_total_per_employee: '',
           total: true
       }
       @report.push attr
     end
   end
-  
+
   def weight_diff
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date

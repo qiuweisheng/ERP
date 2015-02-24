@@ -176,6 +176,10 @@ class ReportsController < ApplicationController
       #外部客户：余额=期初余额+收回-交与
       unless (participant.class == User or participant.class == Employee)
         sum = -sum
+      #客户称差 影响黄金分布表中客户的余额
+      #称差：正号表示减少；负号表示增加(可能性不大)
+        client_weight_diff = records = Record.where('date = ? AND participant_id = ? AND record_type = ?', @date, participant, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+        sum += client_weight_diff
       end
       total += sum
       @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)

@@ -95,7 +95,6 @@ class ReportsController < ApplicationController
         name: '本柜台',
         dispatch_value: other_receive_weight,
         receive_value: other_dispatch_weight,
-        type: :sum
     )
     report
   end
@@ -107,7 +106,7 @@ class ReportsController < ApplicationController
       report.push(product_name: usr.name, dispatch_value: receive_weight) if (receive_weight!=0)
       report.push(product_name: usr.name, receive_value: dispatch_weight) if (dispatch_weight!=0)
     end
-    report += user_summary_as_client(date, user)
+    report += user_summary_as_client(date, user).map{|row| row.update(type: :sum)}
   end
   
   private def user_summary_as_host(date, user)

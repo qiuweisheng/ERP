@@ -51,11 +51,21 @@ class ReportsController < ApplicationController
     report.push(name: participant.name, last_balance: last_balance, balance: balance)
     transactions = participant.transactions_at_date(date, user)
     transactions[:dispatch].each do |name, value|
-      balance += value
+      case participant.class
+      when Client, Contractor
+        balance -= value
+      else
+        balance += value
+      end
       report.push(product_name: name, dispatch_value: value, balance: balance) if (value != 0)
     end
     transactions[:receive].each do |name, value|
-      balance += value
+      case participant.class
+      when Client, Contractor
+        balance += value
+      else
+        balance -= value
+      end
       report.push(product_name: name, receive_value: value, balance: balance) if (value != 0)
     end
     report
@@ -534,22 +544,10 @@ module Statistics
     transactions = {dispatch: [], receive: []}
     records = self.transactions.select('product_id, weight').created_by_user(user).at_date(date)
     records.of_types(Record::DISPATCH).each do |record|
-      weight = case self.class
-      when Client, Contractor
-        -record.weight
-      else
-        record.weight
-      end
-      transactions[:dispatch].push [record.product.try(:name), weight]
+      transactions[:dispatch].push [record.product.try(:name), record.weight]
     end
     records.of_types(Record::RECEIVE).each do |record|
-      weight = case self.class
-      when Client, Contractor
-        -record.weight
-      else
-        record.weight
-      end
-      transactions[:receive].push [record.product.try(:name), weight]
+      transactions[:receive].push [record.product.try(:name), record.weight]
     end
     transactions
   end

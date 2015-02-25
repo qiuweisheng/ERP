@@ -32,10 +32,14 @@ class ReportsController < ApplicationController
       balance: balance
     }
     if participant.class == Employee
-      checked_balance_at_date = participant.checked_balance_at_date(date, user)
-      depletion = balance - checked_balance_at_date
-      row[:checked_balance_at_date] = checked_balance_at_date
-      row[:depletion] = depletion
+      if participant.transactions.of_types([Record::TYPE_DAY_CHECK, Record::TYPE_MONTH_CHECK]).at_date(date).count > 0
+        checked_balance_at_date = participant.checked_balance_at_date(date, user)
+        depletion = balance - checked_balance_at_date
+        row[:checked_balance_at_date] = checked_balance_at_date
+        row[:depletion] = depletion
+      else
+        row.update(checked_balance_at_date: "待盘点")
+      end
     end
     if participant.class == Client or participant.class == Contractor
       row[:difference] = difference
@@ -652,7 +656,7 @@ end
 
 User.class_eval do
   include Statistics
-    
+  
   def balance_before_date_as_host(date)
     day_check_date = day_check_date_as_host(date)
     month_check_date = month_check_date_as_host(date)
@@ -663,9 +667,7 @@ User.class_eval do
       check_date = day_check_date
       check_type = Record::TYPE_DAY_CHECK
     end
-    logger.info("++++++++++#{check_date}")
     balance = self.records.of_type(check_type).of_participant(self).at_date(check_date).sum('weight')
-    logger.info("---------#{balance}")
     records = self.records.between_date_exclusive(check_date, date)
     transactions = self.transactions.between_date_exclusive(check_date, date)
     # 发货

@@ -18,7 +18,12 @@ class ReportsController < ApplicationController
     report = []
     last_balance = participant.balance_before_date(date, user)
     dispatch_weight, receive_weight = participant.weights_at_date(date, user: user)
-    balance = last_balance + dispatch_weight - receive_weight
+    balance = if participant.class == Client or participant.class == Contractor
+      difference = participant.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).at_date(date).sum("weight")
+      last_balance - dispatch_weight + receive_weight + difference
+    else
+      last_balance + dispatch_weight - receive_weight
+    end
     row = {
       name: participant.name, 
       last_balance: last_balance, 
@@ -31,8 +36,8 @@ class ReportsController < ApplicationController
       difference = balance - checked_balance_at_date
       row[:checked_balance_at_date] = checked_balance_at_date
       row[:depletion] = difference
-      report.push row
     end
+    report.push row
     report
   end
   
@@ -65,6 +70,11 @@ class ReportsController < ApplicationController
         balance -= value
       end
       report.push(product_name: name, receive_value: value, balance: balance) if (value != 0)
+    end
+    if participant.class == Client or participant.class == Contractor
+      difference = participant.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).at_date(date).sum("weight")
+      balance += difference
+      report.push(balance: balance, difference: difference)
     end
     report
   end
@@ -585,13 +595,16 @@ module Statistics
     end
     records = self.transactions.created_by_user(user)
     balance = records.of_type(check_type).at_date(check_date).sum('weight')
+    records = records.between_date_exclusive(check_date, date)
     if self.class == Client or self.class == Contractor
-      balance -= records.of_types(Record::DISPATCH).between_date_exclusive(check_date, date).sum('weight')
-      balance += records.of_types(Record::RECEIVE).between_date_exclusive(check_date, date).sum('weight')
+      balance -= records.of_types(Record::DISPATCH).sum('weight')
+      balance += records.of_types(Record::RECEIVE).sum('weight')
+      balance += records.of_type(Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
     else
-      balance += records.of_types(Record::DISPATCH).between_date_exclusive(check_date, date).sum('weight')
-      balance -= records.of_types(Record::RECEIVE).between_date_exclusive(check_date, date).sum('weight')
+      balance += records.of_types(Record::DISPATCH).sum('weight')
+      balance -= records.of_types(Record::RECEIVE).sum('weight')
     end
+    balance
   end
   
   def day_check_date(date, user)

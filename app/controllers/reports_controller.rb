@@ -106,8 +106,8 @@ class ReportsController < ApplicationController
     report = []
     user.users(date: date).each do |usr|
       dispatch_weight, receive_weight = user.weights_at_date(date, user: usr)
-      report.push(product_name: usr.name, dispatch_value: receive_weight) if (receive_weight!=0)
-      report.push(product_name: usr.name, receive_value: dispatch_weight) if (dispatch_weight!=0)
+      report.push(product_name: usr.name, dispatch_value: receive_weight) if receive_weight!=0
+      report.push(product_name: usr.name, receive_value: dispatch_weight) if dispatch_weight!=0
     end
     report += user_summary_as_client(date, user).map{|row| row.update(type: :sum)}
   end
@@ -611,9 +611,9 @@ module Statistics
   
   def day_check_date(date, user)
     check_date = self.transactions.created_by_user(user).of_type(Record::TYPE_DAY_CHECK)
-                                  .before_date(date).order('created_at DESC').first.try(:date)
+                                  .before_date(date).order('date DESC').first.try(:date)
     unless check_date
-      first_record = Record.order('created_at').first
+      first_record = Record.order('date').first
       check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
     end
     check_date
@@ -621,9 +621,9 @@ module Statistics
   
   def month_check_date(date, user)
     check_date = self.transactions.created_by_user(user).of_type(Record::TYPE_MONTH_CHECK)
-                                  .before_date(date).order('created_at DESC').first.try(:date)
+                                  .before_date(date).order('date DESC').first.try(:date)
     unless check_date
-      first_record = Record.order('created_at').first
+      first_record = Record.order('date').first
       check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
     end
     check_date
@@ -663,7 +663,9 @@ User.class_eval do
       check_date = day_check_date
       check_type = Record::TYPE_DAY_CHECK
     end
+    logger.info("++++++++++#{check_date}")
     balance = self.records.of_type(check_type).of_participant(self).at_date(check_date).sum('weight')
+    logger.info("---------#{balance}")
     records = self.records.between_date_exclusive(check_date, date)
     transactions = self.transactions.between_date_exclusive(check_date, date)
     # 发货
@@ -705,18 +707,18 @@ User.class_eval do
   end
   
   def day_check_date_as_host(date)
-    check_date = self.records.of_type(Record::TYPE_DAY_CHECK).before_date(date).order('created_at DESC').first.try(:date)
+    check_date = self.records.of_participant(self).of_type(Record::TYPE_DAY_CHECK).before_date(date).order('date DESC').first.try(:date)
     unless check_date
-      first_record = Record.order('created_at').first
+      first_record = Record.order('date').first
       check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
     end
     check_date
   end
   
   def month_check_date_as_host(date)
-    check_date = self.records.of_type(Record::TYPE_MONTH_CHECK).before_date(date).order('created_at DESC').first.try(:date)
+    check_date = self.records.of_participant(self).of_type(Record::TYPE_MONTH_CHECK).before_date(date).order('date DESC').first.try(:date)
     unless check_date
-      first_record = Record.order('created_at').first
+      first_record = Record.order('date').first
       check_date = (first_record ? first_record.date : Time.now.to_date) - 1.day
     end
     check_date

@@ -34,7 +34,7 @@
 
     <tbody>
       <% @records.each do |record| %>
-        <% if record.participant.id == session[:user_id] && record.user_id != session[:user_id] %>
+        <% if !@is_admin && record.participant.id == session[:user_id] && record.user_id != session[:user_id] %>
         <tr class="as_participant">
         <% else %>
         <tr class="<%= cycle('odd', 'even') %>">

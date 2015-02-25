@@ -391,7 +391,7 @@ class ReportsController < ApplicationController
         last_balance = user.balance_before_date_as_host(date)
         dispatch_weight, receive_weight = user.weights_at_date_as_host(date)
         checked_balance_at_date = user.checked_balance_at_date_as_host(date)
-        difference = last_balance + receive_weight - dispatch_weight - checked_balance_at_date
+        difference = checked_balance_at_date - (last_balance + receive_weight - dispatch_weight)
         values.push difference
       end
       @report.push name: date.strftime('%Y-%m-%d'), values: values

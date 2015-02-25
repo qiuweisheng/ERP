@@ -51,8 +51,7 @@ class ReportsController < ApplicationController
     report.push(name: participant.name, last_balance: last_balance, balance: balance)
     transactions = participant.transactions_at_date(date, user)
     transactions[:dispatch].each do |name, value|
-      case participant.class
-      when Client, Contractor
+      if participant.class == Client or participant.class == Contractor
         balance -= value
       else
         balance += value
@@ -60,8 +59,7 @@ class ReportsController < ApplicationController
       report.push(product_name: name, dispatch_value: value, balance: balance) if (value != 0)
     end
     transactions[:receive].each do |name, value|
-      case participant.class
-      when Client, Contractor
+      if participant.class == Client or participant.class == Contractor
         balance += value
       else
         balance -= value
@@ -587,8 +585,7 @@ module Statistics
     end
     records = self.transactions.created_by_user(user)
     balance = records.of_type(check_type).at_date(check_date).sum('weight')
-    case self.class
-    when Client, Contractor
+    if participant.class == Client or participant.class == Contractor
       balance -= records.of_types(Record::DISPATCH).between_date_exclusive(check_date, date).sum('weight')
       balance += records.of_types(Record::RECEIVE).between_date_exclusive(check_date, date).sum('weight')
     else
@@ -627,15 +624,15 @@ end
 Client.class_eval do
   include Statistics
 
-  def checked_balance_at_date(date, user)
-  end
+  # def checked_balance_at_date(date, user)
+  # end
 end
 
 Contractor.class_eval do
   include Statistics
 
-  def checked_balance_at_date(date, user)
-  end
+  # def checked_balance_at_date(date, user)
+  # end
 end
 
 User.class_eval do

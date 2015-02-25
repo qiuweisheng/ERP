@@ -33,10 +33,13 @@ class ReportsController < ApplicationController
     }
     if participant.class == Employee
       checked_balance_at_date = participant.checked_balance_at_date(date, user)
-      difference = balance - checked_balance_at_date
+      depletion = balance - checked_balance_at_date
       row[:checked_balance_at_date] = checked_balance_at_date
-      row[:depletion] = difference
+      row[:depletion] = depletion
     end
+    if participant.class == Client or participant.class == Contractor
+      row[:difference] = difference
+    end 
     report.push row
     report
   end

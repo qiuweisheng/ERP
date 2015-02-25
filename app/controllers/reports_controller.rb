@@ -19,7 +19,7 @@ class ReportsController < ApplicationController
     last_balance = participant.balance_before_date(date, user)
     dispatch_weight, receive_weight = participant.weights_at_date(date, user: user)
     balance = if participant.class == Client or participant.class == Contractor
-      difference = participant.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).at_date(date).sum("weight")
+      difference = participant.transactions.created_by_user(user).of_type(Record::TYPE_WEIGHT_DIFFERENCE).at_date(date).sum("weight")
       last_balance - dispatch_weight + receive_weight + difference
     else
       last_balance + dispatch_weight - receive_weight
@@ -72,7 +72,7 @@ class ReportsController < ApplicationController
       report.push(product_name: name, receive_value: value, balance: balance) if (value != 0)
     end
     if participant.class == Client or participant.class == Contractor
-      difference = participant.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).at_date(date).sum("weight")
+      difference = participant.transactions.created_by_user(user).of_type(Record::TYPE_WEIGHT_DIFFERENCE).at_date(date).sum("weight")
       balance += difference
       report.push(balance: balance, difference: difference)
     end

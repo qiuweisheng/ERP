@@ -52,11 +52,11 @@ class ReportsController < ApplicationController
     transactions = participant.transactions_at_date(date, user)
     transactions[:dispatch].each do |name, value|
       balance += value
-      report.push(product_name: name, dispatch_value: value, balance: balance)
+      report.push(product_name: name, dispatch_value: value, balance: balance) if (value != 0)
     end
     transactions[:receive].each do |name, value|
       balance += value
-      report.push(product_name: name, receive_value: value, balance: balance)
+      report.push(product_name: name, receive_value: value, balance: balance) if (value != 0)
     end
     report
   end
@@ -534,10 +534,22 @@ module Statistics
     transactions = {dispatch: [], receive: []}
     records = self.transactions.select('product_id, weight').created_by_user(user).at_date(date)
     records.of_types(Record::DISPATCH).each do |record|
-      transactions[:dispatch].push [record.product.try(:name), record.weight]
+      weight = case self.class
+      when Client, Contractor
+        -record.weight
+      else
+        record.weight
+      end
+      transactions[:dispatch].push [record.product.try(:name), weight]
     end
     records.of_types(Record::RECEIVE).each do |record|
-      transactions[:receive].push [record.product.try(:name), record.weight]
+      weight = case self.class
+      when Client, Contractor
+        -record.weight
+      else
+        record.weight
+      end
+      transactions[:receive].push [record.product.try(:name), weight]
     end
     transactions
   end
@@ -547,12 +559,7 @@ module Statistics
     records = records.created_by_user(user) if user
     dispatch_weight = records.of_types(Record::DISPATCH).sum('weight')
     receive_weight = records.of_types(Record::RECEIVE).sum('weight')
-    case self.class
-    when Client, Contractor
-      [receive_weight, dispatch_weight]
-    else
-      [dispatch_weight, receive_weight]
-    end
+    [dispatch_weight, receive_weight]
   end
 
   def checked_balance_at_date(date, user)

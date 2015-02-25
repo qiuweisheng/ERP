@@ -585,7 +585,7 @@ module Statistics
     end
     records = self.transactions.created_by_user(user)
     balance = records.of_type(check_type).at_date(check_date).sum('weight')
-    if participant.class == Client or participant.class == Contractor
+    if self.class == Client or self.class == Contractor
       balance -= records.of_types(Record::DISPATCH).between_date_exclusive(check_date, date).sum('weight')
       balance += records.of_types(Record::RECEIVE).between_date_exclusive(check_date, date).sum('weight')
     else

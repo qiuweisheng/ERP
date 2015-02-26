@@ -247,7 +247,7 @@ class ReportsController < ApplicationController
         polish_depletion = polish_depletion_share - polish_depletion_compensation
         polish_depletion_sum += polish_depletion
 
-        values[:polish_depletion] = polish_depletion_sum
+        values[:polish_depletion] = polish_depletion
         value_array << values
       end
       values = {}
@@ -358,7 +358,7 @@ class ReportsController < ApplicationController
 
       end
 
-      # for each employee,each product, cacl the sum of weight
+      # for each employee,each product, calc the sum of weight
       weight_sum = Record.where('date >= ? AND date <= ? and participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
       unless weight_sum == 0
         attr = {
@@ -369,7 +369,7 @@ class ReportsController < ApplicationController
         @report.push attr
       end
     end
-    # for all employee, cacl the sum of product weight
+    # for all employee, calc the sum of product weight
     weight_sum = Record.where('date >= ? AND date <= ? AND record_type = ?', @from_date, @to_date, Record::TYPE_RECEIVE).sum('weight')
     unless weight_sum == 0
       attr = {

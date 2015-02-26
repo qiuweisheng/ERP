@@ -206,7 +206,7 @@ class ReportsController < ApplicationController
     @report = []
     total = 0
     Record.employees(@date).each do |employee|
-      sum = employee.users.map {|user| employee.balance_before_date(@date + 1.day, user)}.reduce(0, :+)
+      sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user, check_type: Record::TYPE_MONTH_CHECK)}.reduce(0, :+)
       total += sum
       @report.push name: employee.name, sum: sum, average: sum / employee.colleague_number
     end

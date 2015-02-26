@@ -582,7 +582,7 @@ module Statistics
     elsif records.of_type(Record::TYPE_DAY_CHECK).count > 0
       records.of_type(Record::TYPE_DAY_CHECK).sum('weight')
     else
-      balance_before_date(date + 1.day, user, check_typ: check_type)
+      balance_before_date(date + 1.day, user, check_type: check_type)
     end
   end
   

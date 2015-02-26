@@ -36,7 +36,9 @@ class ReportsController < ApplicationController
       row[:depletion] = depletion
     end
     if participant.class == Client or participant.class == Contractor
-      row[:difference] = participant.difference_at_date(date, user: user)
+      difference = participant.difference_at_date(date, user: user)
+      row[:balance] += difference
+      row[:difference] = difference
     end 
     report.push row
     report
@@ -664,7 +666,9 @@ module StatisticsForExternal
   end
   
   def balance_at_date(date, user)
-    balance_before_date(date + 1.day, user)
+    last_balance = balance_before_date(date, user)
+    dispatch_weight, receive_weight = weights_at_date(date, user: user)
+    last_balance - dispatch_weight + receive_weight
   end
   
   def checked_balance_at_date(date, user)
@@ -676,7 +680,7 @@ module StatisticsForExternal
   def weights_at_date(date, user: nil)
     dispatch_weight, receive_weight = _weights_at_date(self.transactions, date, user)
     receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_RETURN], date, user)
-    receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_WEIGHT_DIFFERENCE], date, user)
+    # receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_WEIGHT_DIFFERENCE], date, user)
     [dispatch_weight, receive_weight]
   end
   
@@ -715,7 +719,9 @@ Employee.class_eval do
   end
   
   def balance_at_date(date, user, check_type: nil)
-    balance_before_date(date + 1.day, user, check_type: check_type)
+    last_balance = balance_before_date(date, user, check_type: check_type)
+    dispatch_weight, receive_weight = weights_at_date(date, user: user)
+    last_balance + dispatch_weight - receive_weight
   end
   
   def checked_balance_at_date(date, user, check_type: nil)
@@ -736,7 +742,9 @@ User.class_eval do
   end
   
   def balance_at_date(date, user)
-    balance_before_date(date + 1.day, user)
+    last_balance = balance_before_date(date, user)
+    dispatch_weight, receive_weight = weights_at_date(date, user: user)
+    last_balance + dispatch_weight - receive_weight
   end
   
   def checked_balance_at_date(date, user)
@@ -760,7 +768,9 @@ User.class_eval do
   end
   
   def balance_at_date_as_host(date)
-    balance_before_date_as_host(date + 1.day)
+    last_balance = balance_before_date_as_host(date)
+    dispatch_weight, receive_weight = weights_at_date_as_host(date)
+    last_balance - dispatch_weight + receive_weight
   end
   
   def checked_balance_at_date_as_host(date)

@@ -121,10 +121,6 @@ class Record < ActiveRecord::Base
     end
 
     def employees(date=nil)
-      # date = Time.now.to_date unless date
-      # self.where('date <= ? AND participant_type = ?', date, Employee.name).group('participant_id').collect do |record|
-      #   record.participant
-      # end
       date = Time.now.to_date unless date
       self.where('date <= ? AND participant_type = ?', date, Employee.name).collect do |record|
         result = [record.participant]

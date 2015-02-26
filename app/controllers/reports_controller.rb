@@ -179,24 +179,12 @@ class ReportsController < ApplicationController
     @report = []
     total = 0
     Record.users(@date).each do |user|
-      sum = user.balance_before_date_as_host(@date + 1.day)
+      sum = user.checked_balance_at_date_as_host(@date)
       total += sum
       @report.push name: user.name, milli: milli.call(sum), gram: gram.call(sum)
     end
     Record.participants(@date).each do |participant|
-      if participant.class == User
-        sum = participant.balance_before_date_as_host(@date + 1.day)
-      else
-        sum = participant.users.map {|user| participant.balance_before_date(@date + 1.day, user)}.reduce(0, :+)
-      end
-      #外部客户：余额=期初余额+收回-交与
-      unless (participant.class == User or participant.class == Employee)
-        sum = -sum
-      #客户称差 影响黄金分布表中客户的余额
-      #称差：正号表示减少；负号表示增加(可能性不大)
-        client_weight_diff = records = Record.where('date = ? AND participant_id = ? AND record_type = ?', @date, participant, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
-        sum += client_weight_diff
-      end
+      sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user)}.reduce(0, :+)           
       total += sum
       @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)
     end
@@ -215,7 +203,6 @@ class ReportsController < ApplicationController
     @report.push name: '生产用金合计', sum: total, type: :total
   end
 
-  # TODO
   def depletion
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date

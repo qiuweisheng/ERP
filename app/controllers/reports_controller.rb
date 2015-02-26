@@ -229,13 +229,14 @@ class ReportsController < ApplicationController
       value_array = []
       (@from_date..@to_date).each do |date|
         values = {}
-        last_balance = employee.balance_before_date(date, check_type: Record::TYPE_DAY_CHECK)
-        dispatch_weight, receive_weight = employee.weights_at_date(date)
-        # checked_balance_at_date = employee.checked_balance_at_date(date)
-        checked_balance_at_date = employee.users(date: date).reduce(0) do |sum, user|
-          sum += employee.checked_balance_at_date(date, user)
+        
+        depletion = 0
+        employee.users(date: date).each do |user|
+          last_balance = employee.balance_before_date(date, user, check_type: Record::TYPE_DAY_CHECK)
+          dispatch_weight, receive_weight = employee.weights_at_date(date, user: user)
+          checked_balance_at_date = employee.checked_balance_at_date(date, user)
+          depletion += last_balance + dispatch_weight - receive_weight - checked_balance_at_date
         end
-        depletion = last_balance + dispatch_weight - receive_weight - checked_balance_at_date
         depletion_sum += depletion
         values[:depletion] = depletion
 

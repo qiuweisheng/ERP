@@ -471,13 +471,19 @@ class ReportsController < ApplicationController
       last_balance.push bal_val
 
       rev_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_RECEIVE).sum('weight')
+      rev_value += Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_PACKAGE_RECEIVE).sum('weight')
+      rev_value += Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_POLISH_RECEIVE).sum('weight')
+      rev_value += Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_RETURN).sum('weight')
       dis_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_DISPATCH).sum('weight')
+      dis_value += Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_PACKAGE_DISPATCH).sum('weight')
+      dis_value += Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_POLISH_DISPATCH).sum('weight')
+
       month_receive_weight.push rev_value
       month_dispatch_weight.push dis_value
 
       diff = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
       weight_diff.push diff
-      balance.push (bal_val + dis_value - rev_value - diff)
+      balance.push (bal_val + rev_value - dis_value + diff)
     end
     @report.push last_balance: last_balance, type: :head
 

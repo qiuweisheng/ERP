@@ -445,7 +445,6 @@ class ReportsController < ApplicationController
     @report.push attr
   end
 
-  # TODO
   def client_transactions
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
@@ -465,7 +464,7 @@ class ReportsController < ApplicationController
     weight_diff = []
     weight_diff << '' << '称差'
     @clients.each do |client|
-      bal_val = client.balance_before_date(@from_date)
+      bal_val = client.users.map {|user| client.balance_before_date(@from_date, user)}.reduce(0, :+)
       last_balance.push bal_val
 
       rev_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_RECEIVE).sum('weight')
@@ -517,7 +516,7 @@ class ReportsController < ApplicationController
     balance << '' << '本月余额'
 
     @contractors.each do |contractors|
-      bal_val = contractors.balance_before_date(@from_date)
+      bal_val = contractors.users.map {|user| contractors.balance_before_date(@from_date, user)}.reduce(0, :+)
       last_balance.push bal_val
 
       rev_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, contractors, Record::TYPE_RECEIVE).sum('weight')

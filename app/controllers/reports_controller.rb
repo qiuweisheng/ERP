@@ -655,7 +655,7 @@ module StatisticsForExternal
   def weights_at_date(date, user: nil)
     dispatch_weight, receive_weight = _weights_at_date(self.transactions, date, user)
     receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_RETURN], date, user)
-    receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_WEIGHT_DIFFERENCE], date, user)
+    # receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_WEIGHT_DIFFERENCE], date, user)
     [dispatch_weight, receive_weight]
   end
 end

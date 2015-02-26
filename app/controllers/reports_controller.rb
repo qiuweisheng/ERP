@@ -234,7 +234,7 @@ class ReportsController < ApplicationController
         employee.users(date: date).each do |user|
           last_balance = employee.balance_before_date(date, user, check_type: Record::TYPE_DAY_CHECK)
           dispatch_weight, receive_weight = employee.weights_at_date(date, user: user)
-          checked_balance_at_date = employee.checked_balance_at_date(date, user)
+          checked_balance_at_date = employee.checked_balance_at_date(date, user, check_type: Record::TYPE_DAY_CHECK)
           depletion += last_balance + dispatch_weight - receive_weight - checked_balance_at_date
         end
         depletion_sum += depletion
@@ -575,14 +575,14 @@ module Statistics
     [dispatch_weight, receive_weight]
   end
 
-  def checked_balance_at_date(date, user)
+  def checked_balance_at_date(date, user, check_type: Record::TYPE_MONTH_CHECK)
     records = self.transactions.created_by_user(user).at_date(date)
     if records.of_type(Record::TYPE_MONTH_CHECK).count > 0
       records.of_type(Record::TYPE_MONTH_CHECK).sum('weight')
     elsif records.of_type(Record::TYPE_DAY_CHECK).count > 0
       records.of_type(Record::TYPE_DAY_CHECK).sum('weight')
     else
-      balance_before_date(date + 1.day, user)
+      balance_before_date(date + 1.day, user, check_typ: check_type)
     end
   end
   
@@ -592,8 +592,7 @@ module Statistics
   #   balance -= records.of_types(Record::RECEIVE).sum('weight')
   # end
   
-  def balance_before_date(date, user, check_type: nil)
-    check_type = Record::TYPE_MONTH_CHECK unless check_type
+  def balance_before_date(date, user, check_type: Record::TYPE_MONTH_CHECK)
     check_date = case check_type
     when Record::TYPE_MONTH_CHECK
       month_check_date(date, user)

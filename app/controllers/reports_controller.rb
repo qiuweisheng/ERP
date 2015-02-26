@@ -225,10 +225,9 @@ class ReportsController < ApplicationController
         
         depletion = 0
         employee.users(date: date).each do |user|
-          last_balance = employee.balance_before_date(date, user, check_type: Record::TYPE_DAY_CHECK)
-          dispatch_weight, receive_weight = employee.weights_at_date(date, user: user)
-          checked_balance_at_date = employee.checked_balance_at_date(date, user, check_type: Record::TYPE_DAY_CHECK)
-          depletion += last_balance + dispatch_weight - receive_weight - checked_balance_at_date
+          balance = employee.balance_at_date(date, user, check_type: nil)
+          checked_balance_at_date = employee.checked_balance_at_date(date, user)
+          depletion += balance - checked_balance_at_date
         end
         depletion_sum += depletion
         values[:depletion] = depletion

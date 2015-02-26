@@ -267,26 +267,29 @@ class ReportsController < ApplicationController
     @report = []
     employees.each do |employee|
       records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE)
-      records.each_with_index do |record, i|
+
+      unless records.size <= 0
+        records.each_with_index do |record, i|
+          attr = {
+              employee_name: (i==0) ? employee.name : '',
+              date: record.date,
+              product_name: (record.product == nil) ? ('') : (record.product.name),
+              produce_weight: record.weight,
+              product_num: record.count,
+              product_per_employee: record.weight/employee.colleague_number,
+              total: false
+          }
+          @report.push attr
+        end
+
+        weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
         attr = {
-            employee_name: (i==0) ? employee.name : '',
-            date: record.date,
-            product_name: (record.product == nil) ? ('') : (record.product.name),
-            produce_weight: record.weight,
-            product_num: record.count,
-            product_per_employee: record.weight/employee.colleague_number,
-            total: false
+            produce_total_weight: weight_sum,
+            product_total_per_employee: weight_sum/employee.colleague_number,
+            total: true
         }
         @report.push attr
       end
-
-      weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
-      attr = {
-          produce_total_weight: weight_sum,
-          product_total_per_employee: weight_sum/employee.colleague_number,
-          total: true
-      }
-      @report.push attr
     end
   end
 
@@ -360,7 +363,7 @@ class ReportsController < ApplicationController
         attr = {
             produce_total_weight: weight_sum,
             product_total_per_employee: weight_sum/employee.colleague_number,
-            total: true
+            sum: true
         }
         @report.push attr
       end

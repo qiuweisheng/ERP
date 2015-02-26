@@ -17,6 +17,14 @@
     <% @report.each do |report| %>
         <% if report[:total] %>
             <tr class="total">
+                <td>总计</td>
+                <td></td>
+                <td></td>
+                <td><%=report[:produce_total_weight] %></td>
+                <td></td>
+                <td><%=report[:product_total_per_employee] %></td>
+        <% elsif report[:sum] %>
+            <tr class="total">
                 <td>合计</td>
                 <td></td>
                 <td></td>

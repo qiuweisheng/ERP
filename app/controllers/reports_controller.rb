@@ -136,7 +136,7 @@ class ReportsController < ApplicationController
         checked_balance_at_date: host_checked_balance_at_date,
         type: :total
     }
-    if not user.is_check_at_date(date)
+    if not user.is_check_at_date_as_host(date)
       row.update(checked_balance_at_date: "待盘点")
     end
     report.push row
@@ -784,7 +784,7 @@ User.class_eval do
     [dispatch_weight, receive_weight, other_dispatch_weight, other_receive_weight]
   end
   
-  def is_check_at_date(date)
+  def is_check_at_date_as_host(date)
     _is_check_at_date(self.records, date, self)
   end
 

@@ -190,7 +190,11 @@ class ReportsController < ApplicationController
       @report.push name: user.name, milli: milli.call(sum), gram: gram.call(sum)
     end
     Record.participants(@date).each do |participant|
-      sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user)}.reduce(0, :+)           
+      if participant.class == Employee
+        sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user, check_type: Record::TYPE_MONTH_CHECK)}.reduce(0, :+)
+      else
+        sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user)}.reduce(0, :+)
+      end
       total += sum
       @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)
     end

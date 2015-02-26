@@ -718,7 +718,7 @@ Employee.class_eval do
     balance
   end
   
-  def balance_at_date(date, user, check_type: nil)
+  def balance_at_date(date, user, check_type: Record::TYPE_MONTH_CHECK)
     last_balance = balance_before_date(date, user, check_type: check_type)
     dispatch_weight, receive_weight = weights_at_date(date, user: user)
     last_balance + dispatch_weight - receive_weight

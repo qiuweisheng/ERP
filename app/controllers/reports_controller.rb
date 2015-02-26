@@ -385,10 +385,9 @@ class ReportsController < ApplicationController
     (@from_date..@to_date).each do |date|
       values = []
       @users.each do |user|
-        last_balance = user.balance_before_date_as_host(date)
-        dispatch_weight, receive_weight = user.weights_at_date_as_host(date)
+        balance = user.balance_at_date_as_host(date)
         checked_balance_at_date = user.checked_balance_at_date_as_host(date)
-        difference = checked_balance_at_date - (last_balance + receive_weight - dispatch_weight)
+        difference = checked_balance_at_date - balance
         values.push difference
       end
       @report.push name: date.strftime('%Y-%m-%d'), values: values

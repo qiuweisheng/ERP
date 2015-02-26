@@ -541,11 +541,20 @@ class ReportsController < ApplicationController
 end
 
 module StatisticsCommon
-  def _weights_at_date(records, date, user: nil)
-    records = records.at_date(date)
+  # user为nil时，表示所有柜台
+  def _weights_of_types_at_date(records, types, date, user)
     records = records.created_by_user(user) if user
-    dispatch_weight = records.of_types(Record::DISPATCH).sum('weight')
-    receive_weight = records.of_types(Record::RECEIVE).sum('weight')
+    records.of_types(types).at_date(date).sum('weight')
+  end
+  
+  def _weights_of_types_between_date_exclusive(records, types, begin_date, end_date, user)
+    records = records.created_by_user(user) if user
+    records.of_types(types).between_date_exclusive(begin_date, end_date).sum('weight')
+  end
+  
+  def _weights_at_date(records, date, user)
+    dispatch_weight = _weights_of_types_at_date(records, Record::DISPATCH, date, user)
+    receive_weight = _weights_of_types_at_date(records, Record::RECEIVE, date, user)
     [dispatch_weight, receive_weight]
   end
 
@@ -615,7 +624,7 @@ module StatisticsCommon
   end
   
   def weights_at_date(date, user: nil)
-    _weights_at_date(self.transactions, date, user: user)
+    _weights_at_date(self.transactions, date, user)
   end
   
   def users(date: nil)
@@ -630,10 +639,10 @@ module StatisticsForExternal
   
   def balance_before_date(date, user)
     balance, check_date, check_type = _checked_balance_before_date(self.transactions, date, user, nil)
-    records = self.transactions.created_by_user(user).between_date_exclusive(check_date, date)
-    balance -= records.of_types(Record::DISPATCH).sum('weight')
-    balance += records.of_types(Record::RECEIVE).sum('weight')
-    balance += records.of_type(Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+    balance -= _weights_of_types_between_date_exclusive(self.transactions, Record::DISPATCH, check_date, date, user)
+    balance += _weights_of_types_between_date_exclusive(self.transactions, Record::RECEIVE, check_date, date, user)
+    balance += _weights_of_types_between_date_exclusive(self.transactions, [Record::TYPE_RETURN], check_date, date, user)
+    balance += _weights_of_types_between_date_exclusive(self.transactions, [Record::TYPE_WEIGHT_DIFFERENCE], check_date, date, user)
     balance
   end
   
@@ -641,6 +650,13 @@ module StatisticsForExternal
     _checked_balance_at_date(self.transactions, date, user, nil) do 
       balance_before_date(date + 1.day, user)
     end
+  end
+  
+  def weights_at_date(date, user: nil)
+    dispatch_weight, receive_weight = _weights_at_date(self.transactions, date, user)
+    receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_RETURN], date, user)
+    receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_WEIGHT_DIFFERENCE], date, user)
+    [dispatch_weight, receive_weight]
   end
 end
 
@@ -657,9 +673,8 @@ Employee.class_eval do
   
   def balance_before_date(date, user, check_type: nil)
     balance, check_date, check_type = _checked_balance_before_date(self.transactions, date, user, check_type)
-    records = self.transactions.created_by_user(user).between_date_exclusive(check_date, date)
-    balance += records.of_types(Record::DISPATCH).sum('weight')
-    balance -= records.of_types(Record::RECEIVE).sum('weight')
+    balance += _weights_of_types_between_date_exclusive(self.transactions, Record::DISPATCH, check_date, date, user)
+    balance -= _weights_of_types_between_date_exclusive(self.transactions, Record::RECEIVE, check_date, date, user)
     balance
   end
   
@@ -675,9 +690,8 @@ User.class_eval do
   
   def balance_before_date(date, user)
     balance, check_date, check_type = _checked_balance_before_date(self.transactions, date, user, nil)
-    records = self.transactions.created_by_user(user).between_date_exclusive(check_date, date)
-    balance += records.of_types(Record::DISPATCH).sum('weight')
-    balance -= records.of_types(Record::RECEIVE).sum('weight')
+    balance += _weights_of_types_between_date_exclusive(self.transactions, Record::DISPATCH, check_date, date, user)
+    balance -= _weights_of_types_between_date_exclusive(self.transactions, Record::RECEIVE, check_date, date, user)
     balance
   end
   
@@ -689,17 +703,15 @@ User.class_eval do
   
   def balance_before_date_as_host(date)
     balance, check_date, check_type = _checked_balance_before_date(self.records, date, self, nil)
-    records = self.records.between_date_exclusive(check_date, date)
-    transactions = self.transactions.between_date_exclusive(check_date, date)
     # 发货
-    balance -= records.of_types(Record::DISPATCH).sum('weight')
+    balance -= _weights_of_types_between_date_exclusive(self.records, Record::DISPATCH, check_date, date, self)
     # 收货
-    balance += records.of_types(Record::RECEIVE).sum('weight')
+    balance += _weights_of_types_between_date_exclusive(self.records, Record::RECEIVE, check_date, date, self)
     # 客户退货
-    balance += records.of_type(Record::TYPE_RETURN).sum('weight')
+    balance += _weights_of_types_between_date_exclusive(self.records, [Record::TYPE_RETURN], check_date, date, self)
     # 去别的柜台交易
-    trade_with_other_user = transactions.of_types(Record::DISPATCH).sum('weight')
-    trade_with_other_user -= transactions.of_types(Record::RECEIVE).sum('weight')
+    trade_with_other_user = _weights_of_types_between_date_exclusive(self.transactions, Record::DISPATCH, check_date, date, nil)
+    trade_with_other_user -= _weights_of_types_between_date_exclusive(self.transactions, Record::RECEIVE, check_date, date, nil)
     balance += trade_with_other_user
   end
   
@@ -713,12 +725,14 @@ User.class_eval do
     records = self.records.at_date(date)
     transactions = self.transactions.at_date(date)
     # 去别的柜台领货、去别的柜台还货
-    other_dispatch_weight, other_receive_weight = _weights_at_date(self.transactions, date)
+    other_dispatch_weight, other_receive_weight = _weights_at_date(self.transactions, date, nil)
     # 收发货
-    dispatch_weight, receive_weight = _weights_at_date(self.records, date, user: self)
+    dispatch_weight, receive_weight = _weights_at_date(self.records, date, self)
+    # 客户退货
+    return_weight = _weights_of_types_at_date(self.records, [Record::TYPE_RETURN], date, self)
     
     dispatch_weight += other_receive_weight
-    receive_weight += other_dispatch_weight
+    receive_weight += other_dispatch_weight + return_weight
     [dispatch_weight, receive_weight, other_dispatch_weight, other_receive_weight]
   end
 

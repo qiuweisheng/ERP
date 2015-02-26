@@ -711,7 +711,7 @@ end
 Employee.class_eval do
   include StatisticsCommon
   
-  def balance_before_date(date, user, check_type: nil)
+  def balance_before_date(date, user, check_type: Record::TYPE_MONTH_CHECK)
     balance, check_date, check_type = _checked_balance_before_date(self.transactions, date, user, check_type)
     balance += _weights_of_types_between_date_exclusive(self.transactions, Record::DISPATCH, check_date, date, user)
     balance -= _weights_of_types_between_date_exclusive(self.transactions, Record::RECEIVE, check_date, date, user)

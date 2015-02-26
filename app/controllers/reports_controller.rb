@@ -31,15 +31,14 @@ class ReportsController < ApplicationController
       receive_value: receive_weight, 
       balance: balance
     }
+    checked_balance_at_date = participant.checked_balance_at_date(date, user)
+    row[:checked_balance_at_date] = checked_balance_at_date
+    if participant.transactions.of_types([Record::TYPE_DAY_CHECK, Record::TYPE_MONTH_CHECK]).at_date(date).count == 0
+      row.update(checked_balance_at_date: "待盘点")
+    end
     if participant.class == Employee
-      if participant.transactions.of_types([Record::TYPE_DAY_CHECK, Record::TYPE_MONTH_CHECK]).at_date(date).count > 0
-        checked_balance_at_date = participant.checked_balance_at_date(date, user)
-        depletion = balance - checked_balance_at_date
-        row[:checked_balance_at_date] = checked_balance_at_date
-        row[:depletion] = depletion
-      else
-        row.update(checked_balance_at_date: "待盘点")
-      end
+      depletion = balance - checked_balance_at_date
+      row[:depletion] = depletion
     end
     if participant.class == Client or participant.class == Contractor
       row[:difference] = difference

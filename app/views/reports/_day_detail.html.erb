@@ -33,7 +33,13 @@
           <td><%= report[:product_name] %></td>
           <td><%= report[:last_balance] %></td>
           <td><%= report[:dispatch_value] %></td>
-          <td><%= report[:receive_value] %></td>
+          <% if report[:is_return] %>
+          <td class = "is_return">
+          <% else %>
+          <td>
+          <% end %>
+            <%= report[:receive_value] %>
+          </td>
           <td><%= report[:balance] %></td>
           <td><%= report[:checked_balance_at_date] %></td>
           <td><%= report[:depletion] %></td>

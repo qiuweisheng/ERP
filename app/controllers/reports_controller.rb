@@ -177,6 +177,22 @@ class ReportsController < ApplicationController
     end
   end
 
+  def goods_flow
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
+    milli = ->(sum) { sum }
+    gram = ->(sum) { "%.4f" % [sum / 26.717] }
+    @report = []
+    @report.push name: '上期余额', milli: milli.call(0), gram: gram.call(0), type: :sum
+    @report.push name: '客户来料', milli: milli.call(0), gram: gram.call(0)
+    @report.push name: '交与客户', milli: milli.call(0), gram: gram.call(0)
+    @report.push name: '客户退货', milli: milli.call(0), gram: gram.call(0)
+    @report.push name: '客户称差', milli: milli.call(0), gram: gram.call(0)
+    @report.push name: '工厂损耗', milli: milli.call(0), gram: gram.call(0)
+    @report.push name: '柜台称差', milli: milli.call(0), gram: gram.call(0)
+    @report.push name: '本次结余', milli: milli.call(0), gram: gram.call(0), type: :sum
+  end
+
   def goods_distribution_detail
     milli = ->(sum) { sum / 1000 }
     gram = ->(sum) { "%.4f" % [sum / 26.717] }

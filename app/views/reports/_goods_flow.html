@@ -1,0 +1,30 @@
+<div class="report">
+  <table>
+    <thead>
+      <tr class="title">
+        <th colspan="3">黄金流量汇总表</th>
+      </tr>
+      <tr>
+          <th colspan="3"> <%= @from_date.strftime '%Y-%m-%d' %> 至 <%= @to_date.strftime '%Y-%m-%d' %></th>
+      </tr>
+      <tr>
+          <th>名称</th>
+          <th>两</th>
+          <th>克</th>
+      </tr>
+    </thead>
+    <tbody>
+    <% @report.each do |report| %>
+    <% if report[:type] %>
+    <tr class="<%= report[:type] %>">
+        <% else %>
+    <tr>
+        <% end %>
+        <td><%= report[:name] %></td>
+        <td><%= report[:milli] %></td>
+        <td><%= report[:gram] %></td>
+    </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>

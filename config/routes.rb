@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get '/reports/current_user_balance' => 'reports#current_user_balance'
   get '/reports/client_weight_difference' => 'reports#client_weight_difference'
   get '/reports/client_transactions' => 'reports#client_transactions'
+  get '/reports/client_transactions_detail' => 'reports#client_transactions_detail'
   get '/reports/contractor_transactions' => 'reports#contractor_transactions'
   get '/reports/goods_flow' => 'reports#goods_flow'
 

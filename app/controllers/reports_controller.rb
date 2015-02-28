@@ -13,7 +13,19 @@ class ReportsController < ApplicationController
       params[:user_id] = session[:user_id]
     end
   end
-  
+
+  private def check_date_range_and_client_param()
+    if is_admin_permission? session[:permission]
+      params[:from_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
+      params[:to_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
+      params[:client_id] ||= session[:client_id]
+    else
+      params[:from_date] = Time.now.to_date.strftime("%Y-%m-%d")
+      params[:to_date] = Time.now.to_date.strftime("%Y-%m-%d")
+      params[:client_id] = session[:client_id]
+    end
+  end
+
   private def participant_summary(date, user, participant)
     report = []
     last_balance = participant.balance_before_date(date, user)
@@ -558,6 +570,13 @@ class ReportsController < ApplicationController
     #today real balance
     real_balance.push all_client_total_real_balance
     @report.push real_balance: real_balance, type: :total
+  end
+
+  def client_transactions_detail
+    check_date_range_and_client_param
+    @from_date = Date.parse(params[:from_date])
+    @to_date = Date.parse(params[:to_date])
+    @client = Client.find(params[:client_id])
   end
 
   # TODO

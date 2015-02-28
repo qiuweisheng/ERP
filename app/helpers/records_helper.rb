@@ -12,7 +12,7 @@ module RecordsHelper
   end
   
   def record_type_options_for_polish
-    [Record::TYPE_DISPATCH, Record::TYPE_RECEIVE, Record::YTPE_APPORTION].collect do |type|
+    [Record::TYPE_DISPATCH, Record::TYPE_RECEIVE, Record::TYPE_APPORTION].collect do |type|
       [Record::RECORD_TYPES[type], type]
     end
   end

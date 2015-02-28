@@ -2,7 +2,7 @@
   <table>
     <thead>
     <tr class="title">
-      <th colspan= "<%= @clients.size + 2 %>" >客户往来台帐</th>
+      <th colspan= "<%= @clients.size + 3 %>" >客户往来台帐</th>
     </tr>
     <tr>
       <th></th>
@@ -10,6 +10,7 @@
       <% @clients.each do |client| %>
           <th><%= client.name %></th>
       <% end %>
+      <th>合计</th>
     </tr>
     </thead>
     <tbody>
@@ -27,6 +28,12 @@
         <% end%>
         <% if report[:balance] %>
             <% report[:balance].each do |value| %>
+                <td><%= value %></td>
+            <% end %>
+            </tr>
+        <% end%>
+        <% if report[:real_balance] %>
+            <% report[:real_balance].each do |value| %>
                 <td><%= value %></td>
             <% end %>
             </tr>

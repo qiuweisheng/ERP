@@ -472,19 +472,29 @@ class ReportsController < ApplicationController
     @report = []
     last_balance = []
     last_balance.push '日期'
-    last_balance.push '上期余额'
+    last_balance.push '上期实际余额'
     month_receive_weight = []
     month_dispatch_weight = []
     month_receive_weight << '本月合计'<<'收回'
     month_dispatch_weight << '本月合计'<<'交与'
 
+    total_last_balance = 0
+    all_client_total_month_receive_weight = 0
+    all_client_total_month_dispatch_weight = 0
+
     balance = []
-    balance << '' << '本月余额'
+    balance << '' << '本月余额(理论)'
+    all_client_total_balance = 0
+    real_balance = []
+    real_balance << '' << '本月余额(实际)'
+    all_client_total_real_balance = 0
     weight_diff = []
     weight_diff << '' << '称差'
+    all_client_total_weight_diff = 0
     @clients.each do |client|
       bal_val = client.users.map {|user| client.balance_before_date(@from_date, user)}.reduce(0, :+)
       last_balance.push bal_val
+      total_last_balance += bal_val
 
       rev_value = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_RECEIVE).sum('weight')
       rev_value += Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_PACKAGE_RECEIVE).sum('weight')
@@ -496,14 +506,27 @@ class ReportsController < ApplicationController
 
       month_receive_weight.push rev_value
       month_dispatch_weight.push dis_value
+      all_client_total_month_receive_weight += rev_value
+      all_client_total_month_dispatch_weight += dis_value
 
       diff = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
       weight_diff.push diff
-      balance.push (bal_val + rev_value - dis_value + diff)
+      all_client_total_weight_diff += diff
+      theoretical_balance = bal_val + rev_value - dis_value + diff
+      all_client_total_balance += theoretical_balance
+      balance.push theoretical_balance
+
+      real_bal_val = client.users.map {|user| client.checked_balance_at_date(@to_date, user)}.reduce(0, :+)
+      real_balance.push real_bal_val
+      all_client_total_real_balance += real_bal_val
     end
+    last_balance.push total_last_balance
     @report.push last_balance: last_balance, type: :head
 
     (@from_date..@to_date).each do |date|
+      total_receive_at_day = 0
+      total_dispatch_at_day = 0
+
       dispatch = []
       receive = []
       dispatch << date.strftime('%Y-%m-%d') << '交与'
@@ -512,16 +535,31 @@ class ReportsController < ApplicationController
         dis, rev = client.weights_at_date(date)
         receive << rev
         dispatch << dis
+        total_receive_at_day += rev
+        total_dispatch_at_day += dis
       end
+      receive << total_receive_at_day
+      dispatch << total_dispatch_at_day
       @report.push receive: receive, dispatch: dispatch, type: :value
     end
     #summary
+    month_receive_weight.push all_client_total_month_receive_weight
+    month_dispatch_weight.push all_client_total_month_dispatch_weight
     @report.push receive: month_receive_weight, dispatch: month_dispatch_weight, type: :value
+
     #weitgh diff
+    weight_diff.push all_client_total_weight_diff
     @report.push weight_diff: weight_diff, type: :weight_diff
-    #today balance
+
+    #today theoretical balance
+    balance.push all_client_total_balance
     @report.push balance: balance, type: :total
+
+    #today real balance
+    real_balance.push all_client_total_real_balance
+    @report.push real_balance: real_balance, type: :total
   end
+
   # TODO
   def contractor_transactions
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date

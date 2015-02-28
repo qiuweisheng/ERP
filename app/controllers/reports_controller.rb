@@ -156,7 +156,78 @@ class ReportsController < ApplicationController
     report.push row
     report
   end
-  
+
+  private def ext_customer_trans_detail(date: date, user: user, participant: participant, last_balance: last_balance, last_check_value: last_check_value)
+    report = []
+    rev_sum, dis_sum, return_sum, weight_diff_sum = 0, 0, 0, 0
+    #(1) desc
+    balance = last_balance
+    report.push(date: date, name: user.name, balance: balance)
+    transactions = participant.transactions_at_date(date, user)
+    #(2) dispatch
+    transactions[:dispatch].each do |name, value|
+      balance -= value
+      dis_sum += value
+      report.push(product_name: name, dispatch_value: value, balance: balance) if value != 0
+    end
+    #(3) receive
+    transactions[:receive].each do |name, value|
+      balance += value
+      rev_sum += value
+      report.push(product_name: name, receive_value: value, balance: balance) if value != 0
+    end
+    #(4) return
+    if transactions[:return] != nil
+      transactions[:return].each do |name, value|
+        balance += value
+        return_sum += value
+        report.push(product_name: name, return_value: value, balance: balance, is_return: true) if value != 0
+      end
+    end
+    #(5) weight diff
+    difference = participant.difference_at_date(date, user: user)
+    balance += difference
+    weight_diff_sum += difference
+    report.push(balance: balance, difference: difference) if difference != 0
+    #(6) check
+    checked_balance_at_date = participant.checked_balance_at_date(date, user)
+    if participant.is_check_at_date(date, user)
+      row = {
+          balance: checked_balance_at_date+last_check_value, check_value: checked_balance_at_date
+      }
+      report.push(row) if checked_balance_at_date != 0
+      last_check_value = checked_balance_at_date + last_check_value
+      balance = last_check_value
+    end
+    #(7) summary
+    report.push(name: '合计', dispatch_value: dis_sum, receive_value: rev_sum, return_value: return_sum, difference: weight_diff_sum, balance: balance, type: :sum)
+    #
+    {report: report, balance: balance, check_value: last_check_value}
+  end
+
+  private def ext_customer_trans_summary(participant: participant, from_date: from_date, to_date: to_date, last_balance: last_balance, balance: balance)
+    report = []
+    rev_sum, dis_sum, return_sum, weight_diff_sum = 0, 0, 0, 0
+    transactions = participant.transactions.between_date_inclusive(from_date, to_date)
+    rev_sum = transactions.of_types(Record::RECEIVE).sum('weight')
+    dis_sum = transactions.of_types(Record::DISPATCH).sum('weight')
+    return_sum = transactions.of_type(Record::TYPE_RETURN).sum('weight')
+    weight_diff_sum = transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+    checked_balance_at_date = participant.checked_balance_at_date(to_date, nil)
+    row = {
+      name: '总计',
+      type: :total,
+      last_balance: last_balance,
+      dispatch_value: dis_sum,
+      receive_value: rev_sum,
+      return_value: return_sum,
+      difference: weight_diff_sum,
+      balance: balance,
+      check_value: participant.is_check_at_date(to_date, nil) ? checked_balance_at_date : '',
+    }
+    report.push row
+  end
+
   def day_detail
     check_date_and_user_param()
     @date = Date.parse(params[:date])
@@ -576,7 +647,20 @@ class ReportsController < ApplicationController
     check_date_range_and_client_param
     @from_date = Date.parse(params[:from_date])
     @to_date = Date.parse(params[:to_date])
-    @client = Client.find(params[:client_id])
+    @client = params[:client_id] ? Client.find(params[:client_id]) : Client.first
+    @report = []
+    last_balance = @client.users.map {|user| @client.balance_before_date(@from_date, user)}.reduce(0, :+)
+    @report.push(date: @from_date, last_balance: last_balance, balance: last_balance, type: :sum)
+
+    result = {report: @report, balance: last_balance, check_value: 0}
+    (@from_date..@to_date).each do |date|
+      @client.users.each do |user|
+        puts user.name
+        result = ext_customer_trans_detail(date: date, user: user, participant: @client, last_balance: result[:balance], last_check_value: result[:check_value])
+        @report += result[:report]
+      end
+    end
+    @report += ext_customer_trans_summary(participant: @client, from_date: @from_date, to_date: @to_date, last_balance: last_balance, balance: result[:balance])
   end
 
   # TODO
@@ -759,7 +843,7 @@ module StatisticsForExternal
       balance_before_date(date + 1.day, user)
     end
   end
-  
+
   def weights_at_date(date, user: nil)
     dispatch_weight, receive_weight = _weights_at_date(self.transactions, date, user)
     receive_weight += _weights_of_types_at_date(self.transactions, [Record::TYPE_RETURN], date, user)

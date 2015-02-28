@@ -152,6 +152,7 @@ class Record < ActiveRecord::Base
   scope :at_date, lambda {|date| where("date = ?", date)}
   scope :before_date, lambda {|date| where("date < ?", date)}
   scope :between_date_exclusive, lambda {|begin_date, end_date| where('date > ? AND date < ?', begin_date, end_date)}
+  scope :between_date_inclusive, lambda {|begin_date, end_date| where('date >= ? AND date <= ?', begin_date, end_date)}
   scope :created_by_user, lambda {|user| where("user_id = ?", user)}
   scope :of_participant, lambda {|participant| where("participant_id = ?", participant)}
   

@@ -5,6 +5,9 @@
       <th colspan= "<%= @contractors.size + 3 %>" >外工厂往来台帐（汇总）</th>
     </tr>
     <tr>
+      <th colspan= "<%= @contractors.size + 3 %>" >日期：<%= @from_date.strftime("%Y-%m-%d") %> 至 <%= @to_date.strftime("%Y-%m-%d") %></th>
+    </tr>
+    <tr>
       <th></th>
       <th>外工厂</th>
       <% @contractors.each do |contractor| %>

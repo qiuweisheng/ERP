@@ -220,7 +220,7 @@ class ReportsController < ApplicationController
   private def ext_customer_trans_summary(participant: nil, from_date: nil, to_date: nil, last_balance: nil, balance: nil)
     report = []
     rev_sum, dis_sum, return_sum, weight_diff_sum = 0, 0, 0, 0
-    transactions = participant.transactions.between_date_inclusive(from_date, to_date)
+    transactions = participant.transactions.between_date(from_date, to_date)
     rev_sum = transactions.of_types(Record::RECEIVE).sum('weight')
     dis_sum = transactions.of_types(Record::DISPATCH).sum('weight')
     return_sum = transactions.of_type(Record::TYPE_RETURN).sum('weight')
@@ -665,16 +665,16 @@ class ReportsController < ApplicationController
       last_balance.push bal_val
       total_last_balance += bal_val
 
-      rev_value = client.transactions.of_types(Record::RECEIVE).between_date_inclusive(@from_date, @to_date).sum('weight')
-      rev_value += client.transactions.of_type(Record::TYPE_RETURN).between_date_inclusive(@from_date, @to_date).sum('weight')
-      dis_value = client.transactions.of_types(Record::DISPATCH).between_date_inclusive(@from_date, @to_date).sum('weight')
+      rev_value = client.transactions.of_types(Record::RECEIVE).between_date(@from_date, @to_date).sum('weight')
+      rev_value += client.transactions.of_type(Record::TYPE_RETURN).between_date(@from_date, @to_date).sum('weight')
+      dis_value = client.transactions.of_types(Record::DISPATCH).between_date(@from_date, @to_date).sum('weight')
 
       month_receive_weight.push rev_value
       month_dispatch_weight.push dis_value
       all_client_total_month_receive_weight += rev_value
       all_client_total_month_dispatch_weight += dis_value
 
-      diff = client.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).between_date_inclusive(@from_date, @to_date).sum('weight')
+      diff = client.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).between_date(@from_date, @to_date).sum('weight')
       weight_diff.push diff
       all_client_total_weight_diff += diff
       theoretical_balance = bal_val + rev_value - dis_value + diff
@@ -776,16 +776,16 @@ class ReportsController < ApplicationController
       last_balance.push bal_val
       total_last_balance += bal_val
 
-      rev_value = contractor.transactions.of_types(Record::RECEIVE).between_date_inclusive(@from_date, @to_date).sum('weight')
-      rev_value += contractor.transactions.of_type(Record::TYPE_RETURN).between_date_inclusive(@from_date, @to_date).sum('weight')
-      dis_value = contractor.transactions.of_types(Record::DISPATCH).between_date_inclusive(@from_date, @to_date).sum('weight')
+      rev_value = contractor.transactions.of_types(Record::RECEIVE).between_date(@from_date, @to_date).sum('weight')
+      rev_value += contractor.transactions.of_type(Record::TYPE_RETURN).between_date(@from_date, @to_date).sum('weight')
+      dis_value = contractor.transactions.of_types(Record::DISPATCH).between_date(@from_date, @to_date).sum('weight')
 
       month_receive_weight.push rev_value
       month_dispatch_weight.push dis_value
       all_contractor_total_month_receive_weight += rev_value
       all_contractor_total_month_dispatch_weight += dis_value
 
-      diff = contractor.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).between_date_inclusive(@from_date, @to_date).sum('weight')
+      diff = contractor.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).between_date(@from_date, @to_date).sum('weight')
       weight_diff.push diff
       all_contractor_total_weight_diff += diff
       theoretical_balance = bal_val + rev_value - dis_value + diff

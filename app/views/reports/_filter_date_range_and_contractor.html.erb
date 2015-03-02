@@ -1,0 +1,11 @@
+<div id="filter_fields">
+  <%= form_tag path, method: :get, remote: true do %>
+    <%= label_tag :date, '日期:' %>
+    <%= text_field_tag :from_date, @from_date %>
+    <span>至</span>
+    <%= text_field_tag :to_date, @to_date %>
+    <%= label_tag :contractor_id, '外工厂:' %>
+    <%= select_tag :contractor_id, options_for_select(contractor_options, @contractor.try(:id)) %>
+    <%= submit_tag '确定'%>
+  <% end %>
+</div>

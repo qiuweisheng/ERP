@@ -2,7 +2,10 @@
   <table>
     <thead>
     <tr class="title">
-      <th colspan= "<%= @contractors.size + 2 %>" >外工厂往来台帐</th>
+      <th colspan= "<%= @contractors.size + 3 %>" >外工厂往来台帐（汇总）</th>
+    </tr>
+    <tr>
+      <th colspan= "<%= @contractors.size + 3 %>" >日期：<%= @from_date.strftime("%Y-%m-%d") %> 至 <%= @to_date.strftime("%Y-%m-%d") %></th>
     </tr>
     <tr>
       <th></th>
@@ -10,10 +13,11 @@
       <% @contractors.each do |contractor| %>
           <th><%= contractor.name %></th>
       <% end %>
+      <th>合计</th>
     </tr>
     </thead>
     <tbody>
-      <% @report.each do |report| %>
+    <% @report.each do |report| %>
         <% if report[:type] %>
             <tr class="<%= report[:type] %>">
         <% else %>
@@ -31,23 +35,35 @@
             <% end %>
             </tr>
         <% end%>
+        <% if report[:real_balance] %>
+            <% report[:real_balance].each do |value| %>
+                <td><%= value %></td>
+            <% end %>
+            </tr>
+        <% end%>
+        <% if report[:weight_diff] %>
+            <% report[:weight_diff].each do |value| %>
+                <td><%= value %></td>
+            <% end %>
+            </tr>
+        <% end%>
         <% if report[:type] %>
             <tr>
-            <% if report[:receive] %>
-              <% report[:receive].each do |receive| %>
-                <td><%= receive %></td>
+              <% if report[:receive] %>
+                  <% report[:receive].each do |receive| %>
+                      <td><%= receive %></td>
+                  <% end %>
+                  </tr>
               <% end %>
-            </tr>
-            <% end %>
-            <tr>
-            <% if report[:dispatch] %>
-                <% report[:dispatch].each do |dispatch| %>
-                    <td><%= dispatch %></td>
+              <tr>
+                <% if report[:dispatch] %>
+                    <% report[:dispatch].each do |dispatch| %>
+                        <td><%= dispatch %></td>
+                    <% end %>
                 <% end %>
-            <% end %>
-            </tr>
+              </tr>
         <% end %>
-      <% end %>
+    <% end %>
     </tbody>
   </table>
 </div>

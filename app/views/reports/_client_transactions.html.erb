@@ -2,7 +2,10 @@
   <table>
     <thead>
     <tr class="title">
-      <th colspan= "<%= @clients.size + 3 %>" >客户往来台帐</th>
+      <th colspan= "<%= @clients.size + 3 %>" >客户往来台帐（汇总）</th>
+    </tr>
+    <tr>
+      <th colspan= "<%= @clients.size + 3 %>" >日期：<%= @from_date.strftime("%Y-%m-%d") %> 至 <%= @to_date.strftime("%Y-%m-%d") %></th>
     </tr>
     <tr>
       <th></th>

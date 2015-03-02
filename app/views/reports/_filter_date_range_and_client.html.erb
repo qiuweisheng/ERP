@@ -5,7 +5,7 @@
     <span>至</span>
     <%= text_field_tag :to_date, @to_date %>
     <%= label_tag :client_id, '客户:' %>
-    <%= select_tag :client_id, options_for_select(client_options, @client.try(:id) ) %>
+    <%= select_tag :client_id, options_for_select(client_options, @client.try(:id)) %>
     <%= submit_tag '确定'%>
   <% end %>
 </div>

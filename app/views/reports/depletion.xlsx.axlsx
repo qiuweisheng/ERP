@@ -1,0 +1,7 @@
+workbook = xlsx_package.workbook
+workbook.styles do |style|
+  head_style = style.add_style sz: 18, alignment: { horizontal: :center }
+  workbook.add_worksheet(name: "损耗明细汇总表") do |sheet|
+    sheet.add_row(["#{@from_date.strftime("%Y-%m-%d")}至#{@to_date.strftime("%Y-%m-%d")}各组损耗明细汇总表"])
+  end
+end

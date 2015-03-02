@@ -18,24 +18,18 @@
     </thead>
     <tbody>
     <% @report.each do |report| %>
-        <% if report[:total] %>
-            <tr class="total">
-                <td>合计</td>
-                <td></td>
-                <td></td>
-                <td><%=report[:produce_total_weight] %></td>
-                <td></td>
-                <td><%=report[:product_total_per_employee] %></td>
+        <% if report[:type] %>
+            <tr class="<%= report[:type] %>">
         <% else %>
             <tr>
-                <td ><%=report[:employee_name] %></td>
-                <td><%= report[:date] %></td>
-                <td><%= report[:product_name] %></td>
-                <td><%= report[:produce_weight] %></td>
-                <td><%= report[:product_num] %></td>
-                <td><%= report[:product_per_employee] %></td>
         <% end %>
-            </tr>
+        <td ><%=report[:employee_name] %></td>
+        <td><%= report[:date] %></td>
+        <td><%= report[:product_name] %></td>
+        <td><%= report[:produce_weight] %></td>
+        <td><%= report[:product_num] %></td>
+        <td><%= report[:product_per_employee] %></td>
+        </tr>
     <% end %>
     </tbody>
   </table>

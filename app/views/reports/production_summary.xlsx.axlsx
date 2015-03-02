@@ -1,0 +1,25 @@
+workbook = xlsx_package.workbook
+workbook.styles do |style|
+  head_style = style.add_style sz: 18, alignment: { horizontal: :center }
+  time_style = style.add_style alignment: { horizontal: :center }
+  workbook.add_worksheet(name: "生产统计汇总表") do |sheet|
+    sheet.add_row(["生产统计汇总表", "", "", "", "", ""], style: head_style)
+    sheet.add_row(["日期：#{@from_date.strftime("%Y-%m-%d")} 至 #{@to_date.strftime("%Y-%m-%d")}",
+     "", "", "", "", ""], style: time_style)
+    sheet.add_row(["生产组", "日期", "摘要", "数量", "件数", "人均产量"])
+    @report.each do |report|
+      if report != nil
+          sheet.add_row([
+          "#{report[:employee_name]}",
+          "#{report[:date]}",
+          "#{report[:product_name]}",
+          "#{report[:produce_weight]}",
+          "#{report[:product_num]}",
+          "#{report[:product_per_employee]}"
+          ])
+      end
+    end
+    sheet.merge_cells("A1:F1")
+    sheet.merge_cells("A2:F2")
+  end
+end

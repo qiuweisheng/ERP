@@ -497,20 +497,28 @@ class ReportsController < ApplicationController
               produce_weight: record.weight,
               product_num: record.count,
               product_per_employee: record.weight/employee.colleague_number,
-              total: false
           }
           @report.push attr
         end
 
         weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
         attr = {
-            produce_total_weight: weight_sum,
-            product_total_per_employee: weight_sum/employee.colleague_number,
-            total: true
+            employee_name: '合计',
+            produce_weight: weight_sum,
+            product_per_employee: weight_sum/employee.colleague_number,
+            type: :total
         }
         @report.push attr
       end
     end
+    # for all employee, calc the sum of product weight
+    weight_sum = Record.where('date >= ? AND date <= ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, Employee.name, Record::TYPE_RECEIVE).sum('weight')
+    attr = {
+        employee_name: '总计',
+        produce_weight: weight_sum,
+        type: :total
+    }
+    @report.push attr
   end
 
   def production_by_type
@@ -530,18 +538,26 @@ class ReportsController < ApplicationController
               produce_weight: record.weight,
               product_num: record.count,
               product_per_employee: (record.participant == nil) ? ('') : (record.weight/record.participant.colleague_number),
-              total: false
           }
           @report.push attr
         end
         weight_sum = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, product, Employee.name, Record::TYPE_RECEIVE).sum('weight')
         attr = {
-            produce_total_weight: weight_sum,
-            total: true
+            product_name: '合计',
+            produce_weight: weight_sum,
+            type: :total
         }
         @report.push attr
       end
     end
+    # for all employee, calc the sum of product weight
+    weight_sum = Record.where('date >= ? AND date <= ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, Employee.name, Record::TYPE_RECEIVE).sum('weight')
+    attr = {
+        product_name: '总计',
+        produce_weight: weight_sum,
+        type: :total
+    }
+    @report.push attr
   end
 
   def production_summary
@@ -569,7 +585,6 @@ class ReportsController < ApplicationController
                 produce_weight: sum,
                 product_num: count,
                 product_per_employee: sum/employee.colleague_number,
-                total: false
             }
             @report.push attr
           end
@@ -578,26 +593,26 @@ class ReportsController < ApplicationController
       end
 
       # for each employee,each product, calc the sum of weight
-      weight_sum = Record.where('date >= ? AND date <= ? and participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
+      weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
       unless weight_sum == 0
         attr = {
-            produce_total_weight: weight_sum,
-            product_total_per_employee: weight_sum/employee.colleague_number,
-            sum: true
+            employee_name: '合计',
+            produce_weight: weight_sum,
+            product_per_employee: weight_sum/employee.colleague_number,
+            type: :sum
         }
         @report.push attr
       end
     end
     # for all employee, calc the sum of product weight
-    weight_sum = Record.where('date >= ? AND date <= ? AND record_type = ?', @from_date, @to_date, Record::TYPE_RECEIVE).sum('weight')
-    unless weight_sum == 0
-      attr = {
-          produce_total_weight: weight_sum,
-          product_total_per_employee: '',
-          total: true
-      }
-      @report.push attr
-    end
+    weight_sum = Record.where('date >= ? AND date <= ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, Employee.name, Record::TYPE_RECEIVE).sum('weight')
+    attr = {
+        employee_name: '总计',
+        produce_weight: weight_sum,
+        type: :total
+    }
+    @report.push attr
+
   end
 
   def weight_diff

@@ -13,7 +13,7 @@ $(document).on 'page:change', ->
     showButtonPanel: true
     onClose: (date) -> $('#from_date').datepicker("option", "maxDate", date)
 
-  $("form.date_and_user input.xlsx").click (event)->
+  $("form input.xlsx").click (event)->
     event.preventDefault()
     parent = $(this).parent()
     url = parent.attr('action') + '.xlsx?' + parent.serialize() 

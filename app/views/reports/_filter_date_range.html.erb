@@ -1,9 +1,10 @@
 <div id="filter_fields">
-  <%= form_tag path, method: :get, remote: true do %>
-    <%= label_tag :date, '日期:' %>
-    <%= text_field_tag :from_date, @from_date %>
-    <span>至</span>
-    <%= text_field_tag :to_date, @to_date %>
-    <%= submit_tag '确定'%>
+  <%= form_tag path, method: :get, remote: true, class: 'date_range' do %>
+      <%= label_tag :date, '日期:' %>
+      <%= text_field_tag :from_date, @from_date %>
+      <span>至</span>
+      <%= text_field_tag :to_date, @to_date %>
+      <%= submit_tag '确定' %>
+      <%= submit_tag '下载excel表格', class: 'xlsx' %>
   <% end %>
 </div>

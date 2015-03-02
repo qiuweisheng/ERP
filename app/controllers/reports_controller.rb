@@ -322,11 +322,11 @@ class ReportsController < ApplicationController
     # depletion = employee_receive_weight - employee_dispatch_weight - employee_checked_weight
     @report.push name: '工厂损耗', milli: milli.call(depletion), gram: gram.call(depletion)
     user_difference = 0
-    # (@from_date..@to_date).each do |date|
-    #   users.each do |user|
-    #     user_difference += user.balance_at_date_as_host(date) - user.checked_balance_at_date_as_host(date)
-    #   end
-    # end
+    (@from_date..@to_date).each do |date|
+      users.each do |user|
+        user_difference += user.balance_at_date_as_host(date) - user.checked_balance_at_date_as_host(date)
+      end
+    end
     # user_dispatch_weight = Record.of_not_participant_type(User)
     #                              .between_date(@from_date, @to_date)
     #                              .of_types(Record::DISPATCH)
@@ -434,6 +434,11 @@ class ReportsController < ApplicationController
       value_array << (depletion_sum + polish_depletion_sum)
 
       @report.push name: employee.name, values: value_array
+    end
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx
     end
   end
   

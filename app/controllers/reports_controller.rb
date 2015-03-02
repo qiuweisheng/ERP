@@ -358,27 +358,62 @@ class ReportsController < ApplicationController
   end
 
   def goods_distribution_detail
-    milli = ->(sum) { sum / 1000 }
+    milli = ->(sum) { sum }
     gram = ->(sum) { "%.4f" % [sum / 26.717] }
     
     @date = params[:date] ? Date.parse(params[:date]) : Time.now.to_date   
     @report = []
-    total = 0
+
+    # 柜台
+    user_total = 0
     Record.users(@date).each do |user|
       sum = user.checked_balance_at_date_as_host(@date)
-      total += sum
+      user_total += sum
       @report.push name: user.name, milli: milli.call(sum), gram: gram.call(sum)
     end
-    Record.participants(@date).each do |participant|
-      if participant.class == Employee
-        sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user, check_type: Record::TYPE_MONTH_CHECK)}.reduce(0, :+)
-      else
-        sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user)}.reduce(0, :+)
-      end
-      total += sum
-      @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)
+    @report.push name: '柜台合计', milli: milli.call(user_total), gram: gram.call(user_total), type: :sum
+
+    # 工人
+    employee_total = 0
+    Record.employees(@date).each do |employee|
+      sum = employee.users.map {|user| employee.checked_balance_at_date(@date, user, check_type: Record::TYPE_MONTH_CHECK)}.reduce(0, :+)
+      employee_total += sum
+      @report.push name: employee.name, milli: milli.call(sum), gram: gram.call(sum)
     end
+    @report.push name: '工人合计', milli: milli.call(employee_total), gram: gram.call(employee_total), type: :sum
+
+    # 外部客户
+    client_total = 0
+    Record.clients(@date).each do |client|
+      sum = client.users.map {|user| client.checked_balance_at_date(@date, user)}.reduce(0, :+)
+      client_total += sum
+      @report.push name: client.name, milli: milli.call(sum), gram: gram.call(sum)
+    end
+
+    # 外包
+    contractor_total = 0
+    Record.contractors(@date).each do |contractor|
+      sum = contractor.users.map {|user| contractor.checked_balance_at_date(@date, user)}.reduce(0, :+)
+      client_total += sum
+      @report.push name: contractor.name, milli: milli.call(sum), gram: gram.call(sum)
+    end
+    ext_client_total = client_total + contractor_total
+    @report.push name: '外部客户合计', milli: milli.call(ext_client_total), gram: gram.call(ext_client_total), type: :sum
+
+    # 总计
+    total = user_total + employee_total + ext_client_total
     @report.push name: '合计', milli: milli.call(total), gram: gram.call(total), type: :total
+
+    #Record.participants(@date).each do |participant|
+    #  if participant.class == Employee
+    #    sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user, check_type: Record::TYPE_MONTH_CHECK)}.reduce(0, :+)
+    #  else
+    #    sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user)}.reduce(0, :+)
+    #  end
+    #  total += sum
+    #  @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)
+    #end
+    #@report.push name: '合计', milli: milli.call(total), gram: gram.call(total), type: :total
   end
 
   def goods_in_employees

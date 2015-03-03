@@ -7,5 +7,6 @@
     <%= label_tag :contractor_id, '外工厂:' %>
     <%= select_tag :contractor_id, options_for_select(contractor_options, @contractor.try(:id)) %>
     <%= submit_tag '确定'%>
+    <%= submit_tag '下载excel表格', class: 'xlsx'%>
   <% end %>
 </div>

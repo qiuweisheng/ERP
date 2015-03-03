@@ -7,5 +7,6 @@
     <%= label_tag :client_id, '客户:' %>
     <%= select_tag :client_id, options_for_select(client_options, @client.try(:id)) %>
     <%= submit_tag '确定'%>
+    <%= submit_tag '下载excel表格', class: 'xlsx'%>
   <% end %>
 </div>

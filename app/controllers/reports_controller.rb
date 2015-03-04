@@ -253,7 +253,7 @@ class ReportsController < ApplicationController
       format.html
       format.js
       format.xlsx {
-        filename = "收发日报表(明细)#{@date}"
+        filename = "(#{@user.name})收发日报表(明细)#{@date}"
         response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
       }
     end
@@ -272,7 +272,7 @@ class ReportsController < ApplicationController
       format.html
       format.js
       format.xlsx {
-        filename = "收发日报表(汇总)#{@date}"
+        filename = "(#{@user.name})收发日报表(汇总)#{@date}"
         response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
       }
     end
@@ -423,7 +423,7 @@ class ReportsController < ApplicationController
       format.html
       format.js
       format.xlsx {
-        filename = "黄金分布表(明细)#{@from_date}至#{@to_date}"
+        filename = "黄金分布表(明细)#{@date}"
         response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
       }
     end

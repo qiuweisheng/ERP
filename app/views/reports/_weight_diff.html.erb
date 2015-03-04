@@ -2,7 +2,10 @@
   <table>
     <thead>
       <tr class="title">
-        <th colspan="<%= @users.size + 1 %>"><%= @from_date.strftime '%Y-%m-%d' %>至<%= @to_date.strftime '%Y-%m-%d' %>各柜台称差明细汇总表</th>
+        <th colspan="<%= @users.size + 1 %>">各柜台称差明细汇总表</th>
+      </tr>
+      <tr>
+        <th colspan="<%= @users.size + 1 %>">日期：<%= @from_date.strftime '%Y-%m-%d' %> 至 <%= @to_date.strftime '%Y-%m-%d' %></th>
       </tr>
       <tr>
         <th>日期</th>

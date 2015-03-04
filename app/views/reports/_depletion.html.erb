@@ -2,7 +2,10 @@
   <table>
     <thead>
       <tr class="title">
-        <th colspan="<%= @column * 2 + 4 %>"><%= @from_date.strftime '%Y-%m-%d' %>至<%= @to_date.strftime '%Y-%m-%d' %>各组损耗明细汇总表</th>
+        <th colspan="<%= @column * 2 + 4 %>">各组损耗明细汇总表</th>
+      </tr>
+      <tr>
+        <th colspan="<%= @column * 2 + 4 %>">日期：<%= @from_date.strftime '%Y-%m-%d' %>至<%= @to_date.strftime '%Y-%m-%d' %></th>
       </tr>
       <tr>
         <th rowspan="2">生产组长</th>

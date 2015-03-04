@@ -55,8 +55,16 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1.json
   def update
     respond_to do |format|
-      if @user.update(user_params)
-        format.html { redirect_to @user, notice: '用户更新成功' }
+      old_password_match = true
+      unless @user.authenticate(params[:user][:old_password])
+        @user.errors.add(:old_password, "旧密码不对")
+        old_password_match = false
+      end
+      if old_password_match && @user.update(user_params)
+        format.html {
+          clear_session_data
+          redirect_to login_url
+        }
         format.json { render :show, status: :ok, location: @user }
       else
         format.html { render :edit }

@@ -20,11 +20,13 @@ class User < ActiveRecord::Base
   validates :password, presence: { message: '密码必须填写'}
   validates :permission, presence: { message: '类型必须选择'}
   validates :permission, inclusion: { in: 0..3, message: "类型必须为：#{PERMISSION_TYPES.values.join('、')}" }
+
   validates_each :permission, on: :create do |record, attr, value|
     if value == 0 and record.class.where(attr => 0).count > 0
       record.errors.add(attr, '只能有一个超级用户')
     end
   end
+
   validates_each :permission, on: :update do |record, attr, value|
     unless record.class.find(record.id).send(attr) == value
       record.errors.add(attr, '不能修改权限')

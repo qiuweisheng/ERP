@@ -56,5 +56,9 @@ class ApplicationController < ActionController::Base
       end
       redirect_to url, notice: notice
     end
-    
+
+    def clear_session_data
+      session[:user_id] = nil
+      session[:permission] = nil
+    end
 end

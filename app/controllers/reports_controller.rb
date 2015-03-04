@@ -253,7 +253,7 @@ class ReportsController < ApplicationController
       format.html
       format.js
       format.xlsx {
-        filename = "收发日报表（明细）#{@date}"
+        filename = "收发日报表(明细)#{@date}"
         response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
       }
     end
@@ -271,7 +271,10 @@ class ReportsController < ApplicationController
     respond_to do |format|
       format.html
       format.js
-      format.xlsx
+      format.xlsx {
+        filename = "收发日报表(汇总)#{@date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
     end
   end
 
@@ -358,6 +361,15 @@ class ReportsController < ApplicationController
     @report.push name: '柜台称差', milli: milli.call(user_difference), gram: gram.call(user_difference)
     sum = last_balance + client_receive_weight - client_dispatch_weight + client_return_weight - client_weight_difference - depletion - user_difference
     @report.push name: '本次结余', milli: milli.call(sum), gram: gram.call(sum), type: :sum
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "黄金流量表(汇总)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def goods_distribution_detail
@@ -407,16 +419,14 @@ class ReportsController < ApplicationController
     total = user_total + employee_total + ext_client_total
     @report.push name: '合计', milli: milli.call(total), gram: gram.call(total), type: :total
 
-    #Record.participants(@date).each do |participant|
-    #  if participant.class == Employee
-    #    sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user, check_type: Record::TYPE_MONTH_CHECK)}.reduce(0, :+)
-    #  else
-    #    sum = participant.users.map {|user| participant.checked_balance_at_date(@date, user)}.reduce(0, :+)
-    #  end
-    #  total += sum
-    #  @report.push name: participant.name, milli: milli.call(sum), gram: gram.call(sum)
-    #end
-    #@report.push name: '合计', milli: milli.call(total), gram: gram.call(total), type: :total
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "黄金分布表(明细)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def goods_in_employees
@@ -476,7 +486,10 @@ class ReportsController < ApplicationController
     respond_to do |format|
       format.html
       format.js
-      format.xlsx
+      format.xlsx {
+        filename = "损耗明细汇总表#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
     end
   end
   
@@ -522,6 +535,14 @@ class ReportsController < ApplicationController
         type: :total
     }
     @report.push attr
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "生产统计表(生产组)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def production_by_type
@@ -561,6 +582,14 @@ class ReportsController < ApplicationController
         type: :total
     }
     @report.push attr
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "生产统计表(品种)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def production_summary
@@ -616,6 +645,14 @@ class ReportsController < ApplicationController
     }
     @report.push attr
 
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "生产统计表(汇总)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def weight_diff
@@ -640,6 +677,15 @@ class ReportsController < ApplicationController
     end
     totals.update name: '合计', type: :sum
     @report.push totals
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "各柜台称差明细汇总表#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
   
   def current_user_balance
@@ -684,6 +730,15 @@ class ReportsController < ApplicationController
         type: :total
     }
     @report.push attr
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "客户称差统计表#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def client_transactions
@@ -776,6 +831,15 @@ class ReportsController < ApplicationController
     #today real balance
     real_balance.push all_client_total_real_balance
     @report.push real_balance: real_balance, type: :total
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "客户往来台帐(汇总)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def client_transactions_detail
@@ -795,6 +859,15 @@ class ReportsController < ApplicationController
       end
     end
     @report += ext_customer_trans_summary(participant: @client, from_date: @from_date, to_date: @to_date, last_balance: last_balance, balance: result[:balance])
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "客户(#{@client.name})往来台帐(明细)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def contractor_transactions
@@ -887,6 +960,15 @@ class ReportsController < ApplicationController
     #today real balance
     real_balance.push all_contractor_total_real_balance
     @report.push real_balance: real_balance, type: :total
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "外工厂往来台帐(汇总)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def contractor_transactions_detail
@@ -906,6 +988,15 @@ class ReportsController < ApplicationController
       end
     end
     @report += ext_customer_trans_summary(participant: @contractor, from_date: @from_date, to_date: @to_date, last_balance: last_balance, balance: result[:balance])
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "外工厂(#{@contractor.name})往来台帐(明细)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 end
 

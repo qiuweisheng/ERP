@@ -436,7 +436,7 @@ class ReportsController < ApplicationController
     Record.employees(@date).each do |employee|
       sum = employee.users.map {|user| employee.checked_balance_at_date(@date, user, check_type: Record::TYPE_MONTH_CHECK)}.reduce(0, :+)
       total += sum
-      @report.push name: employee.name, sum: sum, average: sum / employee.colleague_number
+      @report.push name: employee.name, sum: sum, average: "%.2f" % [sum / employee.colleague_number]
     end
     @report.push name: '生产用金合计', sum: total, type: :total
   end
@@ -512,7 +512,7 @@ class ReportsController < ApplicationController
               product_name: (record.product == nil) ? ('') : (record.product.name),
               produce_weight: record.weight,
               product_num: record.count,
-              product_per_employee: record.weight/employee.colleague_number,
+              product_per_employee: "%.2f" % [record.weight/employee.colleague_number]
           }
           @report.push attr
         end
@@ -521,7 +521,7 @@ class ReportsController < ApplicationController
         attr = {
             employee_name: '合计',
             produce_weight: weight_sum,
-            product_per_employee: weight_sum/employee.colleague_number,
+            product_per_employee: "%.2f" % [weight_sum/employee.colleague_number],
             type: :total
         }
         @report.push attr
@@ -561,7 +561,7 @@ class ReportsController < ApplicationController
               employee_name: (record.participant == nil) ? ('') : (record.participant.name),
               produce_weight: record.weight,
               product_num: record.count,
-              product_per_employee: (record.participant == nil) ? ('') : (record.weight/record.participant.colleague_number),
+              product_per_employee: (record.participant == nil) ? ('') : ("%.2f" % [record.weight/record.participant.colleague_number])
           }
           @report.push attr
         end
@@ -616,7 +616,7 @@ class ReportsController < ApplicationController
                 product_name: (records[0].product == nil) ? ('') : (records[0].product.name),
                 produce_weight: sum,
                 product_num: count,
-                product_per_employee: sum/employee.colleague_number,
+                product_per_employee: "%.2f" % [sum/employee.colleague_number]
             }
             @report.push attr
           end
@@ -630,7 +630,7 @@ class ReportsController < ApplicationController
         attr = {
             employee_name: '合计',
             produce_weight: weight_sum,
-            product_per_employee: weight_sum/employee.colleague_number,
+            product_per_employee: "%.2f" % [weight_sum/employee.colleague_number],
             type: :sum
         }
         @report.push attr

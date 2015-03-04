@@ -18,3 +18,4 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require common
+//= require datepicker-zh-CN

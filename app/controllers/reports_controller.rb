@@ -252,7 +252,10 @@ class ReportsController < ApplicationController
     respond_to do |format|
       format.html
       format.js
-      format.xlsx
+      format.xlsx {
+        filename = "收发日报表（明细）#{@date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
     end
   end
   

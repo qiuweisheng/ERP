@@ -1,0 +1,28 @@
+workbook = xlsx_package.workbook
+workbook.styles do |style|
+  head_style = style.add_style sz: 18, alignment: { horizontal: :center }
+  time_style = style.add_style alignment: { horizontal: :center }
+  sum_style =  style.add_style  :bg_color => "0000FF", :fg_color => "FF", :sz => 12, :alignment => { :horizontal=> :center }
+  value_style = style.add_style alignment: { horizontal: :center }
+  workbook.add_worksheet(name: "客户往来台帐（汇总）") do |sheet|
+    sheet.add_row(["客户往来台帐（汇总）"], style: head_style)
+    date_row =[]
+    date_row[0] = "日期：#{@from_date.strftime("%Y-%m-%d")} 至 #{@to_date.strftime("%Y-%m-%d")}"
+    sheet.add_row(date_row, style: time_style)
+    @report.each do |report|
+        if report[:type]
+            sheet.add_row(report[:values], style: sum_style)
+        else
+            sheet.add_row(report[:values], style: value_style)
+        end
+    end
+    #merge
+    column = @clients.size + 3
+    end_pos = "A"
+    (column-1).times do
+      end_pos = end_pos.succ
+    end
+    sheet.merge_cells("A1:#{end_pos}1")
+    sheet.merge_cells("A2:#{end_pos}2")
+  end
+end

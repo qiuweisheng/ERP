@@ -2,13 +2,13 @@ workbook = xlsx_package.workbook
 workbook.styles do |style|
   head_style = style.add_style sz: 18, alignment: { horizontal: :center }
   time_style = style.add_style alignment: { horizontal: :center }
-  blue_cell =  style.add_style  :bg_color => "0000FF", :fg_color => "FF", :sz => 12, :alignment => { :horizontal=> :center }
+  sum_style =  style.add_style  :bg_color => "0000FF", :fg_color => "FF", :sz => 12, :alignment => { :horizontal=> :center }
 
   workbook.add_worksheet(name: "生产统计汇总表") do |sheet|
     sheet.add_row(["生产统计汇总表", "", "", "", "", ""], style: head_style)
     sheet.add_row(["日期：#{@from_date.strftime("%Y-%m-%d")} 至 #{@to_date.strftime("%Y-%m-%d")}",
      "", "", "", "", ""], style: time_style)
-    sheet.add_row(["生产组", "日期", "摘要", "数量", "件数", "人均产量"], :style => blue_cell)
+    sheet.add_row(["生产组", "日期", "摘要", "数量", "件数", "人均产量"], :style => sum_style)
     @report.each do |report|
       if report != nil
           sheet.add_row([
@@ -19,6 +19,11 @@ workbook.styles do |style|
           "#{report[:product_num]}",
           "#{report[:product_per_employee]}"
           ])
+          if report[:type]
+            sheet.rows.last.style = sum_style
+          else
+            sheet.rows.last.style = value_style
+          end
       end
     end
     sheet.merge_cells("A1:F1")

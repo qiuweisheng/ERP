@@ -3,13 +3,14 @@ workbook.styles do |style|
   head_style = style.add_style sz: 18, alignment: { horizontal: :center}
   time_style = style.add_style alignment: { horizontal: :center, vertical: :center }
   sum_style =  style.add_style  :bg_color => "0000FF", :fg_color => "FF", :sz => 12, :alignment => { :horizontal=> :center }
+  value_style = style.add_style alignment: { horizontal: :center, vertical: :center }
   column = @users.size + 1
   workbook.add_worksheet(name: "各柜台称差明细汇总表") do |sheet|
     row = Array.new(column, "")
     row[0] = "各柜台称差明细汇总表"
     sheet.add_row(row, style: head_style)
     row[0] = "日期：#{@from_date.strftime("%Y-%m-%d")} 至 #{@to_date.strftime("%Y-%m-%d")}"
-    sheet.add_row(row, style: time_style)
+    sheet.add_row(row, style: sum_style)
     #
     desc_row = Array.new(column, "")
     row = []
@@ -30,7 +31,7 @@ workbook.styles do |style|
         if report[:type]
             sheet.add_row(row, style: sum_style)
         else
-            sheet.add_row(row, style: time_style)
+            sheet.add_row(row, style: value_style)
         end
     end
     #merge

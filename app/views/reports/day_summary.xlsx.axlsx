@@ -1,10 +1,13 @@
 workbook = xlsx_package.workbook
 workbook.styles do |style|
   head_style = style.add_style sz: 18, alignment: { horizontal: :center }
+  time_style = style.add_style alignment: { horizontal: :center }
+  sum_style =  style.add_style  :bg_color => "0000FF", :fg_color => "FF", :sz => 12, :alignment => { :horizontal=> :center }
+  value_style = style.add_style alignment: { horizontal: :center }
   workbook.add_worksheet(name: "收发日报表（汇总）") do |sheet|
     sheet.add_row(["收发日报表（汇总）", "", "", "", "", "", "", ""], style: head_style)
-    sheet.add_row(["柜台", "#{@user.name}", "日期：#{@date.strftime("%Y-%m-%d")}", "", "", "", "", ""])
-    sheet.add_row(["客户名", "上期余额", "交与数量", "收回数量", "余额", "盘点值", "损耗/地沙", "称差"])
+    sheet.add_row(["柜台", "#{@user.name}", "日期：#{@date.strftime("%Y-%m-%d")}", "", "", "", "", ""], style: time_style)
+    sheet.add_row(["客户名", "上期余额", "交与数量", "收回数量", "余额", "盘点值", "损耗/地沙", "称差"], style: sum_style)
     @report.each do |report|
       puts report
       sheet.add_row([
@@ -16,6 +19,11 @@ workbook.styles do |style|
         "#{report[:checked_balance_at_date]}",
         "#{report[:depletion]}",
         "#{report[:difference]}"])
+        if report[:type]
+          sheet.rows.last.style = sum_style
+        else
+          sheet.rows.last.style = value_style
+        end
     end
     sheet.merge_cells("A1:H1")
     sheet.merge_cells("C2:E2")

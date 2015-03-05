@@ -23,46 +23,10 @@
         <% else %>
             <tr>
         <% end %>
-        <% if report[:last_balance] %>
-            <% report[:last_balance].each do |value| %>
-                <td><%= value %></td>
-            <% end %>
-            </tr>
-        <% end%>
-        <% if report[:balance] %>
-            <% report[:balance].each do |value| %>
-                <td><%= value %></td>
-            <% end %>
-            </tr>
-        <% end%>
-        <% if report[:real_balance] %>
-            <% report[:real_balance].each do |value| %>
-                <td><%= value %></td>
-            <% end %>
-            </tr>
-        <% end%>
-        <% if report[:weight_diff] %>
-            <% report[:weight_diff].each do |value| %>
-                <td><%= value %></td>
-            <% end %>
-            </tr>
-        <% end%>
-        <% if report[:type] %>
-            <tr>
-              <% if report[:receive] %>
-                  <% report[:receive].each do |receive| %>
-                      <td><%= receive %></td>
-                  <% end %>
-                  </tr>
-              <% end %>
-              <tr>
-                <% if report[:dispatch] %>
-                    <% report[:dispatch].each do |dispatch| %>
-                        <td><%= dispatch %></td>
-                    <% end %>
-                <% end %>
-              </tr>
+        <% report[:values].each do |value| %>
+            <td><%= value %></td>
         <% end %>
+        </tr>
     <% end %>
     </tbody>
   </table>

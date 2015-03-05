@@ -3,6 +3,7 @@ workbook.styles do |style|
   head_style = style.add_style sz: 18, alignment: { horizontal: :center}
   time_style = style.add_style alignment: { horizontal: :center, vertical: :center }
   sum_style =  style.add_style  :bg_color => "0000FF", :fg_color => "FF", :sz => 12, :alignment => { :horizontal=> :center }
+  value_style = style.add_style alignment: { horizontal: :center, vertical: :center }
   column = @column * 2 + 4
   workbook.add_worksheet(name: "各组损耗明细汇总表") do |sheet|
     row = Array.new(column, "")
@@ -22,8 +23,8 @@ workbook.styles do |style|
     row[-3] = "合计"
     desc_row[-3] = "地沙/损耗"
     desc_row[-2] = "打磨扣欠金"
-    sheet.add_row(row, style: time_style)
-    sheet.add_row(desc_row, style: time_style)
+    sheet.add_row(row, style: value_style)
+    sheet.add_row(desc_row, style: value_style)
 
     # merge
     end_pos = "A"
@@ -51,7 +52,7 @@ workbook.styles do |style|
             row <<value[:polish_depletion]
         end
         row << report[:values][-1]
-        sheet.add_row(row, style: time_style)
+        sheet.add_row(row, style: value_style)
     end
   end
 end

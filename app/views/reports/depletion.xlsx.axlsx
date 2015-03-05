@@ -1,7 +1,57 @@
 workbook = xlsx_package.workbook
 workbook.styles do |style|
-  head_style = style.add_style sz: 18, alignment: { horizontal: :center }
-  workbook.add_worksheet(name: "损耗明细汇总表") do |sheet|
-    sheet.add_row(["#{@from_date.strftime("%Y-%m-%d")}至#{@to_date.strftime("%Y-%m-%d")}各组损耗明细汇总表"])
+  head_style = style.add_style sz: 18, alignment: { horizontal: :center}
+  time_style = style.add_style alignment: { horizontal: :center, vertical: :center }
+  sum_style =  style.add_style  :bg_color => "0000FF", :fg_color => "FF", :sz => 12, :alignment => { :horizontal=> :center }
+  column = @column * 2 + 4
+  workbook.add_worksheet(name: "各组损耗明细汇总表") do |sheet|
+    row = Array.new(column, "")
+    row[0] = "各组损耗明细汇总表"
+    sheet.add_row(row, style: head_style)
+    row[0] = "日期：#{@from_date.strftime("%Y-%m-%d")} 至 #{@to_date.strftime("%Y-%m-%d")}"
+    sheet.add_row(row, style: time_style)
+    #
+    desc_row = Array.new(column, "")
+    row[0] = "生产组长"
+    (@from_date..@to_date).each_with_index do |date, i|
+      row[i*2+1] = "#{date.strftime("%Y-%m-%d")}"
+      desc_row[i*2+1] = "地沙/损耗"
+      desc_row[i*2+2] = "打磨扣欠金"
+    end
+    row[-1] = "合计"
+    row[-3] = "合计"
+    desc_row[-3] = "地沙/损耗"
+    desc_row[-2] = "打磨扣欠金"
+    sheet.add_row(row, style: time_style)
+    sheet.add_row(desc_row, style: time_style)
+
+    # merge
+    end_pos = "A"
+    (column-1).times do
+      end_pos = end_pos.succ
+    end
+    str = "A1:#{end_pos}1"
+    sheet.merge_cells("A1:#{end_pos}1")
+    sheet.merge_cells("A2:#{end_pos}2")
+    sheet.merge_cells("A3:A4")
+    sheet.merge_cells("#{end_pos}3:#{end_pos}4")
+    end_pos = "B"
+    (@from_date..@to_date+1.day).each_with_index do |date, i|
+      sheet.merge_cells("#{end_pos}3:#{end_pos.succ}3")
+      end_pos = end_pos.succ
+      end_pos = end_pos.succ
+    end
+
+    #content
+    @report.each do |report|
+        row = []
+        row << report[:name]
+        report[:values][0...-1].each do |value|
+            row << value[:depletion]
+            row <<value[:polish_depletion]
+        end
+        row << report[:values][-1]
+        sheet.add_row(row, style: time_style)
+    end
   end
 end

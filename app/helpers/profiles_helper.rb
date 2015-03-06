@@ -7,4 +7,9 @@ module ProfilesHelper
         ''
     end
   end
+  
+  def is_month_check_day?()
+    day = Profile.where("key = 'month_check_date'").first.value.to_i
+    Time.now.day == day
+  end
 end

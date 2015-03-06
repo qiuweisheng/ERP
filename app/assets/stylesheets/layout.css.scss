@@ -46,11 +46,15 @@ body {
         }
       }
       
-      #balance {
+      span {
         line-height: $top_nav_height;
         float: right;
         margin-right: 25px;
         color: #fff;
+      }
+      
+      span#notification {
+        color: yellow;
       }
     }
   }

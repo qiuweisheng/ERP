@@ -24,6 +24,9 @@
         <% end %>
       </ul>
       <% if session[:user_id] and session[:permission] > 1 %>
+        <% if is_month_check_day? %>
+        <span id="notification">今日月结</span>
+        <% end %>
         <span id="balance"></span>
       <% end %>
   </div>

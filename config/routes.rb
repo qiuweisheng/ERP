@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-
   root 'sessions#redirect'
 
   controller :sessions do
@@ -38,6 +37,12 @@ Rails.application.routes.draw do
   resources :clients
 
   resources :products
+
+  resources :profiles, only: [:index, :edit, :update]
+
+  # get 'profiles' => 'profiles#index'
+  # get 'profiles/edit/:key' => 'profiles#edit'
+  # post 'profiles/update' => 'profiles#update'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

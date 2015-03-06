@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141108134258) do
+ActiveRecord::Schema.define(version: 20150306021217) do
 
   create_table "clients", force: true do |t|
     t.integer  "serial_number"
@@ -52,6 +52,14 @@ ActiveRecord::Schema.define(version: 20141108134258) do
     t.integer  "serial_number"
     t.string   "name"
     t.integer  "state",         default: 0
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "profiles", force: true do |t|
+    t.string   "key"
+    t.string   "value"
+    t.string   "value_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

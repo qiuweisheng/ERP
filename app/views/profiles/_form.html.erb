@@ -1,0 +1,29 @@
+<div class="list_view">
+  <%= form_for(@profile) do |f| %>
+    <% if @profile.errors.any? %>
+      <div id="error_explanation" class="ui-state-error ui-corner-all">
+        <ul>
+          <% @profile.errors.each do |_, message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <table>
+      <tr>
+        <td class="label"><%= name_of_profile(@profile) %></td>
+        <% if @profile.value_type == Profile::DATE_TYPE %>
+        <td class="date_picker">
+        <% else %>
+        <td>
+        <% end %>
+          <%= f.text_field :value %>
+        </td>
+      </tr>
+    </table>
+    <div class="actions">
+      <%= f.submit '提交' %>
+    </div>
+  <% end %>
+</div>

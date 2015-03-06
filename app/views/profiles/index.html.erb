@@ -1,0 +1,30 @@
+<% if notice %>
+    <div id="notice" class="ui-state-highlight">
+      <%= notice %>
+    </div>
+<% end %>
+
+<div class="table_view">
+  <table>
+    <thead>
+    <tr>
+      <th>名称</th>
+      <th>值</th>
+      <th class="action">操作</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% @profiles.each do |profile| %>
+      <% name = name_of_profile(profile) %>
+      <% if name != '' %>
+        <tr>
+          <td><%= name %></td>
+          <td><%= profile.value %></td>
+          <td class="action"><%= link_to '编辑', edit_profile_path(profile) %></td>
+        </tr>
+      <% end %>
+    <% end %>
+    </tbody>
+  </table>
+</div>

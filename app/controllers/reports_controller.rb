@@ -877,11 +877,12 @@ class ReportsController < ApplicationController
     @to_date = Date.parse(params[:to_date])
     @client = params[:client_id] ? Client.find(params[:client_id]) : Client.first
     @report = []
-    last_balance = @client.users.map {|user| @client.balance_before_date(@from_date, user)}.reduce(0, :+)
-    @report.push(date: @from_date, last_balance: last_balance, balance: last_balance, type: :sum)
 
+    last_balance = 0
     result = {report: @report, balance: last_balance, check_value: 0}
     (@from_date..@to_date).each do |date|
+      last_balance = @client.users.map {|user| @client.balance_before_date(date, user)}.reduce(0, :+)
+      @report.push(date: date, last_balance: last_balance, balance: last_balance)
       @client.users.each do |user|
         result = ext_customer_trans_detail(date: date, user: user, participant: @client, last_balance: result[:balance], last_check_value: result[:check_value])
         @report += result[:report]
@@ -1035,11 +1036,13 @@ class ReportsController < ApplicationController
     @to_date = Date.parse(params[:to_date])
     @contractor = params[:contractor_id] ? Contractor.find(params[:contractor_id]) : Contractor.first
     @report = []
-    last_balance = @contractor.users.map {|user| @contractor.balance_before_date(@from_date, user)}.reduce(0, :+)
-    @report.push(date: @from_date, last_balance: last_balance, balance: last_balance, type: :sum)
 
+    last_balance = 0
     result = {report: @report, balance: last_balance, check_value: 0}
     (@from_date..@to_date).each do |date|
+      last_balance = @contractor.users.map {|user| @contractor.balance_before_date(date, user)}.reduce(0, :+)
+      @report.push(date: date, last_balance: last_balance, balance: last_balance)
+
       @contractor.users.each do |user|
         result = ext_customer_trans_detail(date: date, user: user, participant: @contractor, last_balance: result[:balance], last_check_value: result[:check_value])
         @report += result[:report]

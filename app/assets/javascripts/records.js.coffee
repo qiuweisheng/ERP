@@ -44,7 +44,15 @@ handle_key_down = (event) ->
 $(document).on "page:change", ->
   $(document).keydown(handle_key_down)
   show_record_input_field()
+
   $('#record_record_type').change ->
     show_record_input_field()
     $('#error_explanation').remove()
     $('.field_with_errors input').unwrap()
+
+  $('#weight input').keyup ->
+    text = ''
+    if /^\d+$/.test($(this).val())
+      value = parseInt($(this).val()) / 26.717
+      text = '' + value.toFixed(4) + '克'
+    $('#weight .gram').html(text)

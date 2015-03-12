@@ -9,7 +9,7 @@ class ReportsController < ApplicationController
       params[:date] ||= Time.now.to_date.strftime("%Y-%m-%d")
       params[:user_id] ||= session[:user_id]
     else
-      params[:date] = Time.now.to_date.strftime("%Y-%m-%d")
+      params[:date] ||= Time.now.to_date.strftime("%Y-%m-%d")
       params[:user_id] = session[:user_id]
     end
   end

@@ -1,6 +1,6 @@
 class ReportsController < ApplicationController
   skip_before_action :need_super_permission
-  prepend_before_action :need_admin_permission, except: [:day_detail, :day_summary, :current_user_balance]
+  prepend_before_action :need_admin_permission, except: [:day_detail, :day_summary, :weight_diff, :current_user_balance]
   before_action :need_login, only: [:day_detail, :day_summary, :current_user_balance]
 
 
@@ -659,7 +659,11 @@ class ReportsController < ApplicationController
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     @report = []
-    @users = Record.users(@to_date)
+    if is_admin_permission? session[:permission]
+      @users = Record.users(@to_date)
+    else
+      @users = [User.find(session[:user_id])]
+    end
     (@from_date..@to_date).each do |date|
       values = []
       @users.each do |user|
@@ -682,7 +686,7 @@ class ReportsController < ApplicationController
       format.html
       format.js
       format.xlsx {
-        filename = "各柜台称差明细汇总表#{@from_date}至#{@to_date}"
+        filename = "柜台称差明细汇总表#{@from_date}至#{@to_date}"
         response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
       }
     end

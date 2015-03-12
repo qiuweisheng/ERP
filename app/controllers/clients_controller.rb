@@ -1,9 +1,10 @@
 class ClientsController < ApplicationController
   include Page
-  self.page_size = 2
+  self.page_size = 20
   
   skip_before_action :need_super_permission
-  prepend_before_action :need_admin_permission
+  prepend_before_action :need_admin_permission, except: [:index, :show]
+  before_action :need_level_3_permission, only: [:index, :show]
   before_action :set_client, only: [:show, :edit, :update, :destroy]
 
   # GET /clients

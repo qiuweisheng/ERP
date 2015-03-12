@@ -55,15 +55,15 @@
         <% end %>
       <% else %>
         <li><%= link_to '我的帐户', user_path(session[:user_id]) %></li>
+        <li><%= link_to '产品', products_path  %></li>
+        <li><%= link_to '部门', departments_path %></li>
+        <li><%= link_to '客户', clients_path %></li>
+        <li><%= link_to '代工客户', contractors_path %></li>
+        <li><%= link_to '配置', profiles_path%></li>
         <% if is_admin_permission? session[:permission] %>
-          <li><%= link_to '产品', products_path  %></li>
-          <li><%= link_to '部门', departments_path %></li>
           <li><%= link_to '用户', users_path %></li>
           <li><%= link_to '员工', employees_path %></li>
-          <li><%= link_to '客户', clients_path %></li>
-          <li><%= link_to '代工客户', contractors_path %></li>
           <li><%= link_to '记录', records_path %></li>
-          <li><%= link_to '配置', profiles_path%></li>
         <% end %>
       <% end %>
     </ul>

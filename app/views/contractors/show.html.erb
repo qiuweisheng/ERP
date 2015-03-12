@@ -21,7 +21,7 @@
     </tr>
     </tbody>
   </table>
-  <% unless @contractor.state == State::STATE_SHADOW %>
+  <% if is_admin_permission? session[:permission] && @contractor.state != State::STATE_SHADOW %>
     <%= link_to '编辑', edit_contractor_path(@contractor) %> |
   <% end %>
   <%= link_to '返回', contractors_path(page: @page) %>

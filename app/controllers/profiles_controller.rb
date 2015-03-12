@@ -1,6 +1,7 @@
 class ProfilesController < ApplicationController
   skip_before_action :need_super_permission
-  prepend_before_action :need_admin_permission
+  prepend_before_action :need_admin_permission, except: [:index]
+  before_action :need_level_3_permission, only: [:index]
   before_action :set_profile, only: [:edit, :update]
 
   # GET /profiles

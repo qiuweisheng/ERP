@@ -11,7 +11,8 @@
     </tr>
     </tbody>
     </table>
-
-  <%= link_to '编辑', edit_department_path(@department) %> |
+  <% if is_admin_permission? session[:permission] %>
+    <%= link_to '编辑', edit_department_path(@department) %> |
+  <% end %>
   <%= link_to '返回', departments_path(page: @page) %>
 </div>

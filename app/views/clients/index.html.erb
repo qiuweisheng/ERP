@@ -5,7 +5,9 @@
 <% end %>
 
 <div class="table_view">
-  <%= link_to '新建客户信息', new_client_path %>
+  <% if is_admin_permission? session[:permission] %>
+    <%= link_to '新建客户信息', new_client_path %>
+  <% end %>
   <table>
     <thead>
       <tr>
@@ -25,12 +27,14 @@
           <td><%= client.serial_number %></td>
           <td><%= client.name %></td>
           <td class="action"><%= link_to '查看', client %></td>
-          <% if client.state == State::STATE_SHADOW %>
-            <td class="action"></td>
-          <% else %>
-            <td class="action"><%= link_to '编辑', edit_client_path(client) %></td>
+          <% if is_admin_permission? session[:permission] %>
+            <% if client.state == State::STATE_SHADOW %>
+              <td class="action"></td>
+            <% else %>
+              <td class="action"><%= link_to '编辑', edit_client_path(client) %></td>
+            <% end %>
+            <td class="action"><%= link_to '删除', client, method: :delete, data: { confirm: "你确定删除客户帐户吗？" } %></td>
           <% end %>
-          <td class="action"><%= link_to '删除', client, method: :delete, data: { confirm: "你确定删除客户帐户吗？" } %></td>
         </tr>
       <% end %>
     </tbody>

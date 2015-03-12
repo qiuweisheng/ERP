@@ -21,7 +21,7 @@
       </tr>
     </tbody>
   </table>
-  <% unless @product.state == State::STATE_SHADOW %>
+  <% if is_admin_permission? session[:permission] && @product.state != State::STATE_SHADOW %>
     <%= link_to '编辑', edit_product_path(@product) %> |
   <% end %>
   <%= link_to '返回', products_path(page: @page) %>

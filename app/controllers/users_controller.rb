@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission, only: [:index, :new, :create, :destroy]
-  prepend_before_action :need_login, only: [:show, :edit]
+  before_action :need_login, only: [:show, :edit]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
   before_action :check_for_admin_or_login_user, only: [:show, :edit]
 

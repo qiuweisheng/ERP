@@ -21,7 +21,7 @@
     </tr>
     </tbody>
   </table>
-  <% unless @client.state == State::STATE_SHADOW %>
+  <% if is_admin_permission? session[:permission] && @client.state != State::STATE_SHADOW %>
     <%= link_to '编辑', edit_client_path(@client) %> |
   <% end %>
   <%= link_to '返回', clients_path(page: @page) %>

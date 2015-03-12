@@ -1,6 +1,7 @@
 class ReportsController < ApplicationController
   skip_before_action :need_super_permission
   prepend_before_action :need_admin_permission, except: [:day_detail, :day_summary, :weight_diff, :current_user_balance]
+  before_action :need_level_3_permission, only:[:day_detail, :day_summary, :weight_diff, :current_user_balance]
   before_action :need_login, only: [:day_detail, :day_summary, :current_user_balance]
 
 

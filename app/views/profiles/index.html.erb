@@ -10,7 +10,9 @@
     <tr>
       <th>名称</th>
       <th>值</th>
-      <th class="action">操作</th>
+      <% if is_admin_permission? session[:permission] %>
+        <th class="action">操作</th>
+      <% end %>
     </tr>
     </thead>
 
@@ -21,7 +23,9 @@
         <tr>
           <td><%= name %></td>
           <td><%= profile.value %></td>
-          <td class="action"><%= link_to '编辑', edit_profile_path(profile) %></td>
+          <% if is_admin_permission? session[:permission] %>
+            <td class="action"><%= link_to '编辑', edit_profile_path(profile) %></td>
+          <% end %>
         </tr>
       <% end %>
     <% end %>

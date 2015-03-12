@@ -1,5 +1,7 @@
 <div class="table_view">
-  <%= link_to '新建部门', new_department_path %>
+  <% if is_admin_permission? session[:permission] %>
+    <%= link_to '新建部门', new_department_path %>
+  <% end %>
   
   <table>
     <thead>
@@ -16,8 +18,10 @@
           <td><%= department.serial_number %></td>
           <td><%= department.name %></td>
           <td class="action"><%= link_to '查看', department %></td>
-          <td class="action"><%= link_to '编辑', edit_department_path(department) %></td>
-          <td class="action"><%= link_to '删除', department, method: :delete, data: { confirm: '你确定删除部门信息？' } %></td>
+          <% if is_admin_permission? session[:permission] %>
+            <td class="action"><%= link_to '编辑', edit_department_path(department) %></td>
+            <td class="action"><%= link_to '删除', department, method: :delete, data: { confirm: '你确定删除部门信息？' } %></td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>

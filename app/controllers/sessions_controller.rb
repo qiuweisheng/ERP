@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
 
   def create
     @user = User.find_by(serial_number: params[:serial_number])
-    if @user #and @user.authenticate(params[:password])
+    if @user and @user.authenticate(params[:password])
       redirect_to_main_page @user
       session[:user_id] = @user.id
       session[:permission] = @user.permission

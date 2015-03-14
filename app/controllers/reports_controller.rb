@@ -518,7 +518,7 @@ class ReportsController < ApplicationController
           @report.push attr
         end
 
-        weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
+        weight_sum = records.sum('weight')
         attr = {
             employee_name: '合计',
             produce_weight: weight_sum,
@@ -566,7 +566,7 @@ class ReportsController < ApplicationController
           }
           @report.push attr
         end
-        weight_sum = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, product, Employee.name, Record::TYPE_RECEIVE).sum('weight')
+        weight_sum = records.sum('weight')
         attr = {
             product_name: '合计',
             produce_weight: weight_sum,
@@ -609,8 +609,8 @@ class ReportsController < ApplicationController
         products.each_with_index do |product, i|
           records = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product)
           unless records.size <= 0
-            sum = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product).sum('weight')
-            count = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product).sum('count')
+            sum = records.sum('weight')
+            count = records.sum('count')
             attr = {
                 employee_name: (i==0)? employee.name: '',
                 date: date,

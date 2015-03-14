@@ -6,7 +6,7 @@
     </tr>
     <tr>
       <th>外工厂</th>
-      <th><%= @contractor.name %></th>
+      <th><%= @contractor == nil ? '' : @contractor.name %></th>
       <th colspan="4">日期：<%= @from_date.strftime("%Y-%m-%d") %> 至 <%= @to_date.strftime("%Y-%m-%d") %></th>
       <th colspan="4"></th>
     </tr>

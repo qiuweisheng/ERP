@@ -6,7 +6,7 @@
     </tr>
     <tr>
       <th>客户</th>
-      <th><%= @client.name %></th>
+      <th><%= @client==nil ? '' :@client.name %></th>
       <th colspan="4">日期：<%= @from_date.strftime("%Y-%m-%d") %> 至 <%= @to_date.strftime("%Y-%m-%d") %></th>
       <th colspan="4"></th>
     </tr>

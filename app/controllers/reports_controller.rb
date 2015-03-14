@@ -518,7 +518,7 @@ class ReportsController < ApplicationController
           @report.push attr
         end
 
-        weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
+        weight_sum = records.sum('weight')
         attr = {
             employee_name: '合计',
             produce_weight: weight_sum,
@@ -566,7 +566,7 @@ class ReportsController < ApplicationController
           }
           @report.push attr
         end
-        weight_sum = Record.where('date >= ? AND date <= ? AND product_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, product, Employee.name, Record::TYPE_RECEIVE).sum('weight')
+        weight_sum = records.sum('weight')
         attr = {
             product_name: '合计',
             produce_weight: weight_sum,
@@ -609,8 +609,8 @@ class ReportsController < ApplicationController
         products.each_with_index do |product, i|
           records = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product)
           unless records.size <= 0
-            sum = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product).sum('weight')
-            count = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product).sum('count')
+            sum = records.sum('weight')
+            count = records.sum('count')
             attr = {
                 employee_name: (i==0)? employee.name: '',
                 date: date,
@@ -877,29 +877,32 @@ class ReportsController < ApplicationController
   end
 
   def client_transactions_detail
+    @report = []
     check_date_range_and_client_param
     @from_date = Date.parse(params[:from_date])
     @to_date = Date.parse(params[:to_date])
     @client = params[:client_id] ? Client.find(params[:client_id]) : Client.first
-    @report = []
-
-    last_balance = 0
-    result = {report: @report, balance: last_balance, check_value: 0}
-    (@from_date..@to_date).each do |date|
-      last_balance = @client.users.map {|user| @client.balance_before_date(date, user)}.reduce(0, :+)
-      @report.push(date: date, last_balance: last_balance, balance: last_balance)
-      @client.users.each do |user|
-        result = ext_customer_trans_detail(date: date, user: user, participant: @client, last_balance: result[:balance], last_check_value: result[:check_value])
-        @report += result[:report]
+    @clientname
+    if (@client != nil)
+      @clientname = @client.name
+      last_balance = 0
+      result = {report: @report, balance: last_balance, check_value: 0}
+      (@from_date..@to_date).each do |date|
+        last_balance = @client.users.map {|user| @client.balance_before_date(date, user)}.reduce(0, :+)
+        @report.push(date: date, last_balance: last_balance, balance: last_balance)
+        @client.users.each do |user|
+          result = ext_customer_trans_detail(date: date, user: user, participant: @client, last_balance: result[:balance], last_check_value: result[:check_value])
+          @report += result[:report]
+        end
       end
+      @report += ext_customer_trans_summary(participant: @client, from_date: @from_date, to_date: @to_date, last_balance: last_balance, balance: result[:balance])
     end
-    @report += ext_customer_trans_summary(participant: @client, from_date: @from_date, to_date: @to_date, last_balance: last_balance, balance: result[:balance])
 
     respond_to do |format|
       format.html
       format.js
       format.xlsx {
-        filename = "客户(#{@client.name})往来台帐(明细)#{@from_date}至#{@to_date}"
+        filename = "客户(#{@clientname})往来台帐(明细)#{@from_date}至#{@to_date}"
         response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
       }
     end
@@ -1036,30 +1039,33 @@ class ReportsController < ApplicationController
   end
 
   def contractor_transactions_detail
+    @report = []
     check_date_range_and_contractor_param
     @from_date = Date.parse(params[:from_date])
     @to_date = Date.parse(params[:to_date])
     @contractor = params[:contractor_id] ? Contractor.find(params[:contractor_id]) : Contractor.first
-    @report = []
+    @contractorname = ''
+    if (@contractor != nil)
+      @contractorname = @contractor.name
+      last_balance = 0
+      result = {report: @report, balance: last_balance, check_value: 0}
+      (@from_date..@to_date).each do |date|
+        last_balance = @contractor.users.map {|user| @contractor.balance_before_date(date, user)}.reduce(0, :+)
+        @report.push(date: date, last_balance: last_balance, balance: last_balance)
 
-    last_balance = 0
-    result = {report: @report, balance: last_balance, check_value: 0}
-    (@from_date..@to_date).each do |date|
-      last_balance = @contractor.users.map {|user| @contractor.balance_before_date(date, user)}.reduce(0, :+)
-      @report.push(date: date, last_balance: last_balance, balance: last_balance)
-
-      @contractor.users.each do |user|
-        result = ext_customer_trans_detail(date: date, user: user, participant: @contractor, last_balance: result[:balance], last_check_value: result[:check_value])
-        @report += result[:report]
+        @contractor.users.each do |user|
+          result = ext_customer_trans_detail(date: date, user: user, participant: @contractor, last_balance: result[:balance], last_check_value: result[:check_value])
+          @report += result[:report]
+        end
       end
+      @report += ext_customer_trans_summary(participant: @contractor, from_date: @from_date, to_date: @to_date, last_balance: last_balance, balance: result[:balance])
     end
-    @report += ext_customer_trans_summary(participant: @contractor, from_date: @from_date, to_date: @to_date, last_balance: last_balance, balance: result[:balance])
 
     respond_to do |format|
       format.html
       format.js
       format.xlsx {
-        filename = "外工厂(#{@contractor.name})往来台帐(明细)#{@from_date}至#{@to_date}"
+        filename = "外工厂(#{@contractorname})往来台帐(明细)#{@from_date}至#{@to_date}"
         response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
       }
     end

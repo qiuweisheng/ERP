@@ -154,7 +154,7 @@ class Record < ActiveRecord::Base
   scope :between_date_exclusive, lambda {|begin_date, end_date| where('date > ? AND date < ?', begin_date, end_date)}
   scope :between_date, lambda {|begin_date, end_date| where('date >= ? AND date <= ?', begin_date, end_date)}
   scope :created_by_user, lambda {|user| where("user_id = ?", user)}
-  scope :of_participant, lambda {|participant| where("participant_id = ?", participant)}
+  scope :of_participant, lambda {|participant| where("participant_id = ? AND participant_type = ?", participant, participant.class.name)}
   scope :of_participant_type, lambda {|participant_class| where("participant_type = ?", participant_class.name)}
   scope :of_not_participant_type, lambda {|participant_class| where("participant_type != ?", participant_class.name)}
 end

@@ -17,7 +17,7 @@ class RecordsController < ApplicationController
       @prev_page, @next_page = prev_and_next_page(params[:page], Record.count)
     else
       @no_side_bar = true
-      relations = Record.where('user_id = ? OR participant_id = ?', session[:user_id], session[:user_id])
+      relations = Record.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', session[:user_id], session[:user_id], 'User')
       @records = relations.order('created_at DESC').limit(page_size).offset(offset(params[:page]))
       @prev_page, @next_page = prev_and_next_page(params[:page], relations.count)
     end
@@ -29,7 +29,7 @@ class RecordsController < ApplicationController
     if is_admin_permission? session[:permission]
       index = Record.where('created_at >= ?', @record.created_at).count
     else
-      index = Record.where('created_at >= ? and (user_id = ? OR participant_id = ?)', @record.created_at, session[:user_id], session[:user_id]).count
+      index = Record.where('created_at >= ? and (user_id = ? OR (participant_id = ? AND participant_type = ?))', @record.created_at, session[:user_id], session[:user_id], 'User').count
     end
     @page = index_to_page(index)
   end

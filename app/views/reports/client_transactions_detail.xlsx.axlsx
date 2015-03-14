@@ -8,7 +8,7 @@ workbook.styles do |style|
     sheet.add_row([
     "客户往来台帐（明细）", "", "", "", "",
      "", "", "", "", ""], style: head_style)
-    sheet.add_row(["客户", "#{@client.name}", "日期：#{@from_date.strftime("%Y-%m-%d")} 至 #{@to_date.strftime("%Y-%m-%d")}",
+    sheet.add_row(["客户", "#{@clientname}", "日期：#{@from_date.strftime("%Y-%m-%d")} 至 #{@to_date.strftime("%Y-%m-%d")}",
      "", "", "", "", "", "", ""], style: time_style)
     sheet.add_row(["日期", "柜台", "摘要", "上期余额", "交与", "收回", "退货", "称差", "余额", "盘点值"], :style => sum_style)
     @report.each do |report|

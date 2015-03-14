@@ -52,7 +52,7 @@ class RecordsController < ApplicationController
 
     respond_to do |format|
       if @record.save
-        format.html { redirect_to new_record_url, notice: '记录创建成功' }
+        format.html { redirect_to new_record_url(record: @record), notice: '记录创建成功' }
         format.json { render :show, status: :created, location: @record }
       else
         format.html { render :new }

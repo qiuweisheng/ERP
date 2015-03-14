@@ -503,7 +503,7 @@ class ReportsController < ApplicationController
     end
     @report = []
     employees.each do |employee|
-      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE)
+      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, employee, Employee.name, Record::TYPE_RECEIVE)
 
       unless records.size <= 0
         records.each_with_index do |record, i|
@@ -602,7 +602,7 @@ class ReportsController < ApplicationController
     @report = []
     employees.each do |employee|
       (@from_date..@to_date).each do |date|
-        products = Record.where('date = ? AND participant_id = ? AND record_type = ?', date, employee, Record::TYPE_RECEIVE).group('product_id').collect do |record|
+        products = Record.where('date = ? AND participant_id = ? AND participant_type = ? AND record_type = ?', date, employee, Employee.name, Record::TYPE_RECEIVE).group('product_id').collect do |record|
           record.product
         end
 

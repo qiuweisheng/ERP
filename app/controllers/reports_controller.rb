@@ -607,7 +607,7 @@ class ReportsController < ApplicationController
         end
 
         products.each_with_index do |product, i|
-          records = Record.where('date = ? AND participant_id = ? AND record_type = ? AND product_id = ?', date, employee, Record::TYPE_RECEIVE, product)
+          records = Record.where('date = ? AND participant_id = ? AND participant_type = ? AND record_type = ? AND product_id = ?', date, employee, Employee.name, Record::TYPE_RECEIVE, product)
           unless records.size <= 0
             sum = records.sum('weight')
             count = records.sum('count')
@@ -626,7 +626,7 @@ class ReportsController < ApplicationController
       end
 
       # for each employee,each product, calc the sum of weight
-      weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND record_type = ?', @from_date, @to_date, employee, Record::TYPE_RECEIVE).sum('weight')
+      weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, employee, Employee.name, Record::TYPE_RECEIVE).sum('weight')
       unless weight_sum == 0
         attr = {
             employee_name: '合计',
@@ -712,7 +712,7 @@ class ReportsController < ApplicationController
     @clients = Record.clients(@to_date)
     @clients.each do |client|
       (@from_date..@to_date).each do |date|
-        weight_diff = Record.where('date = ? AND participant_id = ? AND record_type = ?', date, client, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+        weight_diff = Record.where('date = ? AND participant_id = ? AND participant_type = ? AND record_type = ?', date, client, Client.name, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
         attr = {
             date: date.strftime('%Y-%m-%d'),
             client_name: client.name,
@@ -720,7 +720,7 @@ class ReportsController < ApplicationController
         }
         @report.push attr
       end
-      weight_diff = Record.where('date >= ? AND date <= ?AND participant_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
+      weight_diff = Record.where('date >= ? AND date <= ?AND participant_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, client, Client.name, Record::TYPE_WEIGHT_DIFFERENCE).sum('weight')
       attr = {
           date: '合计',
           value: weight_diff,

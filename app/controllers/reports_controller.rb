@@ -1355,7 +1355,7 @@ User.class_eval do
   end
 
   def participants(date)
-    self.records.at_date(date).group('participant_id').collect  { |r| r.participant }.select {|p| p != self}
+    self.records.at_date(date).group('participant_id, participant_type').collect  { |r| r.participant }.select {|p| p != self}
     # group = self.records.at_date(date).group('participant_id')
     #           .collect  { |r| r.participant }
     #           .group_by { |p| p.class }

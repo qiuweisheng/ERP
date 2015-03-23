@@ -1,0 +1,28 @@
+<div class="report">
+  <table>
+    <thead>
+      <tr class="title">
+        <th colspan="9">打磨统计表（品种）</th>
+      </tr>
+    </thead>
+    <tbody>
+    <% @report.each do |report| %>
+        <% if report[:type] %>
+            <tr class="<%= report[:type] %>">
+        <% else %>
+            <tr>
+        <% end %>
+        <td ><%=report[:date] %></td>
+        <td><%= report[:product_name] %></td>
+        <td><%= report[:order_number] %></td>
+        <td><%= report[:weight] %></td>
+        <td><%= report[:count] %></td>
+        <td><%= report[:user] %></td>
+        <td><%= report[:participant] %></td>
+        <td><%= report[:employee_name] %></td>
+        <td><%= report[:client] %></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>

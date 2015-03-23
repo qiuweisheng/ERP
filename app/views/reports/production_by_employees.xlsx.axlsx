@@ -15,7 +15,7 @@ workbook.styles do |style|
           "#{report[:employee_name]}",
           "#{report[:date]}",
           "#{report[:product_name]}",
-          "#{report[:produce_weight]}",
+          "#{report[:product_weight]}",
           "#{report[:product_num]}",
           "#{report[:product_per_employee]}"
           ])

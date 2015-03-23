@@ -511,7 +511,7 @@ class ReportsController < ApplicationController
               employee_name: (i==0) ? employee.name : '',
               date: record.date,
               product_name: (record.product == nil) ? ('') : (record.product.name),
-              produce_weight: record.weight,
+              product_weight: record.weight,
               product_num: record.count,
               product_per_employee: "%.2f" % [record.weight/employee.colleague_number]
           }
@@ -521,7 +521,7 @@ class ReportsController < ApplicationController
         weight_sum = records.sum('weight')
         attr = {
             employee_name: '合计',
-            produce_weight: weight_sum,
+            product_weight: weight_sum,
             product_per_employee: "%.2f" % [weight_sum/employee.colleague_number],
             type: :total
         }
@@ -532,7 +532,7 @@ class ReportsController < ApplicationController
     weight_sum = Record.where('date >= ? AND date <= ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, Employee.name, Record::TYPE_RECEIVE).sum('weight')
     attr = {
         employee_name: '总计',
-        produce_weight: weight_sum,
+        product_weight: weight_sum,
         type: :total
     }
     @report.push attr
@@ -560,7 +560,7 @@ class ReportsController < ApplicationController
               product_name: (i==0) ? product.name : '',
               date: record.date,
               employee_name: (record.participant == nil) ? ('') : (record.participant.name),
-              produce_weight: record.weight,
+              product_weight: record.weight,
               product_num: record.count,
               product_per_employee: (record.participant == nil) ? ('') : ("%.2f" % [record.weight/record.participant.colleague_number])
           }
@@ -569,7 +569,7 @@ class ReportsController < ApplicationController
         weight_sum = records.sum('weight')
         attr = {
             product_name: '合计',
-            produce_weight: weight_sum,
+            product_weight: weight_sum,
             type: :total
         }
         @report.push attr
@@ -579,7 +579,7 @@ class ReportsController < ApplicationController
     weight_sum = Record.where('date >= ? AND date <= ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, Employee.name, Record::TYPE_RECEIVE).sum('weight')
     attr = {
         product_name: '总计',
-        produce_weight: weight_sum,
+        product_weight: weight_sum,
         type: :total
     }
     @report.push attr
@@ -615,7 +615,7 @@ class ReportsController < ApplicationController
                 employee_name: (i==0)? employee.name: '',
                 date: date,
                 product_name: (records[0].product == nil) ? ('') : (records[0].product.name),
-                produce_weight: sum,
+                product_weight: sum,
                 product_num: count,
                 product_per_employee: "%.2f" % [sum/employee.colleague_number]
             }
@@ -630,7 +630,7 @@ class ReportsController < ApplicationController
       unless weight_sum == 0
         attr = {
             employee_name: '合计',
-            produce_weight: weight_sum,
+            product_weight: weight_sum,
             product_per_employee: "%.2f" % [weight_sum/employee.colleague_number],
             type: :sum
         }
@@ -641,7 +641,7 @@ class ReportsController < ApplicationController
     weight_sum = Record.where('date >= ? AND date <= ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, Employee.name, Record::TYPE_RECEIVE).sum('weight')
     attr = {
         employee_name: '总计',
-        produce_weight: weight_sum,
+        product_weight: weight_sum,
         type: :total
     }
     @report.push attr

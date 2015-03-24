@@ -14,7 +14,8 @@ workbook.styles do |style|
         date_row << report[:date]
         date_row << report[:client]
         date_row << report[:product_name]
-        date_row << report[:weight]
+        date_row << report[:rev_weight]
+        date_row << report[:dis_weight]
         date_row << report[:count]
         if report[:type]
             sheet.add_row(date_row, style: sum_cell)
@@ -23,7 +24,7 @@ workbook.styles do |style|
         end
     end
     #merge
-    sheet.merge_cells("A1:E1")
-    sheet.merge_cells("A2:E2")
+    sheet.merge_cells("A1:F1")
+    sheet.merge_cells("A2:F2")
   end
 end

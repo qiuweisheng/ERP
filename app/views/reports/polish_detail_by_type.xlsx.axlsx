@@ -14,8 +14,10 @@ workbook.styles do |style|
         date_row << report[:date]
         date_row << report[:product_name]
         date_row << report[:order_number]
-        date_row << report[:weight]
-        date_row << report[:count]
+        date_row << report[:rev_weight]
+        date_row << report[:dis_weight]
+        date_row << report[:rev_count]
+        date_row << report[:dis_count]
         date_row << report[:user]
         date_row << report[:participant]
         date_row << report[:employee_name]
@@ -27,7 +29,7 @@ workbook.styles do |style|
         end
     end
     #merge
-    sheet.merge_cells("A1:I1")
-    sheet.merge_cells("A2:I2")
+    sheet.merge_cells("A1:K1")
+    sheet.merge_cells("A2:K2")
   end
 end

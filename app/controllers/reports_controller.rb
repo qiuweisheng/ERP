@@ -661,14 +661,15 @@ class ReportsController < ApplicationController
     attr = {
         date: '日期',
         product_name: '摘要',
-        weight: '重量',
-        count: '件数',
+        dis_weight: '打磨发货',
+        rev_weight: '打磨收货',
+        dis_count: '发货件数',
+        rev_count: '收货件数',
         user: '柜台',
         participant: '交收人',
         order_number: '单号',
         employee_name: '生产者',
-        client: '客户',
-        type: :total
+        client: '客户'
     }
     @report.push attr
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
@@ -676,14 +677,15 @@ class ReportsController < ApplicationController
     products = Product.all
 
     products.each do |product|
-      records = Record.where('date >= ? AND date <= ? AND product_id = ? AND record_type = ?', @from_date, @to_date, product, Record::TYPE_POLISH_DISPATCH)
-      if (records != nil) && (records.size > 0)
-        records.each_with_index do |record, i|
+      records = Record.where('date >= ? AND date <= ? AND product_id = ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, product, Record::TYPE_POLISH_RECEIVE, Record::TYPE_POLISH_DISPATCH)
+      rev_records = records.where('record_type = ?', Record::TYPE_POLISH_RECEIVE)
+      if (rev_records != nil) && (rev_records.size > 0)
+        rev_records.each_with_index do |record, i|
           attr = {
               date: record.date.strftime("%Y-%m-%d"),
               product_name: (i==0) ? product.name : '',
-              weight: record.weight,
-              count: record.count,
+              rev_weight: record.weight,
+              rev_count: record.count,
               user: record.user.name,
               participant: record.participant.name,
               order_number: record.order_number,
@@ -692,23 +694,48 @@ class ReportsController < ApplicationController
           }
           @report.push attr
         end
-        weight_sum = records.sum('weight')
-        count_sum = records.sum('count')
-        attr = {
-            date: '合计',
-            product_name: product.name,
-            weight: weight_sum,
-            count: count_sum,
-            type: :sum
-        }
-        @report.push attr
       end
+      dis_records = records.where('record_type = ?', Record::TYPE_POLISH_DISPATCH)
+      if (dis_records != nil) && (dis_records.size > 0)
+        dis_records.each_with_index do |record, i|
+          attr = {
+              date: record.date.strftime("%Y-%m-%d"),
+              product_name: (i==0) ? product.name : '',
+              dis_weight: record.weight,
+              dis_count: record.count,
+              user: record.user.name,
+              participant: record.participant.name,
+              order_number: record.order_number,
+              employee_name: (record.participant == nil) ? ('') : (record.participant.name),
+              client: record.client.name
+          }
+          @report.push attr
+        end
+      end
+      rev_weight_sum = rev_records.sum('weight')
+      rev_count_sum = rev_records.sum('count')
+      dis_weight_sum = dis_records.sum('weight')
+      dis_count_sum = dis_records.sum('count')
+      attr = {
+          date: '合计',
+          product_name: product.name,
+          rev_weight: rev_weight_sum,
+          rev_count: rev_count_sum,
+          dis_weight: dis_weight_sum,
+          dis_count: dis_count_sum,
+          type: :sum
+      }
+      @report.push attr if(rev_weight_sum!=0 or dis_weight_sum!=0)
     end
-    records = Record.where('date >= ? AND date <= ? AND record_type = ?', @from_date, @to_date, Record::TYPE_POLISH_DISPATCH)
-    weight_total = records.sum('weight')
+    records = Record.where('date >= ? AND date <= ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, Record::TYPE_POLISH_DISPATCH, Record::TYPE_POLISH_RECEIVE)
+    dis_records = records.where('record_type = ?', Record::TYPE_POLISH_DISPATCH)
+    dis_weight_total = dis_records.sum('weight')
+    rev_records =records.where('record_type = ?', Record::TYPE_POLISH_RECEIVE)
+    rev_weight_total = rev_records.sum('weight')
     attr = {
         date: '总计',
-        weight: weight_total,
+        dis_weight: dis_weight_total,
+        rev_weight: rev_weight_total,
         type: :total
     }
     @report.push attr
@@ -729,26 +756,26 @@ class ReportsController < ApplicationController
         client: '客户',
         product_name: '摘要',
         order_number: '单号',
-        weight: '重量',
+        rev_weight: '打磨收货',
+        dis_weight: '打磨发货',
         count: '件数',
         user: '柜台',
         participant: '交收人',
-        employee_name: '生产者',
-        type: :total
+        employee_name: '生产者'
     }
     @report.push attr
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     clients = Client.all
-    contractors = Contractor.all
     clients.each do |client|
-      records = Record.where('date >= ? AND date <= ? AND client_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_POLISH_DISPATCH)
-      if (records != nil) && (records.size > 0)
-        records.each_with_index do |record, i|
+      records = Record.where('date >= ? AND date <= ? AND client_id = ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, client, Record::TYPE_POLISH_RECEIVE, Record::TYPE_POLISH_DISPATCH)
+      rev_records = records.where('record_type = ?', Record::TYPE_POLISH_RECEIVE)
+      if (rev_records != nil)
+        rev_records.each_with_index do |record, i|
           attr = {
               date: record.date.strftime("%Y-%m-%d"),
               product_name: (record.product == nil) ? ('') : (record.product.name),
-              weight: record.weight,
+              rev_weight: record.weight,
               count: record.count,
               user: record.user.name,
               participant: record.participant.name,
@@ -758,21 +785,44 @@ class ReportsController < ApplicationController
           }
           @report.push attr
         end
-        weight_sum = records.sum('weight')
-        attr = {
-            date: '合计',
-            client: client.name,
-            weight: weight_sum,
-            type: :sum
-        }
-        @report.push attr
       end
+      dis_records = records.where('record_type = ?', Record::TYPE_POLISH_DISPATCH)
+      if (dis_records != nil)
+        dis_records.each_with_index do |record, i|
+          attr = {
+              date: record.date.strftime("%Y-%m-%d"),
+              product_name: (record.product == nil) ? ('') : (record.product.name),
+              dis_weight: record.weight,
+              count: record.count,
+              user: record.user.name,
+              participant: record.participant.name,
+              order_number: record.order_number,
+              employee_name: (record.participant == nil) ? ('') : (record.participant.name),
+              client: client.name
+          }
+          @report.push attr
+        end
+      end
+      rev_weight_sum = rev_records.sum('weight')
+      dis_weight_sum = dis_records.sum('weight')
+      attr = {
+          date: '合计',
+          client: client.name,
+          rev_weight: rev_weight_sum,
+          dis_weight: dis_weight_sum,
+          type: :sum
+      }
+      @report.push attr if(rev_weight_sum != 0 or dis_weight_sum != 0)
     end
-    records = Record.where('date >= ? AND date <= ? AND record_type = ?', @from_date, @to_date, Record::TYPE_POLISH_DISPATCH)
-    weight_total = records.sum('weight')
+    records = Record.where('date >= ? AND date <= ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, Record::TYPE_POLISH_DISPATCH, Record::TYPE_POLISH_RECEIVE)
+    dis_records = records.where('record_type = ?', Record::TYPE_POLISH_DISPATCH)
+    dis_weight_total = dis_records.sum('weight')
+    rev_records = records.where('record_type = ?', Record::TYPE_POLISH_RECEIVE)
+    rev_weight_total = rev_records.sum('weight')
     attr = {
         date: '总计',
-        weight: weight_total,
+        dis_weight: dis_weight_total,
+        rev_weight: rev_weight_total,
         type: :total
     }
     @report.push attr
@@ -793,12 +843,12 @@ class ReportsController < ApplicationController
         client: '客户',
         product_name: '摘要',
         order_number: '单号',
-        weight: '重量',
+        rev_weight: '打磨收货',
+        dis_weight: '打磨发货',
         count: '件数',
         user: '柜台',
         participant: '交收人',
-        employee_name: '生产者',
-        type: :total
+        employee_name: '生产者'
     }
     @report.push attr
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
@@ -806,43 +856,68 @@ class ReportsController < ApplicationController
     clients = Client.all
     clients.each do |client|
       (@from_date..@to_date).each do |date|
-        products = Record.where('date = ? AND client_id = ? AND record_type = ?', date, client, Record::TYPE_POLISH_DISPATCH).group('product_id').collect do |record|
+        records = Record.where('date = ? AND client_id = ? AND (record_type = ? OR record_type = ?)', date, client, Record::TYPE_POLISH_RECEIVE, Record::TYPE_POLISH_DISPATCH)
+        products = records.group('product_id').collect do |record|
           record.product
         end
-        puts products.size
         products.each_with_index do |product, i|
-          records = Record.where('date = ? AND client_id = ? AND record_type = ? AND product_id = ?', date, client, Record::TYPE_POLISH_DISPATCH, product)
-          unless records.size <= 0
-            wight_sum = records.sum('weight')
-            count_sum = records.sum('count')
+          rev_records = records.where('record_type = ? AND product_id = ?', Record::TYPE_POLISH_RECEIVE, product)
+          unless rev_records.size <= 0
+            rev_wight_sum = rev_records.sum('weight')
+            count_sum = rev_records.sum('count')
             attr = {
                 date: date.strftime("%Y-%m-%d"),
                 client: i==0 ? client.name : '',
                 product_name: product.name,
-                weight: wight_sum,
+                rev_weight: rev_wight_sum,
+                count: count_sum
+            }
+            @report.push attr
+          end
+          dis_records = records.where('record_type = ? AND product_id = ?', Record::TYPE_POLISH_DISPATCH, product)
+          unless dis_records.size <= 0
+            dis_wight_sum = dis_records.sum('weight')
+            count_sum = dis_records.sum('count')
+            attr = {
+                date: date.strftime("%Y-%m-%d"),
+                client: i==0 ? client.name : '',
+                product_name: product.name,
+                dis_weight: dis_wight_sum,
                 count: count_sum
             }
             @report.push attr
           end
         end
       end
-      records = Record.where('date >= ? AND date <= ? AND client_id = ? AND record_type = ?', @from_date, @to_date, client, Record::TYPE_POLISH_DISPATCH)
-      unless records.size <= 0
-        wight_sum = records.sum('weight')
-        attr = {
-            date: '合计',
-            client: client.name,
-            weight: wight_sum,
-            type: :sum
-        }
-        @report.push attr
+      records = Record.where('date >= ? AND date <= ? AND client_id = ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, client, Record::TYPE_POLISH_RECEIVE, Record::TYPE_POLISH_DISPATCH)
+      rev_records = records.where('record_type = ?',  Record::TYPE_POLISH_RECEIVE)
+      dis_records = records.where('record_type = ?',  Record::TYPE_POLISH_DISPATCH)
+      rev_wight_sum = 0
+      dis_wight_sum = 0
+      if rev_records != nil
+        rev_wight_sum = rev_records.sum('weight')
       end
+      if dis_records != nil
+        dis_wight_sum = dis_records.sum('weight')
+      end
+      attr = {
+          date: '合计',
+          client: client.name,
+          rev_weight: rev_wight_sum,
+          dis_weight: dis_wight_sum,
+          type: :sum
+      }
+      @report.push attr if(rev_wight_sum != 0 or dis_wight_sum != 0)
     end
-    records = Record.where('date >= ? AND date <= ? AND record_type = ?', @from_date, @to_date, Record::TYPE_POLISH_DISPATCH)
-    weight_total = records.sum('weight')
+    records = Record.where('date >= ? AND date <= ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, Record::TYPE_POLISH_DISPATCH, Record::TYPE_POLISH_RECEIVE)
+    dis_records = records.where('record_type = ?', Record::TYPE_POLISH_DISPATCH)
+    dis_weight_total = dis_records.sum('weight')
+    rev_records = records.where('record_type = ?', Record::TYPE_POLISH_RECEIVE)
+    rev_weight_total = rev_records.sum('weight')
     attr = {
         date: '总计',
-        weight: weight_total,
+        dis_weight: dis_weight_total,
+        rev_weight: rev_weight_total,
         type: :total
     }
     @report.push attr

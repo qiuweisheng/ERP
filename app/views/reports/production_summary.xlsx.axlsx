@@ -4,7 +4,7 @@ workbook.styles do |style|
   time_style = style.add_style alignment: { horizontal: :center }
   sum_style =  style.add_style  :bg_color => "0000FF", :fg_color => "FF", :sz => 12, :alignment => { :horizontal=> :center }
   value_style = style.add_style alignment: { horizontal: :center }
-  workbook.add_worksheet(name: "生产统计表(汇总)") do |sheet|
+  workbook.add_worksheet(name: "生产统计表（汇总）") do |sheet|
     sheet.add_row(["生产统计表（汇总）", "", "", "", "", ""], style: head_style)
     sheet.add_row(["日期：#{@from_date.strftime("%Y-%m-%d")} 至 #{@to_date.strftime("%Y-%m-%d")}",
      "", "", "", "", ""], style: time_style)

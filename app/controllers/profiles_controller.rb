@@ -8,6 +8,7 @@ class ProfilesController < ApplicationController
   # GET /profiles.json
   def index
     Profile.create_if_needed('month_check_date', Profile::INTEGER_TYPE)
+    Profile.create_if_needed('data_precision', Profile::INTEGER_TYPE)
     @profiles = Profile.all
   end
 

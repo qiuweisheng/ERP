@@ -3,6 +3,8 @@ module ProfilesHelper
     case profile.key
       when 'month_check_date'
         '月盘点日'
+      when'data_precision'
+        '小数位'
       else
         ''
     end

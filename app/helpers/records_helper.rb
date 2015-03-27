@@ -22,10 +22,22 @@ module RecordsHelper
       [name, type]
     end
   end
-  
+
+  def record_type_options_all
+    record_type_map = []
+    record_type_map << ['全部', -1]
+    record_type_map += record_type_options
+  end
+
   def user_options
     User.all.reject  { |user| is_admin_permission? user.permission }
             .collect { |user| [user.name, user.id] }
+  end
+
+  def user_options_all
+    user_map = []
+    user_map << ['全部', -1]
+    user_map += user_options
   end
 
   %w[product user employee client].each do |name|

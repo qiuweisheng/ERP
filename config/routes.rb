@@ -27,6 +27,8 @@ Rails.application.routes.draw do
   get '/reports/contractor_transactions_detail' => 'reports#contractor_transactions_detail'
   get '/reports/goods_flow' => 'reports#goods_flow'
 
+  get '/records/index' => 'records#index'
+
   resources :contractors
 
   resources :departments

@@ -30,13 +30,13 @@
       <tr>
       <% end %>
         <td><%= report[:name] %></td>
-        <td><%= report[:last_balance] %></td>
-        <td><%= report[:dispatch_value] %></td>
-        <td><%= report[:receive_value] %></td>
-        <td><%= report[:balance] %></td>
-        <td><%= report[:checked_balance_at_date] %></td>
-        <td><%= report[:depletion] %></td>
-        <td><%= report[:difference] %></td>
+        <td><%= data_with_precision(report[:last_balance]) %></td>
+        <td><%= data_with_precision(report[:dispatch_value]) %></td>
+        <td><%= data_with_precision(report[:receive_value]) %></td>
+        <td><%= data_with_precision(report[:balance]) %></td>
+        <td><%= data_with_precision(report[:checked_balance_at_date]) %></td>
+        <td><%= data_with_precision(report[:depletion]) %></td>
+        <td><%= data_with_precision(report[:difference]) %></td>
       </tr>
     <% end %>
     </tbody>

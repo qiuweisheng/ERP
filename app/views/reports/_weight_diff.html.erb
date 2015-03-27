@@ -23,14 +23,14 @@
         <% end %>
           <td><%= report[:name] %></td>
           <% report[:values].each do |value| %>
-            <td><%= value %></td>
+            <td><%= data_with_precision(value) %></td>
           <% end %>
         </tr>
       <% end %>
         <tr class="total">
           <td>总计</td>
           <td colspan="<%= @users.size %>">
-          <%= @report[-1][:values].reduce { |sum, item| sum + item } %>
+          <%= data_with_precision(@report[-1][:values].reduce { |sum, item| sum + item }) %>
           </td>
         </tr>
     </tbody>

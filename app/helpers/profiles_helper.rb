@@ -19,4 +19,13 @@ module ProfilesHelper
       false
     end
   end
+
+  def get_data_precision()
+    profile = Profile.where("key = 'data_precision'").first
+    if profile != nil
+      profile.value.to_i
+    else
+      0
+    end
+  end
 end

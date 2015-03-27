@@ -24,7 +24,7 @@
             <tr>
         <% end %>
         <% report[:values].each do |value| %>
-            <td><%= value %></td>
+            <td><%= data_with_precision(value) %></td>
         <% end %>
         </tr>
     <% end %>

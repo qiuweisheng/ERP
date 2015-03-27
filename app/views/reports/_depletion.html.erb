@@ -29,10 +29,10 @@
         <tr>
           <td><%= report[:name] %></td>
           <% report[:values][0...-1].each do |value| %>
-            <td><%= value[:depletion] %></td>
-            <td><%= value[:polish_depletion] %></td>
+            <td><%= data_with_precision(value[:depletion]) %></td>
+            <td><%= data_with_precision(value[:polish_depletion]) %></td>
           <% end %>
-          <td><%= report[:values][-1] %></td>
+          <td><%= data_with_precision(report[:values][-1]) %></td>
         </tr>
       <% end %>
     </tbody>

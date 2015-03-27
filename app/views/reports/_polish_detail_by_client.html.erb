@@ -16,8 +16,8 @@
         <td><%= report[:client] %></td>
         <td><%= report[:product_name] %></td>
         <td><%= report[:order_number] %></td>
-        <td><%= report[:rev_weight] %></td>
-        <td><%= report[:dis_weight] %></td>
+        <td><%= data_with_precision(report[:rev_weight]) %></td>
+        <td><%= data_with_precision(report[:dis_weight]) %></td>
         <td><%= report[:count] %></td>
         <td><%= report[:user] %></td>
         <td><%= report[:participant] %></td>

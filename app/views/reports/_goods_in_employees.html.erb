@@ -21,7 +21,7 @@
         <tr>
         <% end %>
           <td><%= report[:name] %></td>
-          <td><%= report[:sum] %></td>
+          <td><%= data_with_precision(report[:sum]) %></td>
           <td><%= report[:average] %></td>
         </tr>
       <% end %>

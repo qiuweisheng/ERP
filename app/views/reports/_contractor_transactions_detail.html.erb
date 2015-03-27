@@ -33,13 +33,13 @@
         <td><%= report[:date] ? report[:date].strftime("%Y-%m-%d") : '' %></td>
         <td><%= report[:name] %></td>
         <td><%= report[:product_name] %></td>
-        <td><%= report[:last_balance] %></td>
-        <td><%= report[:dispatch_value] %></td>
-        <td><%= report[:receive_value] %></td>
-        <td><%= report[:return_value] %></td>
-        <td><%= report[:difference] %></td>
-        <td><%= report[:balance] %></td>
-        <td><%= report[:check_value] %></td>
+        <td><%= data_with_precision(report[:last_balance]) %></td>
+        <td><%= data_with_precision(report[:dispatch_value]) %></td>
+        <td><%= data_with_precision(report[:receive_value]) %></td>
+        <td><%= data_with_precision(report[:return_value]) %></td>
+        <td><%= data_with_precision(report[:difference]) %></td>
+        <td><%= data_with_precision(report[:balance]) %></td>
+        <td><%= data_with_precision(report[:check_value]) %></td>
         </tr>
     <% end %>
     </tbody>

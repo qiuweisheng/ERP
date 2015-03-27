@@ -21,7 +21,7 @@
     <tr>
         <% end %>
         <td><%= report[:name] %></td>
-        <td><%= report[:milli] %></td>
+        <td><%= data_with_precision(report[:milli]) %></td>
         <td><%= report[:gram] %></td>
     </tr>
     <% end %>

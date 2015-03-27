@@ -22,7 +22,7 @@
         <% end %>
         <td><%= report[:date] %></td>
         <td><%= report[:client_name] %></td>
-        <td><%= report[:value] %></td>
+        <td><%= data_with_precision(report[:value]) %></td>
         </tr>
     <% end %>
     </tbody>

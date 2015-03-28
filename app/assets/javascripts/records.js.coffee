@@ -39,7 +39,17 @@ handle_key_down = (event) ->
     if event.which > 48 && event.which < 58
       shortcut = 'ctrl+' + (event.which - 48)
       $('tbody tr [shortcut="' + shortcut + '"]').focus().click()
-        
+
+handle_enter_key = (event) ->
+  if event.which != 13
+    return
+  event.preventDefault()
+  next_row = $(this).closest("tr").nextAll(":visible")
+  console.log(next_row)
+  if next_row.length == 0
+    $("form#new_record input[type=submit]").click()
+    return
+  $("input", next_row[0]).focus()       
   
 $(document).on "page:change", ->
   $(document).keydown(handle_key_down)
@@ -56,3 +66,6 @@ $(document).on "page:change", ->
       value = parseInt($(this).val()) / 26.717
       text = '' + value.toFixed(4) + '克'
     $('#weight .gram').html(text)
+
+  $("form#new_record input").keydown(handle_enter_key)
+  $("form#new_record select").keydown(handle_enter_key)

@@ -1054,7 +1054,7 @@ class ReportsController < ApplicationController
 
     @clients.each do |client|
       bal_val = client.users.map {|user| client.balance_before_date(@from_date, user)}.reduce(0, :+)
-      last_balance_row << "#{bal_val}"
+      last_balance_row << bal_val
       total_last_balance += bal_val
 
       dis_value = client.transactions.of_types(Record::DISPATCH).between_date(@from_date, @to_date).sum('weight')
@@ -1062,10 +1062,10 @@ class ReportsController < ApplicationController
       return_value = client.transactions.of_type(Record::TYPE_RETURN).between_date(@from_date, @to_date).sum('weight')
       weight_diff_value = client.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).between_date(@from_date, @to_date).sum('weight')
 
-      month_dispatch_weight_row << "#{dis_value}"
-      month_receive_weight_row << "#{rev_value}"
-      month_return_weight_row << "#{return_value}"
-      month_diff_weight_row << "#{weight_diff_value}"
+      month_dispatch_weight_row << dis_value
+      month_receive_weight_row << rev_value
+      month_return_weight_row << return_value
+      month_diff_weight_row << weight_diff_value
 
       all_client_total_month_dispatch_weight += dis_value
       all_client_total_month_receive_weight += rev_value
@@ -1074,13 +1074,13 @@ class ReportsController < ApplicationController
 
       theoretical_balance = bal_val + rev_value + return_value - dis_value + weight_diff_value
       all_client_total_balance += theoretical_balance
-      theoretical_balance_row << "#{theoretical_balance}"
+      theoretical_balance_row << theoretical_balance
 
       real_bal_val = client.users.map {|user| client.checked_balance_at_date(@to_date, user)}.reduce(0, :+)
-      real_balance_row << "#{real_bal_val}"
+      real_balance_row << real_bal_val
       all_client_total_real_balance += real_bal_val
     end
-    last_balance_row << "#{total_last_balance}"
+    last_balance_row << total_last_balance
     @report.push values: last_balance_row, type: :head
 
     (@from_date..@to_date).each do |date|
@@ -1103,20 +1103,20 @@ class ReportsController < ApplicationController
         dis = client.transactions.of_types(Record::DISPATCH).at_date(date).sum('weight')
         ret = client.transactions.of_type(Record::TYPE_RETURN).at_date(date).sum('weight')
         dif = client.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).at_date(date).sum('weight')
-        dispatch_row << "#{dis}"
-        receive_row << "#{rev}"
-        return_row << "#{ret}"
-        diff_weight_row << "#{dif}"
+        dispatch_row << dis
+        receive_row << rev
+        return_row << ret
+        diff_weight_row << dif
 
         total_dispatch_at_day += dis
         total_receive_at_day += rev
         total_return_at_day += ret
         total_weight_diff_at_day += dif
       end
-      dispatch_row << "#{total_dispatch_at_day}"
-      receive_row << "#{total_receive_at_day}"
-      return_row << "#{total_return_at_day}"
-      diff_weight_row << "#{total_weight_diff_at_day}"
+      dispatch_row << total_dispatch_at_day
+      receive_row << total_receive_at_day
+      return_row << total_return_at_day
+      diff_weight_row << total_weight_diff_at_day
 
       @report.push values: dispatch_row
       @report.push values: receive_row
@@ -1124,21 +1124,21 @@ class ReportsController < ApplicationController
       @report.push values: diff_weight_row
     end
     #summary
-    month_dispatch_weight_row << "#{all_client_total_month_dispatch_weight}"
-    month_receive_weight_row << "#{all_client_total_month_receive_weight}"
-    month_return_weight_row << "#{all_client_total_month_return_weight}"
-    month_diff_weight_row << "#{all_client_total_month_diff_weight}"
+    month_dispatch_weight_row << all_client_total_month_dispatch_weight
+    month_receive_weight_row << all_client_total_month_receive_weight
+    month_return_weight_row << all_client_total_month_return_weight
+    month_diff_weight_row << all_client_total_month_diff_weight
     @report.push values: month_dispatch_weight_row, type: :sum
     @report.push values: month_receive_weight_row, type: :sum
     @report.push values: month_return_weight_row, type: :sum
     @report.push values: month_diff_weight_row, type: :sum
 
     #today theoretical balance
-    theoretical_balance_row << "#{all_client_total_balance}"
+    theoretical_balance_row << all_client_total_balance
     @report.push values: theoretical_balance_row, type: :total
 
     #today real balance
-    real_balance_row << "#{all_client_total_real_balance}"
+    real_balance_row << all_client_total_real_balance
     @report.push values: real_balance_row, type: :total
 
     respond_to do |format|
@@ -1216,7 +1216,7 @@ class ReportsController < ApplicationController
 
     @contractors.each do |contractor|
       bal_val = contractor.users.map {|user| contractor.balance_before_date(@from_date, user)}.reduce(0, :+)
-      last_balance_row << "#{bal_val}"
+      last_balance_row << bal_val
       total_last_balance += bal_val
 
       dis_value = contractor.transactions.of_types(Record::DISPATCH).between_date(@from_date, @to_date).sum('weight')
@@ -1224,10 +1224,10 @@ class ReportsController < ApplicationController
       return_value = contractor.transactions.of_type(Record::TYPE_RETURN).between_date(@from_date, @to_date).sum('weight')
       weight_diff_value = contractor.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).between_date(@from_date, @to_date).sum('weight')
 
-      month_dispatch_weight_row << "#{dis_value}"
-      month_receive_weight_row << "#{rev_value}"
-      month_return_weight_row << "#{return_value}"
-      month_diff_weight_row << "#{weight_diff_value}"
+      month_dispatch_weight_row << dis_value
+      month_receive_weight_row << rev_value
+      month_return_weight_row << return_value
+      month_diff_weight_row << weight_diff_value
 
       all_contractor_total_month_dispatch_weight += dis_value
       all_contractor_total_month_receive_weight += rev_value
@@ -1236,13 +1236,13 @@ class ReportsController < ApplicationController
 
       theoretical_balance = bal_val + rev_value + return_value - dis_value + weight_diff_value
       all_contractor_total_balance += theoretical_balance
-      theoretical_balance_row << "#{theoretical_balance}"
+      theoretical_balance_row << theoretical_balance
 
       real_bal_val = contractor.users.map {|user| contractor.checked_balance_at_date(@to_date, user)}.reduce(0, :+)
-      real_balance_row << "#{real_bal_val}"
+      real_balance_row << real_bal_val
       all_contractor_total_real_balance += real_bal_val
     end
-    last_balance_row << "#{total_last_balance}"
+    last_balance_row << total_last_balance
     @report.push values: last_balance_row, type: :head
 
     (@from_date..@to_date).each do |date|
@@ -1265,20 +1265,20 @@ class ReportsController < ApplicationController
         dis = contractor.transactions.of_types(Record::DISPATCH).at_date(date).sum('weight')
         ret = contractor.transactions.of_type(Record::TYPE_RETURN).at_date(date).sum('weight')
         dif = contractor.transactions.of_type(Record::TYPE_WEIGHT_DIFFERENCE).at_date(date).sum('weight')
-        dispatch_row << "#{dis}"
-        receive_row << "#{rev}"
-        return_row << "#{ret}"
-        diff_weight_row << "#{dif}"
+        dispatch_row << dis
+        receive_row << rev
+        return_row << ret
+        diff_weight_row << dif
 
         total_dispatch_at_day += dis
         total_receive_at_day += rev
         total_return_at_day += ret
         total_weight_diff_at_day += dif
       end
-      dispatch_row << "#{total_dispatch_at_day}"
-      receive_row << "#{total_receive_at_day}"
-      return_row << "#{total_return_at_day}"
-      diff_weight_row << "#{total_weight_diff_at_day}"
+      dispatch_row << total_dispatch_at_day
+      receive_row << total_receive_at_day
+      return_row << total_return_at_day
+      diff_weight_row << total_weight_diff_at_day
 
       @report.push values: dispatch_row
       @report.push values: receive_row
@@ -1286,21 +1286,21 @@ class ReportsController < ApplicationController
       @report.push values: diff_weight_row
     end
     #summary
-    month_dispatch_weight_row << "#{all_contractor_total_month_dispatch_weight}"
-    month_receive_weight_row << "#{all_contractor_total_month_receive_weight}"
-    month_return_weight_row << "#{all_contractor_total_month_return_weight}"
-    month_diff_weight_row << "#{all_contractor_total_month_diff_weight}"
+    month_dispatch_weight_row << all_contractor_total_month_dispatch_weight
+    month_receive_weight_row << all_contractor_total_month_receive_weight
+    month_return_weight_row << all_contractor_total_month_return_weight
+    month_diff_weight_row << all_contractor_total_month_diff_weight
     @report.push values: month_dispatch_weight_row, type: :sum
     @report.push values: month_receive_weight_row, type: :sum
     @report.push values: month_return_weight_row, type: :sum
     @report.push values: month_diff_weight_row, type: :sum
 
     #today theoretical balance
-    theoretical_balance_row << "#{all_contractor_total_balance}"
+    theoretical_balance_row << all_contractor_total_balance
     @report.push values: theoretical_balance_row, type: :total
 
     #today real balance
-    real_balance_row << "#{all_contractor_total_real_balance}"
+    real_balance_row << all_contractor_total_real_balance
     @report.push values: real_balance_row, type: :total
 
     respond_to do |format|

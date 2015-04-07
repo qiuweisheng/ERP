@@ -17,6 +17,7 @@ body {
     background-color: #3b5998;
     border-bottom: $top_nav_border solid #133783;
     -webkit-box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .52);
+    z-index: 9999;
 
     #top_nav_intern {
       $top_nav_intern_border: 1px;

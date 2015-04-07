@@ -8,79 +8,63 @@ class RecordsController < ApplicationController
   before_action :check_for_account_user, only: [:new, :create, :recent]
   before_action :set_record, only: [:show, :edit, :update, :destroy]
 
-  private def check_search_param()
-    if is_admin_permission? session[:permission]
-      params[:from_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
-      params[:to_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
-      params[:user_id] ||= session[:user_id]
-      @from_date = Date.parse(params[:from_date])
-      @to_date = Date.parse(params[:to_date])
-      @user = params[:user_id].to_i > 0 ? User.find(params[:user_id]) : nil
-      @product = params[:product_id].to_i > 0 ? Product.find(params[:product_id]) : nil
-      @employee = params[:employee_id].to_i > 0 ? Employee.find(params[:employee_id]) : nil
-      @client = params[:client_id].to_i > 0 ? Client.find(params[:client_id]) : nil
-      @record_type = params[:record_type]
-    else
-      params[:from_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
-      params[:to_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
-      params[:user_id] = session[:user_id]
-      @from_date = Date.parse(params[:from_date])
-      @to_date = Date.parse(params[:to_date])
-      @product = params[:product_id].to_i > 0 ? Product.find(params[:product_id]) : nil
-      @employee = params[:employee_id].to_i > 0 ? Employee.find(params[:employee_id]) : nil
-      @client = params[:client_id].to_i > 0 ? Client.find(params[:client_id]) : nil
-      @record_type = params[:record_type]
-    end
-  end
-
   # GET /records
   # GET /records.json
+  private def params_or_cookies()
+    params[:from_date]   = cookies[:record_filter_from_date]   unless params[:from_date]
+    params[:to_date]     = cookies[:record_filter_to_date]     unless params[:to_date]
+    params[:record_type] = cookies[:record_filter_record_type] unless params[:record_type]
+    params[:user_id]     = cookies[:record_filter_user_id]     unless params[:user_id]
+    params[:product_id]  = cookies[:record_filter_product_id]  unless params[:product_id]
+    params[:employee_id] = cookies[:record_filter_employee_id] unless params[:employee_id]
+    params[:client_id]   = cookies[:record_filter_client_id]   unless params[:client_id]
+
+    params[:record_type] = nil if params[:record_type] == '-1'
+    params[:user_id]     = nil if params[:user_id] == '-1'
+    params[:product_id]  = nil if params[:product_id] == '-1'
+    params[:employee_id] = nil if params[:employee_id] == '-1'
+    params[:client_id]   = nil if params[:client_id] == '-1'
+
+    cookies[:record_filter_from_date]   = params[:from_date]
+    cookies[:record_filter_to_date]     = params[:to_date]
+    cookies[:record_filter_record_type] = params[:record_type]
+    cookies[:record_filter_user_id]     = params[:user_id]
+    cookies[:record_filter_product_id]  = params[:product_id]
+    cookies[:record_filter_employee_id] = params[:employee_id]
+    cookies[:record_filter_client_id]   = params[:client_id]
+  end
+
   def index
-    check_search_param
-    if is_admin_permission? session[:permission]
+    if is_admin_permission?(session[:permission])
       @is_admin = true
-      records = Record.between_date(@from_date, @to_date)
-      if @record_type.to_i >= 0
-        records = records.of_type(@record_type)
-      end
-      if @product != nil
-        records = records.where('product_id = ?', @product)
-      end
-      if @user != nil
-        records = records.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', @user, @user, User.name)
-      end
-      if @employee != nil
-        records = records.where('employee_id = ?', @employee)
-      end
-      if @client != nil
-        records = records.where('client_id = ?', @client)
-      end
-      @records = records.order('created_at DESC').limit(page_size).offset(offset(params[:page]))
-      @prev_page, @next_page = prev_and_next_page(params[:page], Record.count)
     else
       @no_side_bar = true
-      relations = Record.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', session[:user_id], session[:user_id], User.name)
-      relations = relations.between_date(@from_date, @to_date)
-      if @record_type.to_i >= 0
-        relations = relations.of_type(@record_type)
-      end
-      if @product != nil
-        relations = relations.where('product_id = ?', @product)
-      end
-      if @employee != nil
-        relations = relations.where('employee_id = ?', @employee)
-      end
-      if @client != nil
-        relations = relations.where('client_id = ?', @client)
-      end
-      @records = relations.order('created_at DESC').limit(page_size).offset(offset(params[:page]))
-      @prev_page, @next_page = prev_and_next_page(params[:page], relations.count)
+      params[:user_id] = session[:user_id]
     end
 
-    respond_to do |format|
-      format.html
-      format.js
+    params_or_cookies()
+
+    params[:from_date] ||= (Record.last.try(:date) || Time.now.to_date).strftime("%Y-%m-%d")
+    params[:to_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
+    relations = Record.between_date(params[:from_date], params[:to_date])
+    if params[:user_id]
+      user = User.find(params[:user_id])
+      relations = relations.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', user, user, user.class.name)
     end
+    if params[:record_type]
+      relations = relations.of_type(params[:record_type])
+    end
+    if params[:product_id]
+      relations = relations.where('product_id = ?', params[:product_id])
+    end
+    if params[:employee_id]
+      relations = relations.where('employee_id = ?', params[:employee_id])
+    end
+    if params[:client_id]
+      relations = relations.where('client_id = ?', params[:client_id])
+    end
+    @records = relations.order('date DESC').limit(page_size).offset(offset(params[:page]))
+    @prev_page, @next_page = prev_and_next_page(params[:page], relations.count)
   end
 
   # GET /records/1

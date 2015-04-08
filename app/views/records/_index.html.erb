@@ -64,5 +64,5 @@
       <% end %>
     </tbody>
   </table>
-  <%= render partial: 'shared/page', locals: { prev_page: @prev_page, next_page: @next_page, path: records_path } %>
+  <%= render partial: 'shared/page_nav', locals: { index: @index, page_num: @page_num, path: records_path } %>
 </div>

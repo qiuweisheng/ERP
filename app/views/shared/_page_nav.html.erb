@@ -1,0 +1,52 @@
+<!-- params: index, page_num, path -->
+<div class="page_navigation">
+  <!-- Ugly but work -->
+  <% n = 3 %>
+  <% start = index - n %>
+  <% start = 1 if start < 1 %>
+  <% stop = start + n*2 %>
+  <% stop = page_num if stop > page_num %>
+  <% start = stop - n*2 %>
+  <% start = 1 if start < 1 %>
+  <% stop -= 1 if start == 2 && stop < page_num - 1 %>
+  <% start += 1 if stop == page_num - 1 && start > 2 %>
+
+  <% prev_page = index - 1 %>
+  <% if prev_page >= 1 %>
+      <span><%= link_to '《 上一页', path + "?page=#{prev_page}" %></span>
+  <% else %>
+      <spane class="disable">《 上一页</spane>
+  <% end %>
+
+  <% if start > 1 %>
+      <span><%= link_to '1', path + "?page=1" %></span>
+  <% end %>
+  <% if start > 2 %>
+      <span>...</span>
+  <% end %>
+
+  <% (start..stop).each do |page| %>
+      <% if page == index %>
+      <span class="selected"
+      <% else %>
+      <span>
+      <% end %>
+        <%= link_to "#{page}", path + "?page=#{page}" %>
+      </span>
+  <% end %>
+
+  <% if stop < page_num - 1 %>
+      <span>...</span>
+  <% end %>
+  <% if stop < page_num %>
+      <span><%= link_to "#{page_num}", path + "?page=#{page_num}" %></span>
+  <% end %>
+
+  <% next_page = index + 1 %>
+  <% if next_page <= page_num %>
+      <span><%= link_to '下一页 》', path + "?page=#{next_page}" %></span>
+  <% else %>
+      <spane class="disable">下一页 》</spane>
+  <% end %>
+
+</div>

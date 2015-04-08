@@ -51,20 +51,22 @@ class RecordsController < ApplicationController
       user = User.find(params[:user_id])
       relations = relations.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', user, user, user.class.name)
     end
-    if params[:record_type]
+    unless params[:record_type].blank?
       relations = relations.of_type(params[:record_type])
     end
-    if params[:product_id]
+    unless params[:product_id].blank?
       relations = relations.where('product_id = ?', params[:product_id])
     end
-    if params[:employee_id]
+    unless params[:employee_id].blank?
       relations = relations.where('employee_id = ?', params[:employee_id])
     end
-    if params[:client_id]
+    unless params[:client_id].blank?
       relations = relations.where('client_id = ?', params[:client_id])
     end
     @records = relations.order('date DESC').limit(page_size).offset(offset(params[:page]))
-    @prev_page, @next_page = prev_and_next_page(params[:page], relations.count)
+    # @prev_page, @next_page = prev_and_next_page(params[:page], relations.count)
+    @index = params[:page].to_i
+    @page_num = index_to_page(relations.count)
   end
 
   # GET /records/1

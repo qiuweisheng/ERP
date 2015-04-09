@@ -11,6 +11,7 @@
 <% end %>
 
 <div class="table_view">
+  <%= render partial: 'shared/page_nav', locals: { index: @index, page_num: @page_num, path: records_path } %>
   <table>
     <thead>
       <tr class="head">

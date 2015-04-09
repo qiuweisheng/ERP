@@ -11,7 +11,9 @@ class ProductsController < ApplicationController
   # GET /products.json
   def index
     @products = Product.limit(page_size).offset(offset(params[:page]))
-    @prev_page, @next_page = prev_and_next_page(params[:page], Product.count)
+    #@prev_page, @next_page = prev_and_next_page(params[:page], Product.count)
+    @index = params[:page].to_i
+    @page_num = index_to_page(Product.count)
   end
 
   # GET /products/1

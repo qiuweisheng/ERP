@@ -11,7 +11,9 @@ class DepartmentsController < ApplicationController
   # GET /departments.json
   def index
     @departments = Department.limit(page_size).offset(offset(params[:page]))
-    @prev_page, @next_page = prev_and_next_page(params[:page], Department.count)
+    #@prev_page, @next_page = prev_and_next_page(params[:page], Department.count)
+    @index = params[:page].to_i
+    @page_num = index_to_page(Department.count)
   end
 
   # GET /departments/1

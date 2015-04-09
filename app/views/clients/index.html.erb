@@ -8,6 +8,7 @@
   <% if is_admin_permission? session[:permission] %>
     <%= link_to '新建客户信息', new_client_path %>
   <% end %>
+  <%= render partial: 'shared/page_nav', locals: { index: @index, page_num: @page_num, path: clients_path } %>
   <table>
     <thead>
       <tr>
@@ -39,5 +40,5 @@
       <% end %>
     </tbody>
   </table>
-  <%= render partial: 'shared/page', locals: { prev_page: @prev_page, next_page: @next_page, path: clients_path } %>
+  <%= render partial: 'shared/page_nav', locals: { index: @index, page_num: @page_num, path: clients_path } %>
 </div>

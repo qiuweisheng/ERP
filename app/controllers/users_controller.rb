@@ -12,7 +12,9 @@ class UsersController < ApplicationController
   # GET /users.json
   def index
     @users = User.limit(page_size).offset(offset(params[:page]))
-    @prev_page, @next_page = prev_and_next_page(params[:page], User.count)
+    #@prev_page, @next_page = prev_and_next_page(params[:page], User.count)
+    @index = params[:page].to_i
+    @page_num = index_to_page(User.count)
   end
 
   # GET /users/1

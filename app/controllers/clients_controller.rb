@@ -11,7 +11,9 @@ class ClientsController < ApplicationController
   # GET /clients.json
   def index
     @clients = Client.limit(page_size).offset(offset(params[:page]))
-    @prev_page, @next_page = prev_and_next_page(params[:page], Client.count)
+    #@prev_page, @next_page = prev_and_next_page(params[:page], Client.count)
+    @index = params[:page].to_i
+    @page_num = index_to_page(Client.count)
   end
 
   # GET /clients/1

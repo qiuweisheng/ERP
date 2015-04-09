@@ -11,7 +11,9 @@ class ContractorsController < ApplicationController
   # GET /contractors.json
   def index
     @contractors = Contractor.limit(page_size).offset(offset(params[:page]))
-    @prev_page, @next_page = prev_and_next_page(params[:page], Contractor.count)
+    #@prev_page, @next_page = prev_and_next_page(params[:page], Contractor.count)
+    @index = params[:page].to_i
+    @page_num = index_to_page(Contractor.count)
   end
 
   # GET /contractors/1

@@ -14,6 +14,7 @@ class UsersController < ApplicationController
     @users = User.limit(page_size).offset(offset(params[:page]))
     #@prev_page, @next_page = prev_and_next_page(params[:page], User.count)
     @index = params[:page].to_i
+    @index = 1 if @index <1
     @page_num = index_to_page(User.count)
   end
 

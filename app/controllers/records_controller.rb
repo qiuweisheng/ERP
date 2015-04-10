@@ -18,12 +18,14 @@ class RecordsController < ApplicationController
     params[:product_id]  = cookies[:record_filter_product_id]  unless params[:product_id]
     params[:employee_id] = cookies[:record_filter_employee_id] unless params[:employee_id]
     params[:client_id]   = cookies[:record_filter_client_id]   unless params[:client_id]
+    params[:particpant_type_id] = cookies[:record_filter_particpant_type_id]   unless params[:particpant_type_id]
 
     params[:record_type] = nil if params[:record_type] == '-1'
     params[:user_id]     = nil if params[:user_id] == '-1'
     params[:product_id]  = nil if params[:product_id] == '-1'
     params[:employee_id] = nil if params[:employee_id] == '-1'
     params[:client_id]   = nil if params[:client_id] == '-1'
+    params[:particpant_type_id] = nil if params[:particpant_type_id] == ['', -1]
 
     cookies[:record_filter_from_date]   = params[:from_date]
     cookies[:record_filter_to_date]     = params[:to_date]
@@ -32,6 +34,7 @@ class RecordsController < ApplicationController
     cookies[:record_filter_product_id]  = params[:product_id]
     cookies[:record_filter_employee_id] = params[:employee_id]
     cookies[:record_filter_client_id]   = params[:client_id]
+    cookies[:record_filter_particpant_type_id]   = params[:particpant_type_id]
   end
 
   def index
@@ -44,15 +47,21 @@ class RecordsController < ApplicationController
 
     params_or_cookies()
 
+
     params[:from_date] ||= (Record.last.try(:date) || Time.now.to_date).strftime("%Y-%m-%d")
     params[:to_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
     relations = Record.between_date(params[:from_date], params[:to_date])
     if params[:user_id]
       user = User.find(params[:user_id])
-      relations = relations.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', user, user, user.class.name)
+      #relations = relations.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', user, user, user.class.name)
+      relations = relations.where('user_id = ?', user)
     end
     unless params[:record_type].blank?
       relations = relations.of_type(params[:record_type])
+    end
+    particpant_type, particpant_id = params[:particpant_type_id].split('-')
+    unless particpant_type.blank?
+      relations = relations.where('participant_type = ? AND participant_id = ?', particpant_type, particpant_id.to_i)
     end
     unless params[:product_id].blank?
       relations = relations.where('product_id = ?', params[:product_id])

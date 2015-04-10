@@ -13,6 +13,9 @@
         <%= select_tag :user_id, options_for_select(user_options_all, params[:user_id]) %>
     <% end %>
 
+    <%= label_tag :particpant_name, '交收人' %>
+    <%= select_tag :particpant_type_id, options_for_select(particpant_options_all, params[:particpant_type_id]) %>
+
     <%= label_tag :product_name, '摘要' %>
     <%= select_tag :product_id, options_for_select(product_options_all, params[:product_id]) %>
 

@@ -40,6 +40,19 @@ module RecordsHelper
     user_map += user_options
   end
 
+  def particpant_options_all
+    particpant_map = []
+    particpant_map << ['全部', '']
+    particpant_map += Employee.all.collect do |employee|
+      str = "Employee-#{employee.id}"
+      [employee.name, str]
+    end
+    particpant_map += User.all.collect do |user|
+      str = "User-#{user.id}"
+      [user.name, str]
+    end
+  end
+
   %w[product user employee client].each do |name|
     class_eval <<-END
       def #{name}_texts

@@ -53,6 +53,18 @@ module RecordsHelper
     end
   end
 
+  def order_number_options_all
+    order_num_map = []
+    order_num_map << ['全部', '*']
+    order_num_map << ['无单号', '']
+    order_num_map += Record.order(:order_number).select{|record| record.order_number != ''}.collect do |record|
+      unless record.order_number == ''
+        [record.order_number, record.order_number]
+      end
+    end
+    order_num_map.uniq
+  end
+
   %w[product user employee client].each do |name|
     class_eval <<-END
       def #{name}_texts

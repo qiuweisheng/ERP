@@ -25,6 +25,9 @@
     <%= label_tag :client_name, '客户' %>
     <%= select_tag :client_id, options_for_select(client_options_all, params[:client_id]) %>
 
+    <%= label_tag :order_number_name, '单号' %>
+    <%= select_tag :order_number, options_for_select(order_number_options_all, params[:order_number]) %>
+
     <%= submit_tag '确定'%>
   <% end %>
 </div>

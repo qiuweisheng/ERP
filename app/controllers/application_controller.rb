@@ -60,5 +60,14 @@ class ApplicationController < ActionController::Base
     def clear_session_data
       session[:user_id] = nil
       session[:permission] = nil
+      cookies.delete(:record_filter_from_date)
+      cookies.delete(:record_filter_to_date)
+      cookies.delete(:record_filter_record_type)
+      cookies.delete(:record_filter_user_id)
+      cookies.delete(:record_filter_product_id)
+      cookies.delete(:record_filter_employee_id)
+      cookies.delete(:record_filter_client_id)
+      cookies.delete(:record_filter_particpant_type_id)
+      cookies.delete(:record_filter_order_number)
     end
 end

@@ -6,8 +6,13 @@
 
 <% unless @is_admin %>
   <div class="button_group">
-  	<%= link_to '新建记录', new_record_path, class: 'button' %>
+    <%= link_to '新建记录', new_record_path, class: 'button' %>
+    <%= link_to '打印记录', new_record_path, class: 'button' %>
   </div>
+<%else%>
+   <div class="button_group">
+      <%= link_to '打印记录', new_record_path, class: 'button' %>
+   </div>
 <% end %>
 
 <div class="table_view">
@@ -15,6 +20,7 @@
   <table>
     <thead>
       <tr class="head">
+        <th><input name="all_print" type="checkbox" value="" />选择所有 </th>
         <th>日期</th>
         <th>类型</th>
         <th>摘要</th>
@@ -42,6 +48,7 @@
         <% else %>
         <tr class="<%= cycle('odd', 'even') %>">
         <% end %>
+          <td><input name="print" type="checkbox" value="<%= record.id %>" />打印</td>
           <td><%= record.date_text %></td>
           <td><%= Record::RECORD_TYPES[record.record_type] %></td>
           <td><%= record.product.try(:name) %></td>

@@ -1,6 +1,6 @@
 <div id="filter_fields">
   <%= form_tag path, method: :get do %>
-    <%= label_tag :date, '日期:' %>
+    <%= label_tag :date, '日期' %>
     <%= text_field_tag :from_date, params[:from_date] , class: 'date_picker'%>
     <span>至</span>
     <%= text_field_tag :to_date, params[:to_date], class: 'date_picker'%>

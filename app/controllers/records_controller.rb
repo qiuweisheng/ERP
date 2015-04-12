@@ -149,6 +149,11 @@ class RecordsController < ApplicationController
     end
   end
 
+  #print
+  def print
+  puts "----print----"
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_record

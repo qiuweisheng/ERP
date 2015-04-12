@@ -1,0 +1,30 @@
+<html>
+<head>
+  <script language="javascript">
+      function printdiv(printpage)
+      {
+          var headstr = "<html><head><title></title></head><body>";
+          var footstr = "</body>";
+          var newstr = document.all.item(printpage).innerHTML;
+          var oldstr = document.body.innerHTML;
+          document.body.innerHTML = headstr+newstr+footstr;
+          window.document.close();
+          window.focus();
+          window.print();
+          window.close();
+          document.body.innerHTML = oldstr;
+          console.log();
+          return false;
+      }
+  </script>
+  <title>print records</title>
+</head>
+
+<body>
+<input name="b_print" type="button" class="ipt" onClick="printdiv('div_print');" value="打印">
+
+<div id="div_print">
+  <h1 style="Color:Red">交收记录</h1>
+</div>
+</body>
+</html>

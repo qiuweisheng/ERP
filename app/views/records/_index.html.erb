@@ -7,11 +7,11 @@
 <% unless @is_admin %>
   <div class="button_group">
     <%= link_to '新建记录', new_record_path, class: 'button' %>
-    <%= link_to '打印记录', new_record_path, class: 'button' %>
+    <%= link_to '打印记录', records_print_path, class: 'button' %>
   </div>
 <%else%>
    <div class="button_group">
-      <%= link_to '打印记录', new_record_path, class: 'button' %>
+      <%= link_to '打印记录', records_print_path, class: 'button' %>
    </div>
 <% end %>
 

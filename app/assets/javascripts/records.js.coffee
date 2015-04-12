@@ -49,6 +49,26 @@ handle_enter_key = (event) ->
     $("form#new_record input[type=submit]").click()
     return
   $("input", next_row[0]).focus()       
+
+handle_all_print_box = (event) ->
+  if $(this).is(":checked")
+    val = true
+  else
+    val = false
+  $("input[name=print]").prop("checked", val)
+
+print_records = (event) ->
+  event.preventDefault()
+  ids = $.map($('input[name=print]:checked'), (e) ->
+    $(e).val()
+  )
+  if ids.length == 0
+    return
+  qs = $.param({ids: ids})
+  url = $(this).attr('href') + "?" + qs
+  $.get(url, (data) ->
+    console.log(data)
+  )
   
 $(document).on "page:change", ->
   $(document).keydown(handle_key_down)
@@ -68,10 +88,6 @@ $(document).on "page:change", ->
 
   $("form#new_record input").keydown(handle_enter_key)
   $("form#new_record select").keydown(handle_enter_key)
-  $("input[name=all_print]").change (event) ->
-    if $(this).is(":checked")
-      val = true
-    else
-      val = false
-    $("input[name=print]").prop("checked", val)
+  $("input[name=all_print]").change(handle_all_print_box)
+  $("#print_records").click(print_records)
 

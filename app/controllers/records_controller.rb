@@ -151,18 +151,48 @@ class RecordsController < ApplicationController
 
   #print
   def print
-  ids = params[:ids]
-  puts "----print----"
     @printed_records = []
-    row = {
-        col1: '组别:',
-        col2: '陈租业',
-        col3: '柜台:',
-        col4: '李四'
-    }
-  @printed_records.push row
+    ids = params[:ids]
+    unless ids.blank?
+      # 组别, 柜台
+      if ids.count > 0
+        record = Record.find(ids[0])
+        row = {
+            col1: '组别:',
+            col2: record.participant.name
+        }
+        @printed_records.push row
+        row = {
+            col1: '柜台:',
+            col2: record.user.name
+        }
+        @printed_records.push row
+      end
+      # 时间
+      row = {
+          col1: '打印时间:',
+          col2: Time.now.strftime('%Y-%m-%d %H:%M:%S').to_s
+      }
+      @printed_records.push row
+      #记录
+      ids.each do |id|
+        record = Record.find(id)
+        unless record == nil
+          row = {
+              col1: '摘要:',
+              col2: record.product.try(:name)
+          }
+          @printed_records.push row
+          row = {
+              col1: Record::DISPATCH.include?(record.record_type)?'交与重量:':(Record::RECEIVE.include?(record.record_type)?'收回重量:':'其他:'),
+              col2: record.weight
+          }
+          @printed_records.push row
+        end
+      end
 
-  render layout: false
+    end
+    render layout: false
   end
 
   private

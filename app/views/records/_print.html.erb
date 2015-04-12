@@ -1,17 +1,49 @@
+<html>
+<head>
+  <script language="javascript">
+      function printdiv(printpage)
+      {
+          var headstr = "<html><head><title></title></head><body>";
+          var footstr = "</body>";
+          var newstr = document.all.item(printpage).innerHTML;
+          var oldstr = document.body.innerHTML;
+          document.body.innerHTML = headstr+newstr+footstr;
+          window.document.close();
+          window.focus();
+          window.print();
+          window.close();
+          document.body.innerHTML = oldstr;
+          console.log();
+          return false;
+      }
+  </script>
+  <title>print records</title>
+</head>
+
+<body>
+<input name="b_print" type="button" class="ipt" onClick="printdiv('div_print');" value="打印">
+
 <div id="div_print" class="print_records">
-  <table>
+  <table cellpadding="0" cellspacing="0">
     <thead>
     <tr class="title">
-      <th colspan="4">交收记录</th>
+      <th colspan="2">交收记录</th>
     </tr>
     </thead>
     <tbody>
       <% @printed_records.each do |record| %>
-      <td><%= record[:col1] %></td>
-      <td><%= record[:col2] %></td>
-      <td><%= record[:col3] %></td>
-      <td><%= record[:col4] %></td>
+      <tr>
+        <td style="font-size:11" >
+          <%= record[:col1] %>
+        </td>
+        <td style="font-size:11">
+          <%= record[:col2] %>
+        </td>
+      </tr>
       <%end%>
     </tbody>
   </table>
 </div>
+
+</body>
+</html>

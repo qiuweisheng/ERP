@@ -45,7 +45,6 @@ handle_enter_key = (event) ->
     return
   event.preventDefault()
   next_row = $(this).closest("tr").nextAll(":visible")
-  console.log(next_row)
   if next_row.length == 0
     $("form#new_record input[type=submit]").click()
     return
@@ -69,3 +68,10 @@ $(document).on "page:change", ->
 
   $("form#new_record input").keydown(handle_enter_key)
   $("form#new_record select").keydown(handle_enter_key)
+  $("input[name=all_print]").change (event) ->
+    if $(this).is(":checked")
+      val = true
+    else
+      val = false
+    $("input[name=print]").prop("checked", val)
+

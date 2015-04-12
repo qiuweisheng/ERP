@@ -68,8 +68,10 @@ print_records = (event) ->
   url = $(this).attr('href') + "?" + qs
   $.get(url, (data) ->
     console.log(data)
+    window.print(data)
   )
-  
+  return false
+
 $(document).on "page:change", ->
   $(document).keydown(handle_key_down)
   show_record_input_field()

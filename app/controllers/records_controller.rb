@@ -151,7 +151,18 @@ class RecordsController < ApplicationController
 
   #print
   def print
+  ids = params[:ids]
   puts "----print----"
+    @printed_records = []
+    row = {
+        col1: '组别:',
+        col2: '陈租业',
+        col3: '柜台:',
+        col4: '李四'
+    }
+  @printed_records.push row
+
+  render layout: false
   end
 
   private

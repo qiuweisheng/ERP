@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   MIN_ID = 1
-  MAX_ID = Rails.env == 'test' ? 10 : 9999
+  MAX_ID = 30 #Rails.env == 'test' ? 10 : 9999
   PERM_SUPER     = 0
   PERM_ADMIN     = 1
   PERM_LEVEL_ONE = 2

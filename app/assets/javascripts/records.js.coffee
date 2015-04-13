@@ -53,7 +53,7 @@ handle_keyboard = (event) ->
 		if event.which == 13
 			$("form#new_record input[type=submit]").click()
 		return
-	$("input, select", next_row[0]).focus()
+	$("input, select", next_row[0]).focus().select()
 
 handle_all_print_box = (event) ->
 	if $(this).is(":checked")

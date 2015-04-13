@@ -40,15 +40,19 @@ handle_key_down = (event) ->
 			shortcut = 'ctrl+' + (event.which - 48)
 			$('tbody tr [shortcut="' + shortcut + '"]').focus().click()
 
-handle_enter_key = (event) ->
-	if event.which != 13
+handle_keyboard = (event) ->
+	if event.which != 13 && event.which != 114 && event.which != 115
 		return
 	event.preventDefault()
-	next_row = $(this).closest("tr").nextAll(":visible")
-	if next_row.length == 0
-		$("form#new_record input[type=submit]").click()
+	if event.which == 13 || event.which == 115
+		next_row = $(this).closest("tr").nextAll(":visible")
+	else if event.which == 114
+		next_row = $(this).closest("tr").prevAll(":visible")
+	if next_row.length == 0 
+		if event.which == 13
+			$("form#new_record input[type=submit]").click()
 		return
-	$("input", next_row[0]).focus()				
+	$("input, select", next_row[0]).focus()
 
 handle_all_print_box = (event) ->
 	if $(this).is(":checked")
@@ -93,8 +97,8 @@ $(document).on "page:change", ->
 			text = '' + value.toFixed(4) + '克'
 		$('#weight .gram').html(text)
 
-	$("form#new_record input").keydown(handle_enter_key)
-	$("form#new_record select").keydown(handle_enter_key)
+	$("form#new_record input").keydown(handle_keyboard)
+	$("form#new_record select").keydown(handle_keyboard)
 	$("input[name=all_print]").change(handle_all_print_box)
 	$("#print_records").click(print_records)
 

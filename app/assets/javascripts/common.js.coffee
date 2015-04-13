@@ -8,6 +8,9 @@ set_ui_widget = ->
 	$('.date_picker input[type="text"], input.date_picker').datepicker
 		dateFormat: 'yy-mm-dd'
 		showButtonPanel: true
+	$('.date_picker input[type="text"], input.date_picker').blur((event) ->
+		$(this).datepicker("hide")
+	)
 
 	$('.autocomplete input[type="text"]').each (index, element) ->
 		$element = $(element)

@@ -1,6 +1,6 @@
 class Employee < ActiveRecord::Base
-  MIN_ID = 10001
-  MAX_ID = Rails.env == 'test' ? 10010 : 19999
+  MIN_ID = 31
+  MAX_ID = Rails.env == 'test' ? 10000 : 1000
   
   include State
   include SerialNumber

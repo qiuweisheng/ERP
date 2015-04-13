@@ -1,6 +1,6 @@
 class Client < ActiveRecord::Base
-  MIN_ID = 20001
-  MAX_ID = Rails.env == 'test' ? 20099 : 29999
+  MIN_ID = 1
+  MAX_ID = Rails.env == 'test' ? 10000 : 1000
 
   include State
   include SerialNumber

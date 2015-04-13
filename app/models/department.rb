@@ -1,6 +1,6 @@
 class Department < ActiveRecord::Base
-  MIN_ID = 30001
-  MAX_ID = Rails.env == 'test' ? 30010 : 39999
+  MIN_ID = 1
+  MAX_ID = Rails.env == 'test' ? 10000 : 1000
 
   has_many :employees
 

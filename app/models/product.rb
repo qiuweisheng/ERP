@@ -1,6 +1,6 @@
 class Product < ActiveRecord::Base
-  MIN_ID = 40001
-  MAX_ID = Rails.env == 'test' ? 40010 : 49999
+  MIN_ID = 1
+  MAX_ID = Rails.env == 'test' ? 100000 : 10000
   
   include State
   include SerialNumber

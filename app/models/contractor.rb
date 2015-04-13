@@ -1,6 +1,6 @@
 class Contractor < ActiveRecord::Base
-  MIN_ID = 50001
-  MAX_ID = Rails.env == 'test' ? 50099 : 59999
+  MIN_ID = 1
+  MAX_ID = Rails.env == 'test' ? 10000 : 1000
 
   include State
   include SerialNumber

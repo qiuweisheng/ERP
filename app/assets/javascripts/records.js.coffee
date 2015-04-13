@@ -83,7 +83,12 @@ print_records = (event) ->
 	return false
 
 $(document).on "page:change", ->
-	$("form#new_record select").focus()
+	errFields = $(".field_with_errors input")
+	if errFields.length > 0
+		errFields[0].focus()
+	else
+		$("form#new_record select").focus()
+
 	$(document).keydown(handle_key_down)
 	show_record_input_field()
 

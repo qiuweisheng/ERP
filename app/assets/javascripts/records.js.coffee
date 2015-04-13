@@ -41,12 +41,13 @@ handle_key_down = (event) ->
 			$('tbody tr [shortcut="' + shortcut + '"]').focus().click()
 
 handle_keyboard = (event) ->
-	if event.which != 13 && event.which != 114 && event.which != 115
+	console.log event.which
+	if event.which != 13 && event.which != 37 && event.which != 39
 		return
 	event.preventDefault()
-	if event.which == 13 || event.which == 115
+	if event.which == 13 || event.which == 39
 		next_row = $(this).closest("tr").nextAll(":visible")
-	else if event.which == 114
+	else if event.which == 37
 		next_row = $(this).closest("tr").prevAll(":visible")
 	if next_row.length == 0 
 		if event.which == 13
@@ -82,6 +83,7 @@ print_records = (event) ->
 	return false
 
 $(document).on "page:change", ->
+	$("form#new_record select").focus()
 	$(document).keydown(handle_key_down)
 	show_record_input_field()
 

@@ -153,49 +153,57 @@ class RecordsController < ApplicationController
   def print
     @printed_records = []
     ids = params[:ids]
-    unless ids.blank?
-      # 组别, 柜台
-      if ids.count > 0
-        record = Record.find(ids[0])
-        row = {
-            col1: '组别:',
-            col2: record.participant.name
-        }
-        @printed_records.push row
-        row = {
-            col1: '柜台:',
-            col2: record.user.name
-        }
-        @printed_records.push row
+
+    ids = ["1802", "1803", "1805", "1806", "1807", "1808", "1809", "1810", "1811", "1814", "1815", "1817", "1818", "1819", "1820", "1821", "1822", "1823", "1826", "1827"]
+
+    records = ids.map do |id|
+      Record.find(id)
+    end
+    group = records.group_by do |r|
+      r.participant.name
+    end
+
+    new_group = {}
+    group.each do |key, val|
+      new_group[key] = val.group_by do |r|
+        r.user.name
       end
-      # 时间
-      row = {
-          col1: '打印时间:',
-          col2: Time.now.strftime('%Y-%m-%d %H:%M:%S').to_s
-      }
-      @printed_records.push row
-      #记录
-      ids.each do |id|
-        record = Record.find(id)
-        unless record == nil
+    end
+
+    new_group.each do |name, val|
+      val.each do |name2, val2|
+        row = {
+          col1: "组别: #{name}",
+          col2: "柜台: #{name2}"
+        }
+        @printed_records.push(row)
+        row = {
+          col1: "时间:",
+          col2: Time.now.strftime('%Y%m%d %H:%M:%S')
+        }
+        @printed_records.push(row)
+        val2.each do |r|
           row = {
               col1: '摘要:',
-              col2: record.product.try(:name)
+              col2: r.product.try(:name)
           }
-          @printed_records.push row
+          @printed_records.push(row)
+          title = case
+                    when Record::DISPATCH.include?(r.record_type)
+                      "交与重量:"
+                    when Record::RECEIVE.include?(r.record_type)
+                      "收回重量:"
+                    else
+                      "其他:"
+                  end
           row = {
-              col1: Record::DISPATCH.include?(record.record_type)?'交与重量:':(Record::RECEIVE.include?(record.record_type)?'收回重量:':'其他:'),
-              col2: record.weight
+              col1: title,
+              col2: r.weight
           }
-          @printed_records.push row
+          @printed_records.push(row)
         end
+        @printed_records.push({col1: "====", col2: "===="})
       end
-      #打印时刻，本组结余
-      row = {
-          col1: '结余:',
-          col2: ''    #to add the fun
-      }
-      @printed_records.push row
     end
     render layout: false
   end

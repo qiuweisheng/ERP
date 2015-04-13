@@ -63,6 +63,7 @@ print_records = (event) ->
 		$(e).val()
 	)
 	if ids.length == 0
+		alert("请选择需要打印的记录")
 		return
 	qs = $.param({ids: ids})
 	url = $(this).attr('href') + "?" + qs

@@ -1,1 +1,48 @@
-<%= render 'print' %>
+<html>
+  <head>
+    <style type="text/css">
+      body {
+        margin: 0 0;
+        padding: 0 0;
+      }
+      #print_records table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        font-family: "Courier";
+        font-size: 12px;
+      }
+
+      #print_records table th,
+      #print_records table td {
+        padding: 2px 4px;
+        height: 12px;
+      }
+      #print_records table td.left {
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="print_records">
+      <table>
+        <thead>
+        <tr class="title">
+          <th colspan="2">交收记录</th>
+        </tr>
+        </thead>
+        <tbody>
+          <% @printed_records.each do |record| %>
+          <tr>
+            <td class="left">
+              <%= record[:col1] %>
+            </td>
+            <td class="right">
+              <%= record[:col2] %>
+            </td>
+          </tr>
+          <%end%>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

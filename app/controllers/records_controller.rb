@@ -190,7 +190,12 @@ class RecordsController < ApplicationController
           @printed_records.push row
         end
       end
-
+      #打印时刻，本组结余
+      row = {
+          col1: '结余:',
+          col2: ''    #to add the fun
+      }
+      @printed_records.push row
     end
     render layout: false
   end

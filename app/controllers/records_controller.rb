@@ -151,10 +151,11 @@ class RecordsController < ApplicationController
 
   #print
   def print
+    require "reports_controller.rb"
     @printed_records = []
     ids = params[:ids]
 
-    ids = ["1802", "1803", "1805", "1806", "1807", "1808", "1809", "1810", "1811", "1814", "1815", "1817", "1818", "1819", "1820", "1821", "1822", "1823", "1826", "1827"]
+    #ids = ["1802", "1803", "1805", "1806", "1807", "1808", "1809", "1810", "1811", "1814", "1815", "1817", "1818", "1819", "1820", "1821", "1822", "1823", "1826", "1827"]
 
     records = ids.map do |id|
       Record.find(id)
@@ -202,6 +203,11 @@ class RecordsController < ApplicationController
           }
           @printed_records.push(row)
         end
+        row = {
+          col1: "预额:",
+          col2: val2[0].participant.balance_at_date(Time.now.to_date, val2[0].user)
+        }
+        @printed_records.push(row)
         @printed_records.push({col1: "====", col2: "===="})
       end
     end

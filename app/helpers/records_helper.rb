@@ -78,9 +78,20 @@ module RecordsHelper
 
   def participant_texts
     Record::PARTICIPANT_CLASS_NAMES.collect do |class_name|
+      lc = case class_name
+           when :user       then 'g'
+           when :employee   then 'z'
+           when :client     then 'k'
+           when :contractor then 'w'
+           else                  ''
+           end
       class_name.to_s.classify.constantize.all.collect do |row|
-        "#{row.serial_number}-#{row.name}"
-      end
+        if class_name == :user &&  row.permission < 2
+          ''
+        else
+          "#{lc}#{row.serial_number}-#{row.name}"
+        end
+      end.delete_if {|s| s == ''}
     end
     .flatten
     .to_json

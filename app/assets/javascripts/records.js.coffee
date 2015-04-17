@@ -42,7 +42,7 @@ handle_key_down = (event) ->
 
 handle_keyboard = (event) ->
 	console.log event.which
-	if event.which != 13 && event.which != 37 && event.which != 39
+	if event.which != 13# && event.which != 37 && event.which != 39
 		return
 	event.preventDefault()
 	if event.which == 13 || event.which == 39

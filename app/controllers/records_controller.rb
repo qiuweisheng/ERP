@@ -50,8 +50,7 @@ class RecordsController < ApplicationController
 
     params_or_cookies()
 
-
-    params[:from_date] ||= (Record.last.try(:date) || Time.now.to_date).strftime("%Y-%m-%d")
+    params[:from_date] ||= (Record.first.try(:date) || Time.now.to_date).strftime("%Y-%m-%d")
     params[:to_date] ||= Time.now.to_date.strftime("%Y-%m-%d")
     relations = Record.between_date(params[:from_date], params[:to_date])
     unless params[:user_id].blank?

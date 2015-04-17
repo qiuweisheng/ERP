@@ -72,12 +72,10 @@ class Record < ActiveRecord::Base
 
   def participant_text=(text)
     serial_number = text.strip.split('-').first.to_i
-    class_name = PARTICIPANT_CLASS_NAMES.find do |name|
+    participant = nil
+    PARTICIPANT_CLASS_NAMES.find do |name|
       klass = name.to_s.classify.constantize
-      (klass::MIN_ID..klass::MAX_ID).include? serial_number
-    end
-    if class_name
-      participant = represent_to_object class_name.to_s.classify.constantize, text
+      participant = represent_to_object(klass, text)
     end
     self.participant = participant if participant
   end

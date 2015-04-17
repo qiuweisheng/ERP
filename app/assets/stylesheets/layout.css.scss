@@ -262,8 +262,25 @@ div.title {
     margin-right: 5px;
     width: 100px;
   }
+
   span {
     margin-right: 5px;
+  }
+
+  input.record_date {
+	  width: 75px;
+  }
+
+  select.record_type {
+	  width: 90px;
+  }
+
+  select.record_people {
+	  width: 78px;
+  }
+
+  select.record_order {
+	  width: 74px;
   }
 }
 

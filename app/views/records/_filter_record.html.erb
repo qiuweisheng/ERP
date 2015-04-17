@@ -1,32 +1,32 @@
 <div id="filter_fields">
   <%= form_tag path, method: :get do %>
     <%= label_tag :date, '日期' %>
-    <%= text_field_tag :from_date, params[:from_date] , class: 'date_picker'%>
+    <%= text_field_tag :from_date, params[:from_date] , class: 'date_picker record_date'%>
     <span>至</span>
-    <%= text_field_tag :to_date, params[:to_date], class: 'date_picker'%>
+    <%= text_field_tag :to_date, params[:to_date], class: 'date_picker record_date'%>
 
     <%= label_tag :record_type_text, '类型' %>
-    <%= select_tag :record_type, options_for_select(record_type_options_all, params[:record_type]) %>
+    <%= select_tag :record_type, options_for_select(record_type_options_all, params[:record_type]), class: 'record_type' %>
 
     <% if is_admin_permission? session[:permission] %>
         <%= label_tag :user_name, '柜台' %>
-        <%= select_tag :user_id, options_for_select(user_options_all, params[:user_id]) %>
+        <%= select_tag :user_id, options_for_select(user_options_all, params[:user_id]), class: 'record_people' %>
     <% end %>
 
     <%= label_tag :particpant_name, '交收人' %>
-    <%= select_tag :particpant_type_id, options_for_select(particpant_options_all, params[:particpant_type_id]) %>
+    <%= select_tag :particpant_type_id, options_for_select(particpant_options_all, params[:particpant_type_id]), class: 'record_people' %>
 
     <%= label_tag :product_name, '摘要' %>
     <%= select_tag :product_id, options_for_select(product_options_all, params[:product_id]) %>
 
     <%= label_tag :employee_name, '生产者' %>
-    <%= select_tag :employee_id, options_for_select(employee_options_all, params[:employee_id]) %>
+    <%= select_tag :employee_id, options_for_select(employee_options_all, params[:employee_id]), class: 'record_people' %>
 
     <%= label_tag :client_name, '客户' %>
-    <%= select_tag :client_id, options_for_select(client_options_all, params[:client_id]) %>
+    <%= select_tag :client_id, options_for_select(client_options_all, params[:client_id]), class: 'record_people' %>
 
     <%= label_tag :order_number_name, '单号' %>
-    <%= select_tag :order_number, options_for_select(order_number_options_all, params[:order_number]) %>
+    <%= select_tag :order_number, options_for_select(order_number_options_all, params[:order_number]), class: 'record_order' %>
 
     <%= submit_tag '确定'%>
   <% end %>

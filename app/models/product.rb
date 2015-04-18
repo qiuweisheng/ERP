@@ -8,5 +8,5 @@ class Product < ActiveRecord::Base
   
   has_many :records
 
-  validates :name, presence: { message: '名称必须填写'}
+  validates :name, presence: { message: '请输入名称'}
 end

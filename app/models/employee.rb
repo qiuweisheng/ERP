@@ -10,8 +10,8 @@ class Employee < ActiveRecord::Base
   has_many :records
   belongs_to :department
 
-  validates :name, presence: { message: '名称必须填写'}
-  validates :department_id, presence: { message: '部门必须填写'}
-  validates :colleague_number, presence: { message: '人数必须填写' }
-  validates :colleague_number, numericality: { greater_than: 0, message: '人数必须大于 0' }
+  validates :name, presence: { message: '请输入组长名称'}
+  validates :department_id, presence: { message: '请输入部门名称'}
+  validates :colleague_number, presence: { message: '请输入部门人数(大于0的整数)' }
+  validates :colleague_number, numericality: { greater_than: 0, message: '请输入部门人数(大于0的整数)' }
 end

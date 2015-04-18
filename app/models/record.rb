@@ -34,23 +34,22 @@ class Record < ActiveRecord::Base
   belongs_to :product
   belongs_to :user
   belongs_to :participant, polymorphic: true
-  belongs_to :employee
+  belongs_to :emplo
   belongs_to :client
 
-  validates :date_text, presence: { message: '日期必须填写'}
-  validates :record_type, presence: { message: '类型必须填写'}
+  validates :date_text, presence: { message: '请填写日期'}
+  validates :record_type, presence: { message: '请选择记录类型'}
   validates :record_type, inclusion: { in: RECORD_TYPES.keys, message: "类型必须为：#{RECORD_TYPES.values.join('、')}" }
-  validates :product_text, presence: { message: '摘要必须填写'}, unless: Proc.new { |record| [TYPE_DAY_CHECK, TYPE_MONTH_CHECK, TYPE_APPORTION, TYPE_WEIGHT_DIFFERENCE].include? record.record_type }
-  validates :weight, presence: { message: '重量必须填写'} 
+  validates :product_text, presence: { message: '请选择摘要'}, unless: Proc.new { |record| [TYPE_DAY_CHECK, TYPE_MONTH_CHECK, TYPE_APPORTION, TYPE_WEIGHT_DIFFERENCE].include? record.record_type }
+  validates :weight, presence: { message: '请填写重量'}
   validates :count, numericality: { greater_than_or_equal_to: 0, message: '件数必须大于或等于0' }, allow_blank: true
-  validates :user_id, presence: { message: '柜台必须填写'}
-  validates :participant_text, presence: { message: '交收人必须填写'}
+  validates :user_id, presence: { message: '请选择柜台'}
+  validates :participant_text, presence: { message: '请选择交收人'}
   with_options if: :is_polish_or_package_type? do |r|
-    r.validates :order_number, presence: { message: '单号必须填写' }
-    r.validates :client_text, presence: { message: '客户必须填写' }
+    r.validates :order_number, presence: { message: '请填写单号' }
+    r.validates :client_text, presence: { message: '请选择客户' }
   end
-  validates :employee_text, presence: { message: '生产人必须填写' }, if: :is_polish_type?
-
+  validates :employee_text, presence: { message: '请选择生产人' }, if: :is_polish_type
   def date_text
     date.try(:strftime, "%Y-%m-%d")
   end

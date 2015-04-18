@@ -16,9 +16,9 @@ class User < ActiveRecord::Base
   has_many :transactions, as: :participant, class_name: 'Record'
   has_many :records
 
-  validates :name, presence: { message: '名称必须填写'}
-  validates :password, presence: { message: '密码必须填写'}
-  validates :permission, presence: { message: '类型必须选择'}
+  validates :name, presence: { message: '请输入名称'}
+  validates :password, presence: { message: '请输入密码'}
+  validates :permission, presence: { message: '请选择类型'}
   validates :permission, inclusion: { in: 0..3, message: "类型必须为：#{PERMISSION_TYPES.values.join('、')}" }
 
   validates_each :permission, on: :create do |record, attr, value|

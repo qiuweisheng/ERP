@@ -171,8 +171,8 @@ class RecordsController < ApplicationController
     new_group.each do |name, val|
       val.each do |name2, val2|
         row = {
-          col1: "组别: #{name}",
-          col2: "柜台: #{name2}"
+          col1: "组别:#{name}",
+          col2: "柜台:#{name2}"
         }
         @printed_records.push(row)
         row = {

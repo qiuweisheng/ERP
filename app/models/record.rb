@@ -34,7 +34,7 @@ class Record < ActiveRecord::Base
   belongs_to :product
   belongs_to :user
   belongs_to :participant, polymorphic: true
-  belongs_to :emplo
+  belongs_to :employee
   belongs_to :client
 
   validates :date_text, presence: { message: '请填写日期'}

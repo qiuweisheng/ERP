@@ -49,7 +49,7 @@ class Record < ActiveRecord::Base
     r.validates :order_number, presence: { message: '请填写单号' }
     r.validates :client_text, presence: { message: '请选择客户' }
   end
-  validates :employee_text, presence: { message: '请选择生产人' }, if: :is_polish_type
+  validates :employee_text, presence: { message: '请选择生产人' }, if: :is_polish_type?
   def date_text
     date.try(:strftime, "%Y-%m-%d")
   end

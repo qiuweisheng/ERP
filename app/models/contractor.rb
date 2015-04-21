@@ -1,5 +1,5 @@
 class Contractor < ActiveRecord::Base
-  MIN_ID = 101
+  MIN_ID = 201
   MAX_ID = Rails.env == 'test' ? 10000 : 1000
 
   include State

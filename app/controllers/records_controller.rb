@@ -79,7 +79,7 @@ class RecordsController < ApplicationController
     if params[:order_number]
       relations = relations.where('order_number = ?', params[:order_number])
     end
-    @records = relations.order('date DESC').limit(page_size).offset(offset(params[:page]))
+    @records = relations.order('updated_at DESC').limit(page_size).offset(offset(params[:page]))
     # @prev_page, @next_page = prev_and_next_page(params[:page], relations.count)
     @index = params[:page].to_i
     @index = 1 if @index <1

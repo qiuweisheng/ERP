@@ -45,7 +45,7 @@ class Record < ActiveRecord::Base
   validates :count, numericality: { greater_than_or_equal_to: 0, message: '件数必须大于或等于0' }, allow_blank: true
   validates :user_id, presence: { message: '请选择柜台'}
   validates :participant_text, presence: { message: '请选择交收人'}
-  with_options if: :is_polish_or_package_type? do |r|
+  with_options if: :is_package_type? do |r|
     r.validates :order_number, presence: { message: '请填写单号' }
     r.validates :client_text, presence: { message: '请选择客户' }
   end

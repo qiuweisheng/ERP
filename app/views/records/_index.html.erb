@@ -51,7 +51,7 @@
           <td><%= record.date_text %></td>
           <td><%= Record::RECORD_TYPES[record.record_type] %></td>
           <td><%= record.product.try(:name) %></td>
-          <td><%= record.weight %></td>
+          <td><%= data_with_precision(record.weight) %></td>
           <td><%= record.count %></td>
           <td><%= record.user.name %></td>
           <td><%= record.participant.name %></td>

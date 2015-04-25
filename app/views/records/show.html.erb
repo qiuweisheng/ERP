@@ -13,7 +13,6 @@
       <th>生产者</th>
       <th>客户</th>
       <th>创建时间</th>
-      <th>最近修改时间</th>
     </tr>
     </thead>
 
@@ -29,8 +28,7 @@
         <td><%= @record.order_number %></td>
         <td><%= @record.employee.try(:name) %></td>
         <td><%= @record.client.try(:name) %></td>
-        <td><%= @record.created_at.strftime('%Y-%m-%d %H:%M:%S').to_s %></td>
-        <td><%= @record.updated_at.strftime('%Y-%m-%d %H:%M:%S').to_s %></td>
+        <td><%= (@record.updated_at+8.hour).strftime('%Y-%m-%d %H:%M:%S').to_s %></td>
       </tr>
     </tbody>
   </table>

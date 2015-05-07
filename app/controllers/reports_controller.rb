@@ -71,7 +71,7 @@ class ReportsController < ApplicationController
   
   private def participant_summarys_of_user(date, user)
     report = []
-    user.participants(date).each do |participant|
+    user.participants_before_date(date).each do |participant|
       report += participant_summary(date, user, participant)
     end
     report
@@ -119,7 +119,7 @@ class ReportsController < ApplicationController
   
   private def participant_details_of_user(date, user)
     report = []
-    user.participants(date).each do |participant|
+    user.participants_before_date(date).each do |participant|
       report += participant_detail(date, user, participant)
       report += participant_summary(date, user, participant).map {|row| row.update(name: '合计', type: :sum)}
     end
@@ -1639,4 +1639,9 @@ User.class_eval do
     #   .select { |p| p }
     #   .flatten
   end
+
+  def participants_before_date(date)
+    self.records.before_date(date).group('participant_id, participant_type').collect  { |r| r.participant }.select {|p| p != self}
+  end
+  
 end

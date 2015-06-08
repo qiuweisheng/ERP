@@ -147,7 +147,7 @@ class Record < ActiveRecord::Base
     where(sql, *types)
   }
   scope :at_date, lambda {|date| where("date = ?", date)}
-  scope :before_date, lambda {|date| where("date < ?", date)}
+  scope :before_date, lambda {|date| where("date <= ?", date)}
   scope :between_date_exclusive, lambda {|begin_date, end_date| where('date > ? AND date < ?', begin_date, end_date)}
   scope :between_date, lambda {|begin_date, end_date| where('date >= ? AND date <= ?', begin_date, end_date)}
   scope :created_by_user, lambda {|user| where("user_id = ?", user)}

@@ -689,7 +689,7 @@ class ReportsController < ApplicationController
               user: record.user.name,
               participant: record.participant.name,
               order_number: record.order_number,
-              employee_name: (record.participant == nil) ? ('') : (record.participant.name),
+              employee_name: (record.employee == nil) ? ('') : (record.employee.name),
               client: record.client.name
           }
           @report.push attr
@@ -706,7 +706,7 @@ class ReportsController < ApplicationController
               user: record.user.name,
               participant: record.participant.name,
               order_number: record.order_number,
-              employee_name: (record.participant == nil) ? ('') : (record.participant.name),
+              employee_name: (record.employee == nil) ? ('') : (record.employee.name),
               client: record.client.name
           }
           @report.push attr
@@ -780,7 +780,7 @@ class ReportsController < ApplicationController
               user: record.user.name,
               participant: record.participant.name,
               order_number: record.order_number,
-              employee_name: (record.participant == nil) ? ('') : (record.participant.name),
+              employee_name: (record.employee == nil) ? ('') : (record.employee.name),
               client: client.name
           }
           @report.push attr
@@ -797,7 +797,7 @@ class ReportsController < ApplicationController
               user: record.user.name,
               participant: record.participant.name,
               order_number: record.order_number,
-              employee_name: (record.participant == nil) ? ('') : (record.participant.name),
+              employee_name: (record.employee == nil) ? ('') : (record.employee.name),
               client: client.name
           }
           @report.push attr

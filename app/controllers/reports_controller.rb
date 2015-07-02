@@ -601,35 +601,32 @@ class ReportsController < ApplicationController
     end
     @report = []
     employees.each do |employee|
-      (@from_date..@to_date).each do |date|
-        products = Record.where('date = ? AND participant_id = ? AND participant_type = ? AND record_type = ?', date, employee, Employee.name, Record::TYPE_RECEIVE).group('product_id').collect do |record|
-          record.product
+      bprintname = false
+      products = Record.where('date >= ? AND date <= ? AND participant_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, employee, Employee.name, Record::TYPE_RECEIVE).group('product_id').collect do |record|
+                record.product
+              end
+      products.each do |product|
+        records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND participant_type = ? AND record_type = ? AND product_id = ?', @from_date, @to_date, employee, Employee.name, Record::TYPE_RECEIVE, product)
+        unless records.size <= 0
+          sum = records.sum('weight')
+          count = records.sum('count')
+          attr = {
+              employee_name: (bprintname==false) ? (employee.name) : (''),
+              product_name: (records[0].product == nil) ? ('') : (records[0].product.name),
+              product_weight: sum,
+              product_num: count,
+              product_per_employee: "%.2f" % [sum/employee.colleague_number]
+          }
+          bprintname = true
+          @report.push attr
         end
-
-        products.each_with_index do |product, i|
-          records = Record.where('date = ? AND participant_id = ? AND participant_type = ? AND record_type = ? AND product_id = ?', date, employee, Employee.name, Record::TYPE_RECEIVE, product)
-          unless records.size <= 0
-            sum = records.sum('weight')
-            count = records.sum('count')
-            attr = {
-                employee_name: (i==0)? employee.name: '',
-                date: date,
-                product_name: (records[0].product == nil) ? ('') : (records[0].product.name),
-                product_weight: sum,
-                product_num: count,
-                product_per_employee: "%.2f" % [sum/employee.colleague_number]
-            }
-            @report.push attr
-          end
-        end
-
       end
-
-      # for each employee,each product, calc the sum of weight
-      weight_sum = Record.where('date >= ? AND date <= ? AND participant_id = ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, employee, Employee.name, Record::TYPE_RECEIVE).sum('weight')
-      unless weight_sum == 0
+      records = Record.where('date >= ? AND date <= ? AND participant_id = ? AND participant_type = ? AND record_type = ? ', @from_date, @to_date, employee, Employee.name, Record::TYPE_RECEIVE)
+      unless records.size <= 0
+        weight_sum = records.sum('weight')
         attr = {
-            employee_name: '合计',
+            employee_name: employee.name,
+            product_name:'合计',
             product_weight: weight_sum,
             product_per_employee: "%.2f" % [weight_sum/employee.colleague_number],
             type: :sum
@@ -640,7 +637,8 @@ class ReportsController < ApplicationController
     # for all employee, calc the sum of product weight
     weight_sum = Record.where('date >= ? AND date <= ? AND participant_type = ? AND record_type = ?', @from_date, @to_date, Employee.name, Record::TYPE_RECEIVE).sum('weight')
     attr = {
-        employee_name: '总计',
+        employee_name: '所有生产组',
+        product_name:'总计',
         product_weight: weight_sum,
         type: :total
     }
@@ -655,7 +653,7 @@ class ReportsController < ApplicationController
       }
     end
   end
-
+  
   def polish_detail_by_type
     @report = []
     attr = {

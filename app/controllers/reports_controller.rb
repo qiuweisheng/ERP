@@ -836,7 +836,7 @@ class ReportsController < ApplicationController
 
   def polish_detail_by_order_number
     @report = []
-    attr = {
+    attr_title = {
         date: '时间',
         order_number: '单号',
         product_name: '摘要',
@@ -844,13 +844,68 @@ class ReportsController < ApplicationController
         rev_weight: '打磨收货',
         depletion: '损耗',
         count: '件数',
-        user: '柜台',
         participant: '交收人',
         employee_name: '生产者'
     }
-    @report.push attr
+    @report.push attr_title
     @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
+
+    record_groups = Record.where('date >= ? AND date <= ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, Record::TYPE_POLISH_RECEIVE, Record::TYPE_POLISH_DISPATCH).group_by { |p| p.order_number }
+    if record_groups.size > 0
+      dis_total = 0
+      rev_total = 0
+      depletion_total = 0
+      record_groups.each do|order_number, records_in_group|
+        first_record = records_in_group[0]
+        dis_records = records_in_group.select{|r| r.record_type == Record::TYPE_POLISH_DISPATCH}
+        dis_record = dis_records[0]
+        rev_records = records_in_group.select{|r| r.record_type == Record::TYPE_POLISH_RECEIVE}
+        rev_record = rev_records[0]
+
+        dis_weight_sum = (dis_record == nil) ? (0):(dis_records.reduce(0){|sum, r| sum + r.weight})
+        dis_count = (dis_record == nil)? (0):(dis_record.count)
+        rev_weight_sum = (rev_record == nil) ? (0):(rev_records.reduce(0){|sum, r| sum + r.weight})
+        date = (rev_record != nil) ? (rev_record.date) : ( (dis_record != nil) ? (dis_record.date) : (nil) )
+        updated_date_time = (rev_record != nil) ? (rev_record.updated_at) : ( (dis_record != nil) ? (dis_record.updated_at) : (nil) )
+        depletion_sum = dis_weight_sum - rev_weight_sum
+        participant_name = (rev_record != nil) ? (rev_record.try('participant').try('name')) : ( (dis_record != nil) ? (dis_record.try('participant').try('name')) : (nil) )
+        employee_name = (rev_record != nil) ? (rev_record.try('employee').try('name')) : ( (dis_record != nil) ? (dis_record.try('employee').try('name')) : (nil) )
+        # total value for each employee
+        dis_total += dis_weight_sum
+        rev_total += rev_weight_sum
+        depletion_total += depletion_sum
+        #
+        attr = {
+            date: (updated_date_time != nil) ? ((updated_date_time+8.hour).strftime('%Y-%m-%d %H:%M:%S')) : (''),
+            order_number: order_number,
+            product_name: (first_record.product == nil) ? ('') : (first_record.product.name),
+            dis_weight: (dis_record != nil) ? dis_weight_sum : '未发出',
+            rev_weight: (rev_record != nil) ? rev_weight_sum : '未收回',
+            depletion: depletion_sum,
+            count: dis_count,
+            participant: participant_name,
+            employee_name: employee_name
+        }
+        @report.push attr
+      end
+      attr = {
+          product_name: '合计',
+          dis_weight: dis_total,
+          rev_weight: rev_total,
+          depletion: depletion_total,
+          type: :total
+      }
+      @report.push attr
+    end
+    respond_to do |format|
+      format.html
+      format.js
+      format.xlsx {
+        filename = "打磨统计表(单号)#{@from_date}至#{@to_date}"
+        response.headers['Content-Disposition'] = %Q(attachment; filename="#{filename}.xlsx")
+      }
+    end
   end
 
   def polish_detail_by_employees
@@ -881,7 +936,7 @@ class ReportsController < ApplicationController
         dis_total = 0
         rev_total = 0
         depletion_total = 0
-        record_groups.each do|key, records_in_group|
+        record_groups.each do|order_number, records_in_group|
           first_record = records_in_group[0]
           dis_records = records_in_group.select{|r| r.record_type == Record::TYPE_POLISH_DISPATCH}
           dis_record = dis_records[0]
@@ -901,7 +956,7 @@ class ReportsController < ApplicationController
           #
           attr = {
               date: (updated_date_time != nil) ? ((updated_date_time+8.hour).strftime('%Y-%m-%d %H:%M:%S')) : (''),
-              order_number: first_record.try('order_number'),
+              order_number: order_number,
               product_name: (first_record.product == nil) ? ('') : (first_record.product.name),
               dis_weight: (dis_record != nil) ? dis_weight_sum : '未发出',
               rev_weight: (rev_record != nil) ? rev_weight_sum : '未收回',

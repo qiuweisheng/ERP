@@ -39,6 +39,11 @@
         <li><%= link_to '日报表（明细）', reports_day_detail_path %></li>
         <li><%= link_to '日报表（汇总）', reports_day_summary_path %></li>
         <li><%= link_to '柜台称差明细汇总表', reports_weight_diff_path %></li>
+        <li><%= link_to '打磨统计表（品种）', reports_polish_detail_by_type_path %></li>
+        <li><%= link_to '打磨统计表（客户）', reports_polish_detail_by_client_path %></li>
+        <li><%= link_to '打磨统计表（单号）', reports_polish_detail_by_order_number_path %></li>
+        <li><%= link_to '打磨统计表（生产组）', reports_polish_detail_by_employees_path %></li>
+        <li><%= link_to '打磨统计表（汇总）', reports_polish_summary_path %></li>
         <% if is_admin_permission? session[:permission] %>
           <li><%= link_to '损耗明细汇总表', reports_depletion_path %></li>
           <li><%= link_to '黄金分布表（明细）', reports_goods_distribution_detail_path %></li>
@@ -47,9 +52,6 @@
           <li><%= link_to '生产统计表（生产组）', reports_production_by_employees_path %></li>
           <li><%= link_to '生产统计表（品种）', reports_production_by_type_path %></li>
           <li><%= link_to '生产统计表（汇总）', reports_production_summary_path %></li>
-          <li><%= link_to '打磨统计表（品种）', reports_polish_detail_by_type_path %></li>
-          <li><%= link_to '打磨统计表（客户）', reports_polish_detail_by_client_path %></li>
-          <li><%= link_to '打磨统计表（汇总）', reports_polish_summary_path %></li>
           <li><%= link_to '客户称差统计表', reports_client_weight_difference_path %></li>
           <li><%= link_to '客户往来台帐（明细）', reports_client_transactions_detail_path %></li>
           <li><%= link_to '客户往来台帐（汇总）', reports_client_transactions_path %></li>

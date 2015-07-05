@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   get '/reports/production_summary' => 'reports#production_summary'
   get '/reports/polish_detail_by_type' => 'reports#polish_detail_by_type'
   get '/reports/polish_detail_by_client' => 'reports#polish_detail_by_client'
+  get '/reports/polish_detail_by_order_number' => 'reports#polish_detail_by_order_number'
+  get '/reports/polish_detail_by_employees' => 'reports#polish_detail_by_employees'
   get '/reports/polish_summary' => 'reports#polish_summary'
   get '/reports/current_user_balance' => 'reports#current_user_balance'
   get '/reports/client_weight_difference' => 'reports#client_weight_difference'

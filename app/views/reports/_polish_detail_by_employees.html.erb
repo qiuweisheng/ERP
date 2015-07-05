@@ -1,0 +1,29 @@
+<div class="report">
+  <table>
+    <thead>
+      <tr class="title">
+        <th colspan="7">打磨统计表(生产组)</th>
+      </tr>
+      <tr>
+        <th colspan="7">日期：<%= @from_date.strftime("%Y-%m-%d") %> 至 <%= @to_date.strftime("%Y-%m-%d") %></th>
+      </tr>
+    </thead>
+    <tbody>
+    <% @report.each do |report| %>
+        <% if report[:type] %>
+            <tr class="<%= report[:type] %>">
+        <% else %>
+            <tr>
+        <% end %>
+        <td><%=report[:date] %></td>
+        <td><%= report[:order_number] %></td>
+        <td><%= report[:product_name] %></td>
+        <td><%= data_with_precision(report[:dis_weight]) %></td>
+        <td><%= data_with_precision(report[:rev_weight]) %></td>
+        <td><%= data_with_precision(report[:depletion]) %></td>
+        <td><%= report[:count] %></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>

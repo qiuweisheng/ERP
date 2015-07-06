@@ -1,5 +1,6 @@
 <% if is_admin_permission? session[:permission] %>
 <%= render partial: 'filter_date_range', locals: { path: reports_polish_detail_by_order_number_path } %>
 <% else %>
+    <%= render partial: 'filter_date_range', locals: { path: reports_polish_detail_by_order_number_path } %>
 <% end %>
 <%= render 'polish_detail_by_order_number' %>

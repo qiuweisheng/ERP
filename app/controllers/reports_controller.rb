@@ -1,7 +1,7 @@
 class ReportsController < ApplicationController
   skip_before_action :need_super_permission
-  prepend_before_action :need_admin_permission, except: [:day_detail, :day_summary, :weight_diff, :current_user_balance]
-  before_action :need_level_3_permission, only:[:day_detail, :day_summary, :weight_diff, :current_user_balance]
+  prepend_before_action :need_admin_permission, except: [:day_detail, :day_summary, :weight_diff, :current_user_balance, :polish_detail_by_type, :polish_detail_by_client, :polish_detail_by_order_number, :polish_detail_by_employees, :polish_summary]
+  before_action :need_level_3_permission, only:[:day_detail, :day_summary, :weight_diff, :current_user_balance, :current_user_balance, :polish_detail_by_type, :polish_detail_by_client, :polish_detail_by_order_number, :polish_detail_by_employees, :polish_summary]
   before_action :need_login, only: [:day_detail, :day_summary, :current_user_balance]
 
 
@@ -702,10 +702,10 @@ class ReportsController < ApplicationController
               dis_weight: record.weight,
               dis_count: record.count,
               user: record.user.name,
-              participant: record.participant.name,
+              participant: (record.participant != nil) ? (record.participant.name) : (''),
               order_number: record.order_number,
               employee_name: (record.employee == nil) ? ('') : (record.employee.name),
-              client: record.client.name
+              client: (record.client != nil) ? (record.client.name) : ('')
           }
           @report.push attr
         end

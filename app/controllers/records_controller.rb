@@ -102,6 +102,8 @@ class RecordsController < ApplicationController
     @record = Record.find_by(id: params[:record]).try(:dup) || Record.new
     @record.user_id = session[:user_id]
     @record.date = Time.now.to_date
+    @record.weight = nil
+    @record.count = nil
   end
 
   # GET /records/1/edit

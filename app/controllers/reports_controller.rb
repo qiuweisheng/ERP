@@ -868,13 +868,18 @@ class ReportsController < ApplicationController
         rev_weight_sum = (rev_record == nil) ? (0):(rev_records.reduce(0){|sum, r| sum + r.weight})
         date = (rev_record != nil) ? (rev_record.date) : ( (dis_record != nil) ? (dis_record.date) : (nil) )
         updated_date_time = (rev_record != nil) ? (rev_record.updated_at) : ( (dis_record != nil) ? (dis_record.updated_at) : (nil) )
-        depletion_sum = dis_weight_sum - rev_weight_sum
+
         participant_name = (rev_record != nil) ? (rev_record.try('participant').try('name')) : ( (dis_record != nil) ? (dis_record.try('participant').try('name')) : (nil) )
         employee_name = (rev_record != nil) ? (rev_record.try('employee').try('name')) : ( (dis_record != nil) ? (dis_record.try('employee').try('name')) : (nil) )
         # total value for each employee
         dis_total += dis_weight_sum
         rev_total += rev_weight_sum
-        depletion_total += depletion_sum
+
+        depletion_sum = '-'
+        if (dis_record != nil and rev_record != nil)
+          depletion_sum = dis_weight_sum - rev_weight_sum
+          depletion_total += depletion_sum
+        end
         #
         attr = {
             date: (updated_date_time != nil) ? ((updated_date_time+8.hour).strftime('%Y-%m-%d %H:%M:%S')) : (''),
@@ -948,11 +953,14 @@ class ReportsController < ApplicationController
           rev_weight_sum = (rev_record == nil) ? (0):(rev_records.reduce(0){|sum, r| sum + r.weight})
           date = (rev_record != nil) ? (rev_record.date) : ( (dis_record != nil) ? (dis_record.date) : (nil) )
           updated_date_time = (rev_record != nil) ? (rev_record.updated_at) : ( (dis_record != nil) ? (dis_record.updated_at) : (nil) )
-          depletion_sum = dis_weight_sum - rev_weight_sum
           # total value for each employee
           dis_total += dis_weight_sum
           rev_total += rev_weight_sum
-          depletion_total += depletion_sum
+          depletion_sum = '-'
+          if (dis_record != nil and rev_record != nil)
+            depletion_sum = dis_weight_sum - rev_weight_sum
+            depletion_total += depletion_sum
+          end
           #
           attr = {
               date: (updated_date_time != nil) ? ((updated_date_time+8.hour).strftime('%Y-%m-%d %H:%M:%S')) : (''),

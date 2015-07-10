@@ -1566,7 +1566,8 @@ module StatisticsCommon
   end
   
   def _checked_balance_before_date(records, date, user, check_type)
-    check_date, check_type = _get_last_check_type_and_date(records, date, user, check_type)
+    yesterday = date-1.day #计算到前一天为止的，盘点值(不包括date当天的盘点值，防止当天有盘点值，引起柜台上期余额被当天盘点值替代)
+    check_date, check_type = _get_last_check_type_and_date(records, yesterday, user, check_type)
     balance = records.created_by_user(user).of_participant(self).of_type(check_type).at_date(check_date).sum('weight')
     [balance, check_date, check_type]
   end

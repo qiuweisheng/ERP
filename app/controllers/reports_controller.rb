@@ -72,7 +72,12 @@ class ReportsController < ApplicationController
   private def participant_summarys_of_user(date, user)
     report = []
     user.participants_before_date(date).each do |participant|
-      report += participant_summary(date, user, participant)
+      #如果该组当天没有收发等记录，且余额为0.0,则不显示
+      last_balance = participant.balance_before_date(date, user)
+      transactions = participant.transactions_at_date(date, user)
+      if(last_balance != 0.0 or transactions[:dispatch].try(:count) != 0 or transactions[:receive].try(:count) != 0 or (transactions[:return]!=nil and transactions[:return].count != 0))
+        report += participant_summary(date, user, participant)
+      end
     end
     report
   end
@@ -120,8 +125,13 @@ class ReportsController < ApplicationController
   private def participant_details_of_user(date, user)
     report = []
     user.participants_before_date(date).each do |participant|
-      report += participant_detail(date, user, participant)
-      report += participant_summary(date, user, participant).map {|row| row.update(name: '合计', type: :sum)}
+      #如果该组当天没有收发等记录，且余额为0.0,则不显示
+      last_balance = participant.balance_before_date(date, user)
+      transactions = participant.transactions_at_date(date, user)
+      if(last_balance != 0.0 or transactions[:dispatch].try(:count) != 0 or transactions[:receive].try(:count) != 0  or (transactions[:return]!=nil and transactions[:return].count != 0))
+        report += participant_detail(date, user, participant)
+        report += participant_summary(date, user, participant).map {|row| row.update(name: '合计', type: :sum)}
+      end
     end
     report
   end

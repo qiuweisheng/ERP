@@ -102,6 +102,7 @@ class RecordsController < ApplicationController
     record = Record.find_by(id: params[:record])
     @record = record.try(:dup) || Record.new #Record.find_by(id: params[:record]).try(:dup) || Record.new
     @record.user_id = session[:user_id]
+    @record.date = record.try(:date) || Time.now.to_date
     @record.weight = nil
     @record.count = nil
   end

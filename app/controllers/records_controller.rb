@@ -99,9 +99,9 @@ class RecordsController < ApplicationController
 
   # GET /records/new
   def new
-    @record = Record.find_by(id: params[:record]).try(:dup) || Record.new
+    record = Record.find_by(id: params[:record])
+    @record = record.try(:dup) || Record.new #Record.find_by(id: params[:record]).try(:dup) || Record.new
     @record.user_id = session[:user_id]
-    @record.date = Record.last.try(:date) || Time.now.to_date
     @record.weight = nil
     @record.count = nil
   end

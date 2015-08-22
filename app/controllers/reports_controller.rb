@@ -680,7 +680,7 @@ class ReportsController < ApplicationController
         client: '客户'
     }
     @report.push attr
-    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date - 30)
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     products = Product.all
 
@@ -772,7 +772,7 @@ class ReportsController < ApplicationController
         employee_name: '生产者'
     }
     @report.push attr
-    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date - 30)
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     clients = Client.all
     clients.each do |client|
@@ -858,7 +858,7 @@ class ReportsController < ApplicationController
         employee_name: '生产者'
     }
     @report.push attr_title
-    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date - 30)
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
 
     record_groups = Record.where('date >= ? AND date <= ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, Record::TYPE_POLISH_RECEIVE, Record::TYPE_POLISH_DISPATCH).group_by { |p| p.order_number }
@@ -873,8 +873,11 @@ class ReportsController < ApplicationController
         rev_records = records_in_group.select{|r| r.record_type == Record::TYPE_POLISH_RECEIVE}
         rev_record = rev_records[0]
 
-        dis_weight_sum = (dis_record == nil) ? (0):(dis_records.reduce(0){|sum, r| sum + r.weight})
-        dis_count = (dis_record == nil)? (0):(dis_record.count)
+        #dis_weight_sum = (dis_record == nil) ? (0):(dis_records.reduce(0){|sum, r| sum + r.weight})
+        dis_records = Record.where('date <= ? AND record_type = ? AND order_number = ?', @to_date, Record::TYPE_POLISH_DISPATCH, order_number)
+        dis_weight_sum = dis_records!=nil ? dis_records.sum(:weight) : ('未发出')
+        #dis_count = (dis_record == nil)? (0):(dis_record.count)
+        dis_count = dis_records!=nil ? dis_records.sum(:count) : ('')
         rev_weight_sum = (rev_record == nil) ? (0):(rev_records.reduce(0){|sum, r| sum + r.weight})
         date = (rev_record != nil) ? (rev_record.date) : ( (dis_record != nil) ? (dis_record.date) : (nil) )
         updated_date_time = (rev_record != nil) ? (rev_record.updated_at) : ( (dis_record != nil) ? (dis_record.updated_at) : (nil) )
@@ -886,7 +889,7 @@ class ReportsController < ApplicationController
         rev_total += rev_weight_sum
 
         depletion_sum = '-'
-        if (dis_record != nil and rev_record != nil)
+        if (dis_records != nil and rev_record != nil)
           depletion_sum = dis_weight_sum - rev_weight_sum
           depletion_total += depletion_sum
         end
@@ -895,7 +898,8 @@ class ReportsController < ApplicationController
             date: (updated_date_time != nil) ? ((updated_date_time+8.hour).strftime('%Y-%m-%d %H:%M:%S')) : (''),
             order_number: order_number,
             product_name: (first_record.product == nil) ? ('') : (first_record.product.name),
-            dis_weight: (dis_record != nil) ? dis_weight_sum : '未发出',
+            #dis_weight: (dis_record != nil) ? dis_weight_sum : '未发出',
+            dis_weight: (dis_records != nil) ? dis_weight_sum : '未发出',
             rev_weight: (rev_record != nil) ? rev_weight_sum : '未收回',
             depletion: depletion_sum,
             count: dis_count,
@@ -935,7 +939,7 @@ class ReportsController < ApplicationController
         count: '件数',
         type: :total
     }
-    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date - 30)
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     employees = Employee.all
     employees.each do |employee|
@@ -958,8 +962,12 @@ class ReportsController < ApplicationController
           rev_records = records_in_group.select{|r| r.record_type == Record::TYPE_POLISH_RECEIVE}
           rev_record = rev_records[0]
 
-          dis_weight_sum = (dis_record == nil) ? (0):(dis_records.reduce(0){|sum, r| sum + r.weight})
-          dis_count = (dis_record == nil)? (0):(dis_record.count)
+          #dis_weight_sum = (dis_record == nil) ? (0):(dis_records.reduce(0){|sum, r| sum + r.weight})
+          #dis_count = (dis_record == nil)? (0):(dis_record.count)
+          dis_records = Record.where('date <= ? AND record_type = ? AND order_number = ?', @to_date, Record::TYPE_POLISH_DISPATCH, order_number)
+          dis_weight_sum = dis_records!=nil ? dis_records.sum(:weight) : ('未发出')
+          dis_count = dis_records!=nil ? dis_records.sum(:count) : ('')
+
           rev_weight_sum = (rev_record == nil) ? (0):(rev_records.reduce(0){|sum, r| sum + r.weight})
           date = (rev_record != nil) ? (rev_record.date) : ( (dis_record != nil) ? (dis_record.date) : (nil) )
           updated_date_time = (rev_record != nil) ? (rev_record.updated_at) : ( (dis_record != nil) ? (dis_record.updated_at) : (nil) )
@@ -967,7 +975,7 @@ class ReportsController < ApplicationController
           dis_total += dis_weight_sum
           rev_total += rev_weight_sum
           depletion_sum = '-'
-          if (dis_record != nil and rev_record != nil)
+          if (dis_records != nil and rev_record != nil)
             depletion_sum = dis_weight_sum - rev_weight_sum
             depletion_total += depletion_sum
           end
@@ -976,7 +984,7 @@ class ReportsController < ApplicationController
               date: (updated_date_time != nil) ? ((updated_date_time+8.hour).strftime('%Y-%m-%d %H:%M:%S')) : (''),
               order_number: order_number,
               product_name: (first_record.product == nil) ? ('') : (first_record.product.name),
-              dis_weight: (dis_record != nil) ? dis_weight_sum : '未发出',
+              dis_weight: (dis_records != nil) ? dis_weight_sum : '未发出',
               rev_weight: (rev_record != nil) ? rev_weight_sum : '未收回',
               depletion: depletion_sum,
               count: dis_count
@@ -1019,7 +1027,7 @@ class ReportsController < ApplicationController
         employee_name: '生产者'
     }
     @report.push attr
-    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : Time.now.to_date
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date - 30)
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
     clients = Client.all
     clients.each do |client|

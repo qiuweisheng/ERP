@@ -14,7 +14,7 @@ class UsersController < ApplicationController
     @users = User.limit(page_size).offset(offset(params[:page]))
     #@prev_page, @next_page = prev_and_next_page(params[:page], User.count)
     @index = params[:page].to_i
-    @index = 1 if @index <1
+    @index = 1 if @index < 1
     @page_num = index_to_page(User.count)
   end
 
@@ -64,9 +64,13 @@ class UsersController < ApplicationController
         old_password_match = false
       end
       if old_password_match && @user.update(user_params)
+        url = login_url
+        if session[:permission] <= User::PERM_ADMIN
+          url = users_url
+        end
         format.html {
-          clear_session_data
-          redirect_to login_url
+          clear_session_data if session[:permission] > User::PERM_ADMIN
+          redirect_to url
         }
         format.json { render :show, status: :ok, location: @user }
       else
@@ -79,9 +83,9 @@ class UsersController < ApplicationController
   # DELETE /users/1
   # DELETE /users/1.json
   def destroy
-    login_user = User.find(session[:user_id])
+    login_user = User.find(session[:user_id]) unless is_super_user
     # Can not delete himself
-    if (login_user != @user && login_user.permission < @user.permission)
+    if is_super_user || (login_user != @user && login_user.permission <= @user.permission)
       if @user.try_destroy
         message = '用户删除成功'
       else
@@ -108,6 +112,11 @@ class UsersController < ApplicationController
     end
 
     def check_for_admin_or_login_user
+      # super user
+      if is_super_user
+        return
+      end
+
       # At this point, the user has already login
       login_user = User.find(session[:user_id])
       unless login_user == @user or is_admin_permission? login_user.permission

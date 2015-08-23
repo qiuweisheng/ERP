@@ -7,6 +7,11 @@ class ApplicationController < ActionController::Base
 
   protected
     def authorize(permission: User::PERM_SUPER, only_check_login: false)
+      # super user
+      if is_super_user
+        return
+      end
+
       user = User.find_by(id: session[:user_id])
       unless user
         # User not login
@@ -69,5 +74,9 @@ class ApplicationController < ActionController::Base
       cookies.delete(:record_filter_client_id)
       cookies.delete(:record_filter_particpant_type_id)
       cookies.delete(:record_filter_order_number)
+    end
+
+    def is_super_user
+      session[:permission] == User::PERM_SUPER && session[:user_id] == -1
     end
 end

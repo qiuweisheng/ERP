@@ -59,7 +59,7 @@ class UsersController < ApplicationController
   def update
     respond_to do |format|
       old_password_match = true
-      unless @user.authenticate(params[:user][:old_password])
+      if session[:permission] >= @user.permission and not @user.authenticate(params[:user][:old_password])
         @user.errors.add(:old_password, "旧密码不对")
         old_password_match = false
       end

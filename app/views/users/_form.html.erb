@@ -22,7 +22,7 @@
           <td class="label"><%= f.label :name, '名称' %></td>
           <td><%= f.text_field :name %></td>
         </tr>
-        <% if @user.id.present? %>
+        <% if @user.id.present? and session[:permission] >= @user.permission %>
         <tr>
           <td class="label"><%= f.label :old_password, '旧密码' %></td>
           <td><%= f.password_field :old_password %></td>

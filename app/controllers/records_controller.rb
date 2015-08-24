@@ -3,8 +3,8 @@ class RecordsController < ApplicationController
   self.page_size = 20
   
   skip_before_action :need_super_permission
-  prepend_before_action :need_admin_permission, only: [:edit, :show, :update, :destroy]
-  prepend_before_action :need_login, only: [:index, :new, :create, :recent]
+  prepend_before_action :need_admin_permission, only: [:show]
+  prepend_before_action :need_login, only: [:index, :new, :create, :edit, :update, :destroy, :recent]
   before_action :check_for_account_user, only: [:new, :create, :recent]
   before_action :set_record, only: [:show, :edit, :update, :destroy]
 
@@ -108,6 +108,14 @@ class RecordsController < ApplicationController
 
   # GET /records/1/edit
   def edit
+    index = Record.where('created_at >= ? and (user_id = ? OR (participant_id = ? AND participant_type = ?))', @record.created_at, session[:user_id], session[:user_id], User.name).count
+    @page = index_to_page(index)
+    if is_admin_permission?(session[:permission])
+      return
+    end
+    if @record.user_id != session[:user_id]
+      redirect_to records_url(page: @page), notice: '只能编辑本柜台创建的记录'
+    end
   end
 
   # POST /records
@@ -129,6 +137,12 @@ class RecordsController < ApplicationController
   # PATCH/PUT /records/1
   # PATCH/PUT /records/1.json
   def update
+    if session[:permission] > User::PERM_ADMIN and @record.user_id != session[:user_id]
+      index = Record.where('created_at >= ? and (user_id = ? OR (participant_id = ? AND participant_type = ?))', @record.created_at, session[:user_id], session[:user_id], User.name).count
+      redirect_to records_url(page: index_to_page(index)), notice: '只能更新本柜台创建的记录'
+      return
+    end
+
     respond_to do |format|
       if @record.update(record_params)
         format.html { redirect_to @record, notice: '记录更新成功' }
@@ -143,6 +157,12 @@ class RecordsController < ApplicationController
   # DELETE /records/1
   # DELETE /records/1.json
   def destroy
+    if session[:permission] > User::PERM_ADMIN and @record.user_id != session[:user_id]
+      index = Record.where('created_at >= ? and (user_id = ? OR (participant_id = ? AND participant_type = ?))', @record.created_at, session[:user_id], session[:user_id], User.name).count
+      redirect_to records_url(page: index_to_page(index)), notice: '只能删除本柜台创建的记录'
+      return
+    end
+
     @record.destroy
     respond_to do |format|
       format.html { redirect_to records_url, notice: '记录删除成功' }

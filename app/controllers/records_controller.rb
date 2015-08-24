@@ -55,8 +55,7 @@ class RecordsController < ApplicationController
     relations = Record.between_date(params[:from_date], params[:to_date])
     unless params[:user_id].blank?
       user = User.find(params[:user_id])
-      #relations = relations.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', user, user, user.class.name)
-      relations = relations.where('user_id = ?', user)
+      relations = relations.where('user_id = ? OR (participant_id = ? AND participant_type = ?)', user, user, user.class.name)
     end
     unless params[:record_type].blank?
       relations = relations.of_type(params[:record_type])

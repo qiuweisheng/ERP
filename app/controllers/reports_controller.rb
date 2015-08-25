@@ -858,7 +858,7 @@ class ReportsController < ApplicationController
         employee_name: '生产者'
     }
     @report.push attr_title
-    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date - 7)
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date)
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
 
     #only display the records with order_number and has type of TYPE_POLISH_RECEIVE

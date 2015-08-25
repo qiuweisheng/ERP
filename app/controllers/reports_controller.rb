@@ -858,55 +858,55 @@ class ReportsController < ApplicationController
         employee_name: '生产者'
     }
     @report.push attr_title
-    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date - 30)
+    @from_date = params[:from_date] ? Date.parse(params[:from_date]) : (Time.now.to_date - 7)
     @to_date = params[:to_date] ? Date.parse(params[:to_date]) : Time.now.to_date
 
-    record_groups = Record.where('date >= ? AND date <= ? AND (record_type = ? OR record_type = ?)', @from_date, @to_date, Record::TYPE_POLISH_RECEIVE, Record::TYPE_POLISH_DISPATCH).group_by { |p| p.order_number }
+    #only display the records with order_number and has type of TYPE_POLISH_RECEIVE
+    record_groups = Record.where('date >= ? AND date <= ? AND record_type = ?', @from_date, @to_date, Record::TYPE_POLISH_RECEIVE).order('updated_at DESC').group_by { |p| p.order_number }
     if record_groups.size > 0
       dis_total = 0
       rev_total = 0
       depletion_total = 0
       record_groups.each do|order_number, records_in_group|
-        first_record = records_in_group[0]
-        dis_records = records_in_group.select{|r| r.record_type == Record::TYPE_POLISH_DISPATCH}
-        dis_record = dis_records[0]
-        rev_records = records_in_group.select{|r| r.record_type == Record::TYPE_POLISH_RECEIVE}
-        rev_record = rev_records[0]
+        unless (order_number.to_s==blank? || order_number.to_s.length==0)
+          first_record = records_in_group[0]
+          rev_records = records_in_group.select{|r| r.record_type == Record::TYPE_POLISH_RECEIVE}
+          rev_record = rev_records[0]
+          rev_weight_sum = (rev_record == nil) ? (0) : (rev_records.reduce(0){|sum, r| sum + r.weight})
+          rev_count = (rev_record == nil) ? (0) : (rev_records.reduce(0){|sum, r| sum + ( (r!=nil) ? ((r.count!=nil) ? r.count: 0):0)} )
+          date = (rev_record != nil) ? (rev_record.date) : nil
+          updated_date_time = (rev_record != nil) ? (rev_record.updated_at) : nil
 
-        #dis_weight_sum = (dis_record == nil) ? (0):(dis_records.reduce(0){|sum, r| sum + r.weight})
-        dis_records = Record.where('date <= ? AND record_type = ? AND order_number = ?', @to_date, Record::TYPE_POLISH_DISPATCH, order_number)
-        dis_weight_sum = dis_records!=nil ? dis_records.sum(:weight) : ('未发出')
-        #dis_count = (dis_record == nil)? (0):(dis_record.count)
-        dis_count = dis_records!=nil ? dis_records.sum(:count) : ('')
-        rev_weight_sum = (rev_record == nil) ? (0):(rev_records.reduce(0){|sum, r| sum + r.weight})
-        date = (rev_record != nil) ? (rev_record.date) : ( (dis_record != nil) ? (dis_record.date) : (nil) )
-        updated_date_time = (rev_record != nil) ? (rev_record.updated_at) : ( (dis_record != nil) ? (dis_record.updated_at) : (nil) )
+          dis_records = Record.where('date <= ? AND record_type = ? AND order_number = ?', @to_date, Record::TYPE_POLISH_DISPATCH, order_number)
+          dis_weight_sum = (dis_records!=nil) ? dis_records.sum(:weight) : ('未发出')
+          dis_count = (dis_records!=nil) ? dis_records.sum(:count) : (0)
 
-        participant_name = (rev_record != nil) ? (rev_record.try('participant').try('name')) : ( (dis_record != nil) ? (dis_record.try('participant').try('name')) : (nil) )
-        employee_name = (rev_record != nil) ? (rev_record.try('employee').try('name')) : ( (dis_record != nil) ? (dis_record.try('employee').try('name')) : (nil) )
-        # total value for each employee
-        dis_total += dis_weight_sum
-        rev_total += rev_weight_sum
+          participant_name = (rev_record != nil) ? (rev_record.try('participant').try('name')) : nil
+          employee_name = (rev_record != nil) ? (rev_record.try('employee').try('name')) : nil
+          # total value for each employee
+          dis_total += dis_weight_sum
+          rev_total += rev_weight_sum
 
-        depletion_sum = '-'
-        if (dis_records != nil and rev_record != nil)
-          depletion_sum = dis_weight_sum - rev_weight_sum
-          depletion_total += depletion_sum
+          depletion_sum = '-'
+          if (rev_record != nil)
+            depletion_sum = dis_weight_sum - rev_weight_sum
+            depletion_total += depletion_sum
+          end
+          goods_count = (dis_count > rev_count) ? dis_count : rev_count
+          #
+          attr = {
+              date: (updated_date_time != nil) ? ((updated_date_time+8.hour).strftime('%Y-%m-%d %H:%M:%S')) : (''),
+              order_number: order_number,
+              product_name: (first_record.product != nil) ? (first_record.product.name) : (''),
+              dis_weight: (dis_records != nil) ? dis_weight_sum : '未发出',
+              rev_weight: (rev_record != nil) ? rev_weight_sum : '未收回',
+              depletion: depletion_sum,
+              count: goods_count,
+              participant: participant_name,
+              employee_name: employee_name
+          }
+          @report.push attr
         end
-        #
-        attr = {
-            date: (updated_date_time != nil) ? ((updated_date_time+8.hour).strftime('%Y-%m-%d %H:%M:%S')) : (''),
-            order_number: order_number,
-            product_name: (first_record.product == nil) ? ('') : (first_record.product.name),
-            #dis_weight: (dis_record != nil) ? dis_weight_sum : '未发出',
-            dis_weight: (dis_records != nil) ? dis_weight_sum : '未发出',
-            rev_weight: (rev_record != nil) ? rev_weight_sum : '未收回',
-            depletion: depletion_sum,
-            count: dis_count,
-            participant: participant_name,
-            employee_name: employee_name
-        }
-        @report.push attr
       end
       attr = {
           product_name: '合计',

@@ -49,11 +49,12 @@ handle_keyboard = (event) ->
 		next_row = $(this).closest("tr").nextAll(":visible")
 	else if event.which == 37
 		next_row = $(this).closest("tr").prevAll(":visible")
+	console.log next_row
 	if next_row.length == 0 
 		if event.which == 13
 			$("form#new_record input[type=submit]").click()
 		return
-	$(".list_view input, .list_view select", next_row[0]).focus().select()
+	$("input, select", next_row[0]).focus().select()
 
 handle_all_print_box = (event) ->
 	if $(this).is(":checked")

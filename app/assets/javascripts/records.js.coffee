@@ -60,11 +60,11 @@ handle_all_print_box = (event) ->
 		val = true
 	else
 		val = false
-	$(".list_view input[name=print]").prop("checked", val)
+	$(".table_view input[name=print]").prop("checked", val)
 
 print_records = (event) ->
 	event.preventDefault()
-	ids = $.map($('.list_view input[name=print]:checked'), (e) ->
+	ids = $.map($('.table_view input[name=print]:checked'), (e) ->
 		$(e).val()
 	)
 	if ids.length == 0
@@ -106,6 +106,6 @@ $(document).on "page:change", ->
 
 	$("form#new_record input").keydown(handle_keyboard)
 	$("form#new_record select").keydown(handle_keyboard)
-	$(".list_view input[name=all_print]").change(handle_all_print_box)
+	$("#select_all_checkbox").change(handle_all_print_box)
 	$("#print_records").click(print_records)
 

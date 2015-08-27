@@ -47,8 +47,10 @@ class Record < ActiveRecord::Base
   validates :participant_text, presence: { message: '请选择交收人'}
   with_options if: :is_package_type? do |r|
     r.validates :order_number, presence: { message: '请填写单号' }
-    r.validates :order_number, uniqueness: {message: '单号已使用'}
     r.validates :client_text, presence: { message: '请选择客户' }
+  end
+  with_options if: :is_package_dispatch_type? do |r|
+    r.validates :order_number, uniqueness: {message: '单号已使用,请重新填写单号'}
   end
   #validates :employee_text, presence: { message: '请选择生产人' }, if: :is_polish_type?
   def date_text
@@ -92,6 +94,10 @@ class Record < ActiveRecord::Base
     
     def is_package_type?
       [TYPE_PACKAGE_DISPATCH, TYPE_PACKAGE_RECEIVE].include? self.record_type
+    end
+
+    def is_package_dispatch_type?
+      [TYPE_PACKAGE_DISPATCH].include? self.record_type
     end
     
     def is_polish_or_package_type?

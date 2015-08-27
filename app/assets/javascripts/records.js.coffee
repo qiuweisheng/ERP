@@ -25,12 +25,12 @@ show_record_input_field = ->
 			# 客户称差
 			when 10
 				row_ids = ['#type_select','#participant','#product','#weight','#date']
-		$('tbody tr').hide()
+		$('.list_view tbody tr').hide()
 		$(row_ids.join()).show()
-		$('tbody tr:hidden input').val('')
-		$('tbody tr input').removeAttr('shortcut')
-		$('tbody tr select').attr('shortcut', 'ctrl+1')
-		$('tbody tr:visible input').each((index, item) ->
+		$('.list_view tbody tr:hidden input').val('')
+		$('.list_view tbody tr input').removeAttr('shortcut')
+		$('.list_view tbody tr select').attr('shortcut', 'ctrl+1')
+		$('.list_view tbody tr:visible input').each((index, item) ->
 			$(item).attr('shortcut', 'ctrl+' + (index + 2))
 		)
 	
@@ -38,7 +38,7 @@ handle_key_down = (event) ->
 	if event.ctrlKey
 		if event.which > 48 && event.which < 58
 			shortcut = 'ctrl+' + (event.which - 48)
-			$('tbody tr [shortcut="' + shortcut + '"]').focus().click()
+			$('.list_view tbody tr [shortcut="' + shortcut + '"]').focus().click()
 
 handle_keyboard = (event) ->
 	console.log event.which
@@ -53,18 +53,18 @@ handle_keyboard = (event) ->
 		if event.which == 13
 			$("form#new_record input[type=submit]").click()
 		return
-	$("input, select", next_row[0]).focus().select()
+	$(".list_view input, .list_view select", next_row[0]).focus().select()
 
 handle_all_print_box = (event) ->
 	if $(this).is(":checked")
 		val = true
 	else
 		val = false
-	$("input[name=print]").prop("checked", val)
+	$(".list_view input[name=print]").prop("checked", val)
 
 print_records = (event) ->
 	event.preventDefault()
-	ids = $.map($('input[name=print]:checked'), (e) ->
+	ids = $.map($('.list_view input[name=print]:checked'), (e) ->
 		$(e).val()
 	)
 	if ids.length == 0
@@ -106,6 +106,6 @@ $(document).on "page:change", ->
 
 	$("form#new_record input").keydown(handle_keyboard)
 	$("form#new_record select").keydown(handle_keyboard)
-	$("input[name=all_print]").change(handle_all_print_box)
+	$(".list_view input[name=all_print]").change(handle_all_print_box)
 	$("#print_records").click(print_records)
 

@@ -104,6 +104,8 @@ class RecordsController < ApplicationController
     @record.date = record.try(:date) || Time.now.to_date
     @record.weight = nil
     @record.count = nil
+    @records = Record.where('user_id = ?', session[:user_id]).order('updated_at DESC').limit(page_size).all
+    puts "!!!!!!!!!!!!!!!!!!#{@records.count}"
   end
 
   # GET /records/1/edit

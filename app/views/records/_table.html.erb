@@ -1,7 +1,8 @@
+
 <table>
 <thead>
   <tr class="head">
-    <th><input name="all_print" type="checkbox" value="" />选择所有 </th>
+    <th><input name="all_print" type="checkbox" value="" id="select_all_checkbox"/>选择所有 </th>
     <th>日期</th>
     <th>类型</th>
     <th>摘要</th>
@@ -18,37 +19,39 @@
 </thead>
 
 <tbody>
-  <% @records.each do |record| %>
-    <% if !@is_admin && record.participant.id == session[:user_id] && record.user_id != session[:user_id] %>
-    <tr class="as_participant">
-    <% else %>
-    <tr class="<%= cycle('odd', 'even') %>">
+    <% unless @records == nil%>
+      <% @records.each do |record| %>
+        <% if !@is_admin && record.participant.id == session[:user_id] && record.user_id != session[:user_id] %>
+        <tr class="as_participant">
+        <% else %>
+        <tr class="<%= cycle('odd', 'even') %>">
+        <% end %>
+          <td><input name="print" type="checkbox" value="<%= record.id %>" />打印</td>
+          <td><%= record.date_text %></td>
+          <td><%= Record::RECORD_TYPES[record.record_type] %></td>
+          <td><%= record.product.try(:name) %></td>
+          <td><%= data_with_precision(record.weight) %></td>
+          <td><%= record.count %></td>
+          <td><%= record.user.name %></td>
+          <td><%= record.participant.name %></td>
+          <td><%= record.order_number %></td>
+          <td><%= record.employee.try(:name) %></td>
+          <td><%= record.client.try(:name) %></td>
+          <td><%= (record.updated_at+8.hour).strftime('%Y-%m-%d %H:%M:%S').to_s %></td>
+          <% if @is_admin %>
+            <td class="action"><%= link_to '查看', record %></td>
+          <% else %>
+            <td class="action"><%= link_to '复制', new_record_path(record: record) %></td>
+          <% end %>
+          <% if session[:permission] <= User::PERM_ADMIN or session[:user_id] == record.user_id %>
+          <td class="action"><%= link_to '编辑', edit_record_path(record) %></td>
+          <td class="action"><%= link_to '删除', record, method: :delete, data: { confirm: '你确定删除记录？' } %></td>
+          <% else %>
+          <td class="action"></td>
+          <td class="action"></td>
+          <% end %>
+        </tr>
+      <% end %>
     <% end %>
-      <td><input name="print" type="checkbox" value="<%= record.id %>" />打印</td>
-      <td><%= record.date_text %></td>
-      <td><%= Record::RECORD_TYPES[record.record_type] %></td>
-      <td><%= record.product.try(:name) %></td>
-      <td><%= data_with_precision(record.weight) %></td>
-      <td><%= record.count %></td>
-      <td><%= record.user.name %></td>
-      <td><%= record.participant.name %></td>
-      <td><%= record.order_number %></td>
-      <td><%= record.employee.try(:name) %></td>
-      <td><%= record.client.try(:name) %></td>
-      <td><%= (record.updated_at+8.hour).strftime('%Y-%m-%d %H:%M:%S').to_s %></td>
-      <% if @is_admin %>
-        <td class="action"><%= link_to '查看', record %></td>
-      <% else %>
-        <td class="action"><%= link_to '复制', new_record_path(record: record) %></td>
-      <% end %>
-      <% if session[:permission] <= User::PERM_ADMIN or session[:user_id] == record.user_id %>
-      <td class="action"><%= link_to '编辑', edit_record_path(record) %></td>
-      <td class="action"><%= link_to '删除', record, method: :delete, data: { confirm: '你确定删除记录？' } %></td>
-      <% else %>
-      <td class="action"></td>
-      <td class="action"></td>
-      <% end %>
-    </tr>
-  <% end %>
 </tbody>
 </table>

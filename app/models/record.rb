@@ -47,6 +47,7 @@ class Record < ActiveRecord::Base
   validates :participant_text, presence: { message: '请选择交收人'}
   with_options if: :is_package_type? do |r|
     r.validates :order_number, presence: { message: '请填写单号' }
+    r.validates :order_number, uniqueness: {message: '单号已使用'}
     r.validates :client_text, presence: { message: '请选择客户' }
   end
   #validates :employee_text, presence: { message: '请选择生产人' }, if: :is_polish_type?

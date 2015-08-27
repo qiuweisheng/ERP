@@ -99,13 +99,14 @@ class RecordsController < ApplicationController
   # GET /records/new
   def new
     record = Record.find_by(id: params[:record])
-    @record = record.try(:dup) || Record.new #Record.find_by(id: params[:record]).try(:dup) || Record.new
+    @record = record.try(:dup) || Record.new
     @record.user_id = session[:user_id]
     @record.date = record.try(:date) || Time.now.to_date
     @record.weight = nil
     @record.count = nil
+    @record.order_number = ''
     @records = Record.where('user_id = ?', session[:user_id]).order('updated_at DESC').limit(page_size).all
-    puts "!!!!!!!!!!!!!!!!!!#{@records.count}"
+    @new_order_number = create_order_number
   end
 
   # GET /records/1/edit
@@ -253,5 +254,30 @@ class RecordsController < ApplicationController
       else
         @no_side_bar = true
       end
-    end 
+    end
+
+    def create_order_number
+      new_order_number = ''
+      date = Time.now.to_date
+      str_date = date.strftime('%y%m%d').to_s
+      num = 0
+      records = Record.where('date = ? and order_number != ?', date, '')
+      records.each do |r|
+        str_order_number = r.order_number.to_s
+        if str_order_number.length > 6
+          if str_date == str_order_number[0, 6]
+            current_num = str_order_number[6, 9].to_i
+            if num < current_num
+              num = current_num
+            end
+          end
+        end
+      end
+      num += 1
+      str_num = num.to_s
+      if str_num.length < 2
+        str_num = '0' + str_num
+      end
+      new_order_number = str_date + str_num
+    end
 end

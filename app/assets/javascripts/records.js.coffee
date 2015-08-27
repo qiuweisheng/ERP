@@ -82,6 +82,12 @@ print_records = (event) ->
 	)
 	return false
 
+create_order_number = (event) ->
+	str=$(this).val()
+	$('#record_order_number').val(str)
+	$('#record_order_number').focus()
+	return
+
 $(document).on "page:change", ->
 	errFields = $(".field_with_errors input")
 	if errFields.length > 0
@@ -108,4 +114,5 @@ $(document).on "page:change", ->
 	$("form#new_record select").keydown(handle_keyboard)
 	$("#select_all_checkbox").change(handle_all_print_box)
 	$("#print_records").click(print_records)
+	$('#create_order_number').click(create_order_number)
 

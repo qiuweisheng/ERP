@@ -5,7 +5,7 @@
 <% end %>
 
 <div class="title">
-新建记录 | <%= link_to '返回', records_path %>
+新建记录 | <%= link_to '返回', records_path %> | <%= link_to '打印记录', records_print_path, id: 'print_records' %>
 </div>
 
 <%= render 'form' %>

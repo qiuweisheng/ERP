@@ -698,7 +698,7 @@ class ReportsController < ApplicationController
               participant: record.participant.name,
               order_number: record.order_number,
               employee_name: (record.employee == nil) ? ('') : (record.employee.name),
-              client: record.client.name
+              client: (record.client == nil) ? ('') : (record.client.name)
           }
           @report.push attr
         end
@@ -711,10 +711,10 @@ class ReportsController < ApplicationController
               product_name: (i==0) ? product.name : '',
               dis_weight: record.weight,
               dis_count: record.count,
-              user: record.user.name,
+              user: (record.user != nil) ? (record.user.name) : (''),
               participant: (record.participant != nil) ? (record.participant.name) : (''),
               order_number: record.order_number,
-              employee_name: (record.employee == nil) ? ('') : (record.employee.name),
+              employee_name: (record.employee != nil) ? (record.employee.name) : (''),
               client: (record.client != nil) ? (record.client.name) : ('')
           }
           @report.push attr

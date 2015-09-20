@@ -88,7 +88,10 @@ class Record < ActiveRecord::Base
     end
     self.participant = participant if participant
   end
-
+  public
+    def is_polish_receive_type?
+      [TYPE_POLISH_RECEIVE].include? self.record_type
+    end
   protected
     def represent_to_object(klass, text)
       serial_number, name = text.strip.split('-')

@@ -98,6 +98,9 @@ class RecordsController < ApplicationController
 
   # GET /records/new
   def new
+    unless params[:sk] = nil
+      params[:sk] = 0
+    end
     record = Record.find_by(id: params[:record])
     @record = record.try(:dup) || Record.new
     @record.user_id = session[:user_id]
@@ -125,14 +128,39 @@ class RecordsController < ApplicationController
   # POST /records.json
   def create
     @record = Record.new(record_params)
-
-    respond_to do |format|
-      if @record.save
-        format.html { redirect_to new_record_url(record: @record), notice: '记录创建成功' }
-        format.json { render :show, status: :created, location: @record }
-      else
-        format.html { render :new }
-        format.json { render json: @record.errors, status: :unprocessable_entity }
+    if !@record.is_polish_receive_type?
+      respond_to do |format|
+        if @record.save
+          format.html { redirect_to new_record_url(record: @record), notice: '记录创建成功' }
+          format.json { render :show, status: :created, location: @record }
+        else
+          format.html { render :new }
+          format.json { render json: @record.errors, status: :unprocessable_entity }
+        end
+      end
+    else
+      sk_weight = (params[:sk] != nil) ? (params[:sk]) : 0
+      respond_to do |format|
+        if @record.save
+          if sk_weight != 0
+            @record = Record.new(record_params)
+            @record.weight = sk_weight
+            @record.product = get_sk_product
+            if @record.save
+              format.html { redirect_to new_record_url(record: @record), notice: '记录创建成功' }
+              format.json { render :show, status: :created, location: @record }
+            else
+              format.html { render :new }
+              format.json { render json: @record.errors, status: :unprocessable_entity }
+            end
+          else
+            format.html { redirect_to new_record_url(record: @record), notice: '记录创建成功' }
+            format.json { render :show, status: :created, location: @record }
+          end
+        else
+          format.html { render :new }
+          format.json { render json: @record.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -279,5 +307,10 @@ class RecordsController < ApplicationController
         str_num = '0' + str_num
       end
       new_order_number = str_date + str_num
+    end
+
+    def get_sk_product
+      sk_product_name = '水口'
+      product = Product.where('name = ?', sk_product_name).first
     end
 end

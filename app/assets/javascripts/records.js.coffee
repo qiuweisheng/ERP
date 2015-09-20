@@ -14,8 +14,10 @@ show_record_input_field = ->
 			when 2, 3
 				row_ids = ['#type_select','#participant','#product','#weight','#count','#order_number','#client','#date']
 			# <打磨>发货、<打磨>收货
-			when 4, 5
+			when 4
 				row_ids = ['#type_select','#participant','#product','#weight','#count','#order_number','#client','#employee','#date']
+			when 5
+				row_ids = ['#type_select','#participant','#product','#weight', '#sk', '#count','#order_number','#client','#employee','#date']
 			# <日>盘点、<月>盘点
 			when 6, 7
 				row_ids = ['#type_select','#participant','#weight','#date']

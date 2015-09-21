@@ -9,4 +9,5 @@ class Product < ActiveRecord::Base
   has_many :records
 
   validates :name, presence: { message: '请输入名称'}
+  validates :name, uniqueness: {message: '名称已使用,请重新填写产品(摘要)名称'}
 end

@@ -10,4 +10,5 @@ class Client < ActiveRecord::Base
   has_many :records
 
   validates :name, presence: { message: '请输入名称'}
+  validates :name, uniqueness: {message: '名称已使用,请重新填写客户名称'}
 end

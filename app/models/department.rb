@@ -5,6 +5,7 @@ class Department < ActiveRecord::Base
   has_many :employees
 
   validates :name, presence: { message: '请输入名称'}
+  validates :name, uniqueness: {message: '名称已使用,请重新填写部门名称'}
 
   include SerialNumber
   has_serial_number

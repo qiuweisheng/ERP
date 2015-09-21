@@ -17,6 +17,7 @@ class User < ActiveRecord::Base
   has_many :records
 
   validates :name, presence: { message: '请输入名称'}
+  validates :name, uniqueness: {message: '名称已使用,请重新填写名称'}
   validates :password, presence: { message: '请输入密码'}
   validates :permission, presence: { message: '请选择类型'}
   validates :permission, inclusion: { in: 0..3, message: "类型必须为：#{PERMISSION_TYPES.values.join('、')}" }

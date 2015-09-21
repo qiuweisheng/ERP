@@ -43,7 +43,6 @@ handle_key_down = (event) ->
 			$('.list_view tbody tr [shortcut="' + shortcut + '"]').focus().click()
 
 handle_keyboard = (event) ->
-	console.log event.which
 	if event.which != 13# && event.which != 37 && event.which != 39
 		return
 	event.preventDefault()
@@ -51,7 +50,6 @@ handle_keyboard = (event) ->
 		next_row = $(this).closest("tr").nextAll(":visible")
 	else if event.which == 37
 		next_row = $(this).closest("tr").prevAll(":visible")
-	console.log next_row
 	if next_row.length == 0 
 		if event.which == 13
 			$("form#new_record input[type=submit]").click()
@@ -106,12 +104,12 @@ $(document).on "page:change", ->
 		$('#error_explanation').remove()
 		$('.field_with_errors input').unwrap()
 
-	$('#weight input').keyup ->
+	$('#weight input, #sk input').keyup ->
 		text = ''
 		if /^\d+$/.test($(this).val())
 			value = parseInt($(this).val()) / 26.717
 			text = '' + value.toFixed(4) + '克'
-		$('#weight .gram').html(text)
+		$('.gram', $(this).parents('tr')).html(text)
 
 	$("form#new_record input").keydown(handle_keyboard)
 	$("form#new_record select").keydown(handle_keyboard)
